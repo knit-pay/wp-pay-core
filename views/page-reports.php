@@ -63,5 +63,5 @@ use Pronamic\WordPress\Pay\Util;
 		</div>
 	</div>
 
-	<?php require FUSIONPAY_DIR . '/views/follow-us.php'; ?>
+	<?php require KNITPAY_DIR . '/views/follow-us.php'; ?>
 </div>

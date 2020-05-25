@@ -46,5 +46,5 @@ if ( filter_has_var( INPUT_GET, 'message' ) ) {
 		<?php submit_button(); ?>
 	</form>
 
-	<?php require FUSIONPAY_DIR . '/views/follow-us.php'; ?>
+	<?php require KNITPAY_DIR . '/views/follow-us.php'; ?>
 </div>
