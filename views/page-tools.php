@@ -63,5 +63,5 @@ $current_tab = empty( $current_tab ) ? key( $nav_tabs ) : $current_tab;
 
 	?>
 
-	<?php require __DIR__ . '/pronamic.php'; ?>
+	<?php require FUSIONPAY_DIR . '/views/follow-us.php'; ?>
 </div>

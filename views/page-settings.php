@@ -46,5 +46,5 @@ if ( filter_has_var( INPUT_GET, 'message' ) ) {
 		<?php submit_button(); ?>
 	</form>
 
-	<?php require __DIR__ . '/pronamic.php'; ?>
+	<?php require FUSIONPAY_DIR . '/views/follow-us.php'; ?>
 </div>
