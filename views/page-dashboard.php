@@ -407,26 +407,6 @@ $container_index = 1;
 
 					<?php endif; ?>
 
-					<div class="postbox">
-						<h2 class="hndle"><span><?php esc_html_e( 'Pronamic News', 'pronamic_ideal' ); ?></span></h2>
-
-						<div class="inside">
-							<?php
-
-							wp_widget_rss_output(
-								'http://feeds.feedburner.com/pronamic',
-								array(
-									'link'  => __( 'http://www.pronamic.eu/', 'pronamic_ideal' ),
-									'url'   => 'http://feeds.feedburner.com/pronamic',
-									'title' => __( 'Pronamic News', 'pronamic_ideal' ),
-									'items' => 5,
-								)
-							);
-
-							?>
-						</div>
-					</div>
-
 					<?php require KNITPAY_DIR . '/views/follow-us.php'; ?>
 
 				</div>
