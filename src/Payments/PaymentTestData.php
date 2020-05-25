@@ -114,7 +114,7 @@ class PaymentTestData extends PaymentData {
 	 * @return string
 	 */
 	public function get_currency_alphabetic_code() {
-		return 'EUR';
+		return 'INR';
 	}
 
 	/**

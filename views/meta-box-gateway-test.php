@@ -110,7 +110,7 @@ require Plugin::$dirname . '/views/errors.php';
 			<?php esc_html_e( 'Amount', 'pronamic_ideal' ); ?>
 		</th>
 		<td>
-			<label for="test_amount">€</label>
+			<label for="test_amount">₹</label>
 
 			<input name="test_amount" id="test_amount" class="regular-text code pronamic-pay-form-control" value="" type="text" size="6" autocomplete="off" />
 		</td>
