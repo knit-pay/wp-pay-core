@@ -78,7 +78,7 @@ if ( null === $gateway ) {
 							<div>
 								<input class="pronamic-pay-amount-input pronamic-pay-input" id="pronamic-pay-amount-other" name="pronamic_pay_amount" type="radio" required="required" value="other" />
 								<label for="pronamic-pay-amount-other">
-									<span class="pronamic-pay-currency-symbol pronamic-pay-currency-position-before">€</span>
+									<span class="pronamic-pay-currency-symbol pronamic-pay-currency-position-before">₹</span>
 									<input class="pronamic-pay-amount-input pronamic-pay-input" id="pronamic-pay-amount" name="pronamic_pay_amount_other" type="text" placeholder="" autocomplete="off" value="<?php echo esc_attr( $amount_value ); ?>" />
 								</label>
 							</div>
@@ -89,7 +89,7 @@ if ( null === $gateway ) {
 
 				<?php if ( \Pronamic\WordPress\Pay\Forms\FormPostType::AMOUNT_METHOD_INPUT_ONLY === $settings['amount_method'] ) : ?>
 
-					<span class="pronamic-pay-currency-symbol pronamic-pay-currency-position-before">€</span>
+					<span class="pronamic-pay-currency-symbol pronamic-pay-currency-position-before">₹</span>
 					<input class="pronamic-pay-amount-input pronamic-pay-input" id="pronamic-pay-amount" name="pronamic_pay_amount" type="text" placeholder="" autocomplete="off" value="<?php echo esc_attr( $amount_value ); ?>" />
 
 				<?php endif; ?>

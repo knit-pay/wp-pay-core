@@ -30,7 +30,7 @@ class MoneyJsonTransformerTest extends TestCase {
 		$object = new stdClass();
 
 		$object->value    = 12.34;
-		$object->currency = 'EUR';
+		$object->currency = 'INR';
 
 		$money = MoneyJsonTransformer::from_json( $object );
 

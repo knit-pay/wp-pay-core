@@ -112,7 +112,7 @@ class GoogleAnalyticsEcommerce {
 	 * &tr=50.00        // Transaction revenue.
 	 * &ts=32.00        // Transaction shipping.
 	 * &tt=12.00        // Transaction tax.
-	 * &cu=EUR          // Currency code.
+	 * &cu=INR          // Currency code.
 	 *
 	 * @param Payment $payment Payment.
 	 * @return void

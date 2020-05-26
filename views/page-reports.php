@@ -37,7 +37,7 @@ use Pronamic\WordPress\Pay\Util;
 								echo '<strong>';
 
 								if ( isset( $serie->tooltipFormatter ) && 'money' === $serie->tooltipFormatter ) {
-									$money = new Money( $serie->legendValue, 'EUR' );
+									$money = new Money( $serie->legendValue, 'INR' );
 
 									echo esc_html( $money->format_i18n() );
 								} else {

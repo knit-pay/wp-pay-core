@@ -114,7 +114,7 @@ abstract class AbstractPaymentData implements PaymentDataInterface {
 		$currency_code = $this->get_currency_alphabetic_code();
 
 		if ( null === $currency_code ) {
-			$currency_code = 'EUR';
+			$currency_code = 'INR';
 		}
 
 		return new TaxedMoney(

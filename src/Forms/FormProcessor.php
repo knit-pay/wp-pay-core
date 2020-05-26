@@ -166,7 +166,7 @@ class FormProcessor {
 		$payment->set_total_amount(
 			new TaxedMoney(
 				$amount,
-				'EUR'
+				'INR'
 			)
 		);
 

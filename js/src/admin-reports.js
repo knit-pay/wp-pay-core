@@ -62,7 +62,7 @@ jQuery( document ).ready( function( $ ) {
 					min: 0,
 					tickDecimals: 2,
 					tickFormatter: function( val ) {
-						return accounting.formatMoney( val, '€' + '&nbsp;', 2, '.', ',' );
+						return accounting.formatMoney( val, '₹' + '&nbsp;', 2, '.', ',' );
 					},
 					alignTicksWithAxis: 1,
 					color: 'transparent',
@@ -107,7 +107,7 @@ jQuery( document ).ready( function( $ ) {
 		var text = item.datapoint[1].toFixed( 2 );
 
 		if ( item.series.tooltipFormatter && 'money' === item.series.tooltipFormatter ) {
-			text = accounting.formatMoney( item.datapoint[1], '€ ', 2, '.', ',' );
+			text = accounting.formatMoney( item.datapoint[1], '₹ ', 2, '.', ',' );
 		}
 
 		tippyInstance = tippy.one( {

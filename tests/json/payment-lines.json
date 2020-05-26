@@ -5,7 +5,7 @@
         "quantity":50,
         "total_amount":{
             "value":39.99,
-            "currency":"EUR"
+            "currency":"INR"
         }
     },
     {
@@ -14,19 +14,19 @@
         "quantity":10,
         "total_amount":{
             "value":25,
-            "currency":"EUR"
+            "currency":"INR"
         }
     },
     {
         "total_amount":{
             "value":0,
-            "currency":"EUR"
+            "currency":"INR"
         }
     },
     {
         "total_amount":{
             "value":0,
-            "currency":"EUR"
+            "currency":"INR"
         }
     }
 ]

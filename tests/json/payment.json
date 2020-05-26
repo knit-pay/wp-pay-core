@@ -2,7 +2,7 @@
   "id":1,
   "total_amount":{
     "value":242,
-    "currency":"EUR",
+    "currency":"INR",
     "tax_value":42,
     "tax_percentage":21
   },
@@ -69,7 +69,7 @@
       "quantity":50,
       "total_amount":{
         "value":39.99,
-        "currency":"EUR"
+        "currency":"INR"
       }
     },
     {
@@ -78,7 +78,7 @@
       "quantity":10,
       "total_amount":{
         "value":25,
-        "currency":"EUR",
+        "currency":"INR",
         "tax_value":5.25,
         "tax_percentage":21
       }

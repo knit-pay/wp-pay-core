@@ -105,7 +105,7 @@ wp_nonce_field( 'pronamic_pay_save_form_options', 'pronamic_pay_nonce' );
 				printf(
 					'<div>
 						<label for="_pronamic_payment_form_amount_choice_%d">
-							€ <input id="_pronamic_payment_form_amount_choice_%d" type="text" name="_pronamic_payment_form_amount_choices[]" value="%s" />
+							₹ <input id="_pronamic_payment_form_amount_choice_%d" type="text" name="_pronamic_payment_form_amount_choices[]" value="%s" />
 						</label>
 					</div>',
 					esc_attr( $i ),

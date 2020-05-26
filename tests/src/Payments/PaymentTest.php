@@ -83,16 +83,16 @@ class PaymentTest extends WP_UnitTestCase {
 			array( 'set_status', 'get_status', 'completed' ),
 			array( 'set_version', 'get_version', '5.4.2' ),
 			array( 'set_lines', 'get_lines', new PaymentLines() ),
-			array( 'set_total_amount', 'get_total_amount', new TaxedMoney( 89.95, 'EUR' ) ),
+			array( 'set_total_amount', 'get_total_amount', new TaxedMoney( 89.95, 'INR' ) ),
 			array( 'set_shipping_address', 'get_shipping_address', new Address() ),
-			array( 'set_shipping_amount', 'get_shipping_amount', new Money( 10, 'EUR' ) ),
+			array( 'set_shipping_amount', 'get_shipping_amount', new Money( 10, 'INR' ) ),
 			array( 'set_ga_tracked', 'get_ga_tracked', true ),
 			array( 'set_consumer_bank_details', 'get_consumer_bank_details', new BankAccountDetails() ),
 			array( 'set_bank_transfer_recipient_details', 'get_bank_transfer_recipient_details', new BankTransferDetails() ),
 			array( 'set_failure_reason', 'get_failure_reason', new FailureReason() ),
 
 			// Deprecated.
-			array( 'set_amount', 'get_amount', new TaxedMoney( 89.95, 'EUR' ), true ),
+			array( 'set_amount', 'get_amount', new TaxedMoney( 89.95, 'INR' ), true ),
 		);
 	}
 
@@ -230,7 +230,7 @@ class PaymentTest extends WP_UnitTestCase {
 		$payment->set_id( 1 );
 		$payment->set_mode( Gateway::MODE_LIVE );
 		$payment->set_ga_tracked( true );
-		$payment->set_total_amount( new TaxedMoney( 242, 'EUR', 42, 21 ) );
+		$payment->set_total_amount( new TaxedMoney( 242, 'INR', 42, 21 ) );
 
 		// Name.
 		$name = new ContactName();
@@ -271,13 +271,13 @@ class PaymentTest extends WP_UnitTestCase {
 		$line->set_id( '1234' );
 		$line->set_description( 'Lorem ipsum dolor sit amet.' );
 		$line->set_quantity( 50 );
-		$line->set_total_amount( new TaxedMoney( 39.99, 'EUR' ) );
+		$line->set_total_amount( new TaxedMoney( 39.99, 'INR' ) );
 
 		$line = $lines->new_line();
 		$line->set_id( 5678 );
 		$line->set_description( 'Lorem ipsum dolor sit amet.' );
 		$line->set_quantity( 10 );
-		$line->set_total_amount( new TaxedMoney( 25, 'EUR', 5.25, 21 ) );
+		$line->set_total_amount( new TaxedMoney( 25, 'INR', 5.25, 21 ) );
 
 		$payment->set_customer( $customer );
 		$payment->set_billing_address( $address );

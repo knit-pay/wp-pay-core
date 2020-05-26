@@ -73,7 +73,7 @@ class Items implements \IteratorAggregate {
 	 * @return Money
 	 */
 	public function get_amount() {
-		$amount = new Money( 0, 'EUR' );
+		$amount = new Money( 0, 'INR' );
 
 		foreach ( $this->items as $item ) {
 			$amount = $amount->add( $item->get_amount() );

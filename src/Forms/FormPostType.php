@@ -268,7 +268,7 @@ class FormPostType {
 					)
 				);
 
-				$money = new Money( $value, 'EUR' );
+				$money = new Money( $value, 'INR' );
 
 				echo esc_html( $money->format_i18n() );
 
