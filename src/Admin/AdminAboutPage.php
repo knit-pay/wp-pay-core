@@ -66,8 +66,8 @@ class AdminAboutPage {
 		}
 
 		$hook_suffix = add_dashboard_page(
-			__( 'About Pronamic Pay', 'pronamic_ideal' ),
-			__( 'Welcome to Pronamic Pay', 'pronamic_ideal' ),
+			__( 'About Knit Pay', 'pronamic_ideal' ),
+			__( 'Welcome to Knit Pay', 'pronamic_ideal' ),
 			'manage_options',
 			$page,
 			array( $this, 'render_page' )

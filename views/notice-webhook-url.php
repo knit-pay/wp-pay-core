@@ -48,7 +48,7 @@ if ( empty( $gateways ) ) {
 ?>
 <div class="error">
 	<p>
-		<strong><?php esc_html_e( 'Pronamic Pay', 'pronamic_ideal' ); ?></strong> —
+		<strong><?php esc_html_e( 'Knit Pay', 'pronamic_ideal' ); ?></strong> —
 		<?php
 
 		$message = sprintf(

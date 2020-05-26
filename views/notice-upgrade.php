@@ -25,7 +25,7 @@ $upgrade_link = wp_nonce_url(
 ?>
 <div class="updated">
 	<p>
-		<strong><?php esc_html_e( 'Pronamic Pay Upgrade Required', 'pronamic_ideal' ); ?></strong> – 
+		<strong><?php esc_html_e( 'Knit Pay Upgrade Required', 'pronamic_ideal' ); ?></strong> – 
 		<?php esc_html_e( 'We just need to update your install to the latest version.', 'pronamic_ideal' ); ?>
 	</p>
 

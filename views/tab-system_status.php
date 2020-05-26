@@ -119,7 +119,7 @@ use Pronamic\WordPress\DateTime\DateTimeZone;
 				if ( version_compare( phpversion(), '5.2', '>' ) ) {
 					echo '✓';
 				} else {
-					esc_html_e( 'Pronamic Pay requires PHP 5.2 or above.', 'pronamic_ideal' );
+					esc_html_e( 'Knit Pay requires PHP 5.2 or above.', 'pronamic_ideal' );
 				}
 
 				?>
@@ -144,7 +144,7 @@ use Pronamic\WordPress\DateTime\DateTimeZone;
 				if ( version_compare( $wpdb->db_version(), '5', '>' ) ) {
 					echo '✓';
 				} else {
-					esc_html_e( 'Pronamic Pay requires MySQL 5 or above.', 'pronamic_ideal' );
+					esc_html_e( 'Knit Pay requires MySQL 5 or above.', 'pronamic_ideal' );
 				}
 
 				?>
@@ -163,7 +163,7 @@ use Pronamic\WordPress\DateTime\DateTimeZone;
 				if ( version_compare( get_bloginfo( 'version' ), '3.2', '>' ) ) {
 					echo '✓';
 				} else {
-					esc_html_e( 'Pronamic Pay requires WordPress 3.2 or above.', 'pronamic_ideal' );
+					esc_html_e( 'Knit Pay requires WordPress 3.2 or above.', 'pronamic_ideal' );
 				}
 
 				?>
@@ -220,7 +220,7 @@ use Pronamic\WordPress\DateTime\DateTimeZone;
 				if ( 0 === strcasecmp( get_bloginfo( 'charset' ), 'UTF-8' ) ) {
 					echo '✓';
 				} else {
-					esc_html_e( 'Pronamic Pay advices to set the character encoding to UTF-8.', 'pronamic_ideal' );
+					esc_html_e( 'Knit Pay advices to set the character encoding to UTF-8.', 'pronamic_ideal' );
 				}
 
 				?>
@@ -284,7 +284,7 @@ use Pronamic\WordPress\DateTime\DateTimeZone;
 				if ( version_compare( OPENSSL_VERSION_NUMBER, 0x000908000, '>' ) ) {
 					echo '✓';
 				} else {
-					esc_html_e( 'Pronamic Pay requires OpenSSL 0.9.8 or above.', 'pronamic_ideal' );
+					esc_html_e( 'Knit Pay requires OpenSSL 0.9.8 or above.', 'pronamic_ideal' );
 				}
 
 				?>
@@ -309,7 +309,7 @@ use Pronamic\WordPress\DateTime\DateTimeZone;
 				if ( in_array( 'sha1', $algorithms, true ) ) {
 					echo '✓';
 				} else {
-					esc_html_e( 'Pronamic Pay requires the "sha1" hashing algorithm.', 'pronamic_ideal' );
+					esc_html_e( 'Knit Pay requires the "sha1" hashing algorithm.', 'pronamic_ideal' );
 				}
 
 				?>

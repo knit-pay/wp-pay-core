@@ -141,7 +141,7 @@ class AdminHealth {
 	public function status_tests( $status_tests ) {
 		// Test valid license.
 		//$status_tests['direct']['pronamic_pay_valid_license'] = array(
-		//	'label' => __( 'Pronamic Pay support license key test' ),
+		//	'label' => __( 'Knit Pay support license key test' ),
 		//	'test'  => array( $this, 'test_valid_license' ),
 		//);
 
@@ -187,7 +187,7 @@ class AdminHealth {
 		// Good.
 		$result = array(
 			'test'        => 'pronamic_pay_valid_license',
-			'label'       => __( 'Pronamic Pay license key is valid', 'pronamic_ideal' ),
+			'label'       => __( 'Knit Pay license key is valid', 'pronamic_ideal' ),
 			'description' => sprintf(
 				'<p>%s</p>',
 				__( 'A valid license is required for technical support and continued plugin updates.', 'pronamic_ideal' )
@@ -203,7 +203,7 @@ class AdminHealth {
 		// Recommendation.
 		if ( 'valid' !== get_option( 'pronamic_pay_license_status' ) ) {
 			$result['status'] = 'recommended';
-			$result['label']  = __( 'No valid license key for Pronamic Pay', 'pronamic_ideal' );
+			$result['label']  = __( 'No valid license key for Knit Pay', 'pronamic_ideal' );
 
 			$result['actions'] = '<p>';
 

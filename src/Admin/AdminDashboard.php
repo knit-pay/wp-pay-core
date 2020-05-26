@@ -72,7 +72,7 @@ class AdminDashboard {
 		 */
 		wp_add_dashboard_widget(
 			'pronamic_pay_dashboard_status',
-			__( 'Pronamic Pay Status', 'pronamic_ideal' ),
+			__( 'Knit Pay Status', 'pronamic_ideal' ),
 			array( $this, 'status_widget' )
 		);
 	}

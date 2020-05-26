@@ -944,7 +944,7 @@ class SubscriptionsModule {
 
 		$this->complete_subscriptions( $cli_test );
 
-		WP_CLI::success( 'Pronamic Pay subscriptions test.' );
+		WP_CLI::success( 'Knit Pay subscriptions test.' );
 	}
 
 	/**

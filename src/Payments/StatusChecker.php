@@ -166,7 +166,7 @@ class StatusChecker {
 		$note = sprintf(
 			/* translators: %s: Pronamic Pay */
 			__( 'Payment status check at gateway by %s.', 'pronamic_ideal' ),
-			__( 'Pronamic Pay', 'pronamic_ideal' )
+			__( 'Knit Pay', 'pronamic_ideal' )
 		);
 
 		$payment->add_note( $note );
