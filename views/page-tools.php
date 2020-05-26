@@ -63,5 +63,5 @@ $current_tab = empty( $current_tab ) ? key( $nav_tabs ) : $current_tab;
 
 	?>
 
-	<?php require KNITPAY_DIR . '/views/follow-us.php'; ?>
+	<?php require __DIR__ . '/follow-us.php'; ?>
 </div>
