@@ -97,7 +97,7 @@ class AdminHealth {
 
 		// Add debug information section.
 		$debug_information['pronamic-pay'] = array(
-			'label'  => __( 'Pronamic Pay', 'pronamic_ideal' ),
+			'label'  => __( 'Knit Pay', 'pronamic_ideal' ),
 			'fields' => $fields,
 		);
 
@@ -140,38 +140,38 @@ class AdminHealth {
 	 */
 	public function status_tests( $status_tests ) {
 		// Test valid license.
-		$status_tests['direct']['pronamic_pay_valid_license'] = array(
-			'label' => __( 'Pronamic Pay support license key test' ),
-			'test'  => array( $this, 'test_valid_license' ),
-		);
+		//$status_tests['direct']['pronamic_pay_valid_license'] = array(
+		//	'label' => __( 'Pronamic Pay support license key test' ),
+		//	'test'  => array( $this, 'test_valid_license' ),
+		//);
 
 		// Test minimum required WordPress version.
 		$status_tests['direct']['pronamic_pay_wordpress_version'] = array(
-			'label' => __( 'Pronamic Pay WordPress version test' ),
+			'label' => __( 'Knit Pay WordPress version test' ),
 			'test'  => array( $this, 'test_wordpress_version' ),
 		);
 
 		// Test memory limit.
 		$status_tests['direct']['pronamic_pay_memory_limit'] = array(
-			'label' => __( 'Pronamic Pay memory limit test' ),
+			'label' => __( 'Knit Pay memory limit test' ),
 			'test'  => array( $this, 'test_memory_limit' ),
 		);
 
 		// Test character set.
 		$status_tests['direct']['pronamic_pay_character_set'] = array(
-			'label' => __( 'Pronamic Pay UTF-8 character set test' ),
+			'label' => __( 'Knit Pay UTF-8 character set test' ),
 			'test'  => array( $this, 'test_character_set' ),
 		);
 
 		// Test hashing algorithms.
 		$status_tests['direct']['pronamic_pay_hashing_algorithms'] = array(
-			'label' => __( 'Pronamic Pay hashing algorithms test' ),
+			'label' => __( 'Knit Pay hashing algorithms test' ),
 			'test'  => array( $this, 'test_hashing_algorithms' ),
 		);
 
 		// Test supported extensions.
 		$status_tests['direct']['pronamic_pay_extensions_support'] = array(
-			'label' => __( 'Pronamic Pay extensions support test' ),
+			'label' => __( 'Knit Pay extensions support test' ),
 			'test'  => array( $this, 'test_extensions_support' ),
 		);
 
@@ -244,10 +244,10 @@ class AdminHealth {
 			'test'        => 'pronamic_pay_wordpress_version',
 			'label'       => sprintf(
 				/* translators: %s: WordPress version number */
-				__( 'WordPress version is supported by Pronamic Pay (%s)', 'pronamic_ideal' ),
+				__( 'WordPress version is supported by Knit Pay (%s)', 'pronamic_ideal' ),
 				get_bloginfo( 'version' )
 			),
-			'description' => sprintf( '<p>%s</p>', __( 'Pronamic Pay requires at least WordPress 4.7.', 'pronamic_ideal' ) ),
+			'description' => sprintf( '<p>%s</p>', __( 'Knit Pay requires at least WordPress 4.7.', 'pronamic_ideal' ) ),
 			'badge'       => array(
 				'label' => __( 'Payments', 'pronamic_ideal' ),
 				'color' => 'blue',
@@ -259,7 +259,7 @@ class AdminHealth {
 		// Recommendation.
 		if ( version_compare( get_bloginfo( 'version' ), '4.7', '<' ) ) {
 			$result['status'] = 'recommended';
-			$result['label']  = __( 'Pronamic Pay requires at least WordPress 4.7', 'pronamic_ideal' );
+			$result['label']  = __( 'Knit Pay requires at least WordPress 4.7', 'pronamic_ideal' );
 		}
 
 		return $result;
@@ -281,7 +281,7 @@ class AdminHealth {
 				__( 'WordPress memory limit is sufficient (%s)', 'pronamic_ideal' ),
 				size_format( $memory )
 			),
-			'description' => sprintf( '<p>%s</p>', __( 'Pronamic Pay recommends setting the WordPress memory limit to at least 64 MB.', 'pronamic_ideal' ) ),
+			'description' => sprintf( '<p>%s</p>', __( 'Knit Pay recommends setting the WordPress memory limit to at least 64 MB.', 'pronamic_ideal' ) ),
 			'badge'       => array(
 				'label' => __( 'Payments', 'pronamic_ideal' ),
 				'color' => 'blue',
@@ -314,7 +314,7 @@ class AdminHealth {
 		$result = array(
 			'test'        => 'pronamic_pay_character_set',
 			'label'       => __( 'Character encoding is set to UTF-8', 'pronamic_ideal' ),
-			'description' => sprintf( '<p>%s</p>', __( 'Pronamic Pay recommends to use the UTF-8 character encoding for payments.', 'pronamic_ideal' ) ),
+			'description' => sprintf( '<p>%s</p>', __( 'Knit Pay recommends to use the UTF-8 character encoding for payments.', 'pronamic_ideal' ) ),
 			'badge'       => array(
 				'label' => __( 'Payments', 'pronamic_ideal' ),
 				'color' => 'blue',
@@ -343,7 +343,7 @@ class AdminHealth {
 		$result = array(
 			'test'        => 'pronamic_pay_hashing_algorithms',
 			'label'       => __( 'SHA1 hashing algorithm is available', 'pronamic_ideal' ),
-			'description' => sprintf( '<p>%s</p>', __( 'Payment gateways often use the SHA1 hashing algorithm, therefore Pronamic Pay advises to enable this hashing algorithm.', 'pronamic_ideal' ) ),
+			'description' => sprintf( '<p>%s</p>', __( 'Payment gateways often use the SHA1 hashing algorithm, therefore Knit Pay advises to enable this hashing algorithm.', 'pronamic_ideal' ) ),
 			'badge'       => array(
 				'label' => __( 'Payments', 'pronamic_ideal' ),
 				'color' => 'blue',
@@ -358,7 +358,7 @@ class AdminHealth {
 		if ( ! in_array( 'sha1', $algorithms, true ) ) {
 			$result['status'] = 'recommended';
 
-			$result['label'] = __( 'SHA1 hashing algorithm is not available for Pronamic Pay', 'pronamic_ideal' );
+			$result['label'] = __( 'SHA1 hashing algorithm is not available for Knit Pay', 'pronamic_ideal' );
 		}
 
 		return $result;
@@ -477,14 +477,14 @@ class AdminHealth {
 		}
 
 		// Result.
-		$label = __( 'Pronamic Pay extensions are compatible', 'pronamic_ideal' );
+		$label = __( 'Knit Pay extensions are compatible', 'pronamic_ideal' );
 
-		$description_text = __( 'Pronamic Pay uses extensions to integrate with form, booking and other e-commerce plugins. All extensions support the currently activated plugin version.', 'pronamic_ideal' );
+		$description_text = __( 'Knit Pay uses extensions to integrate with form, booking and other e-commerce plugins. All extensions support the currently activated plugin version.', 'pronamic_ideal' );
 
 		if ( 'good' !== $status ) {
-			$label = __( 'Pronamic Pay extensions are incompatible', 'pronamic_ideal' );
+			$label = __( 'Knit Pay extensions are incompatible', 'pronamic_ideal' );
 
-			$description_text = __( 'Pronamic Pay uses extensions to integrate with form, booking and other e-commerce plugins. Not all extensions support the version of the currently activated plugin.', 'pronamic_ideal' );
+			$description_text = __( 'Knit Pay uses extensions to integrate with form, booking and other e-commerce plugins. Not all extensions support the version of the currently activated plugin.', 'pronamic_ideal' );
 		}
 
 		$result = array(
