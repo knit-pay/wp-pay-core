@@ -552,7 +552,7 @@ class Plugin {
 		$this->subscription_post_type = new SubscriptionPostType();
 
 		// License Manager.
-		//$this->license_manager = new LicenseManager( $this );
+		// $this->license_manager = new LicenseManager( $this );
 
 		// Privacy Manager.
 		$this->privacy_manager = new PrivacyManager();

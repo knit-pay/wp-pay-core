@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Title: Knit Pay - Follow Us
  * Copyright: 2020 Knit Pay
