@@ -75,7 +75,7 @@ class Install {
 	 */
 	public function admin_init() {
 		// Install.
-		if ( get_option( 'pronamic_pay_version' ) !== $this->plugin->get_version() ) {
+		if ( get_option( 'knit_pay_version' ) !== $this->plugin->get_version() ) {
 			$this->install();
 		}
 
@@ -146,7 +146,7 @@ class Install {
 		// Version.
 		$version = $this->plugin->get_version();
 
-		$current_version = get_option( 'pronamic_pay_version', null );
+		$current_version = get_option( 'knit_pay_version', null );
 
 		// Redirect.
 		if ( null !== $this->admin->about_page ) {
@@ -184,14 +184,14 @@ class Install {
 		}
 
 		// Set database version option.
-		$db_version = \get_option( 'pronamic_pay_db_version', null );
+		$db_version = \get_option( 'knit_pay_db_version', null );
 
 		if ( null === $db_version ) {
-			\update_option( 'pronamic_pay_db_version', $this->plugin->get_version() );
+			\update_option( 'knit_pay_db_version', $this->plugin->get_version() );
 		}
 
 		// Update version.
-		update_option( 'pronamic_pay_version', $version );
+		update_option( 'knit_pay_version', $version );
 	}
 
 	/**
@@ -305,7 +305,7 @@ class Install {
 	 * @return bool True if database update is required, false othwerise.
 	 */
 	public function requires_upgrade() {
-		$current_db_version = get_option( 'pronamic_pay_db_version' );
+		$current_db_version = get_option( 'knit_pay_db_version' );
 
 		if (
 			// Check for old database version notation without dots, for example `366`.
@@ -344,7 +344,7 @@ class Install {
 	 * @return void
 	 */
 	public function upgrade() {
-		$current_db_version = get_option( 'pronamic_pay_db_version', null );
+		$current_db_version = get_option( 'knit_pay_db_version', null );
 
 		if ( $current_db_version ) {
 			foreach ( $this->db_updates as $version ) {
@@ -357,7 +357,7 @@ class Install {
 				if ( is_readable( $file ) ) {
 					include $file;
 
-					update_option( 'pronamic_pay_db_version', $version );
+					update_option( 'knit_pay_db_version', $version );
 				}
 			}
 		}
@@ -389,6 +389,6 @@ class Install {
 			}
 		}
 
-		update_option( 'pronamic_pay_db_version', $this->plugin->get_version() );
+		update_option( 'knit_pay_db_version', $this->plugin->get_version() );
 	}
 }
