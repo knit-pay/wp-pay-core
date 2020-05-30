@@ -77,19 +77,6 @@ class BlocksModule {
 	 * @return void
 	 */
 	public function register_block_types() {
-		/* register_block_type(
-			'pronamic-pay/payment-form',
-			array(
-				'render_callback' => array( $this, 'render_payment_form_block' ),
-				'editor_script'   => 'pronamic-payment-form-editor',
-				'attributes'      => array(
-					'amount' => array(
-						'type'    => 'string',
-						'default' => '0',
-					),
-				),
-			)
-		); */
 	}
 
 	/**
