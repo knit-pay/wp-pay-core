@@ -568,10 +568,10 @@ class Plugin {
 		$this->tracking_module      = new TrackingModule();
 
 		// Blocks module.
-		if ( function_exists( 'register_block_type' ) ) {
+		/*if ( function_exists( 'register_block_type' ) ) {
 			$this->blocks_module = new Blocks\BlocksModule();
 			$this->blocks_module->setup();
-		}
+		}*/
 
 		// Google Analytics Ecommerce.
 		$this->google_analytics_ecommerce = new GoogleAnalyticsEcommerce();
