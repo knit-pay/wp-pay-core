@@ -824,7 +824,7 @@ class AdminModule {
 
 		add_menu_page(
 			__( 'Knit Pay', 'pronamic_ideal' ),
-			__( 'Pay', 'pronamic_ideal' ) . $badge,
+			__( 'Knit Pay', 'pronamic_ideal' ) . $badge,
 			$minimum_capability,
 			'pronamic_ideal',
 			function() {
