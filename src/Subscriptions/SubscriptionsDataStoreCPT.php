@@ -23,7 +23,7 @@ use Pronamic\WordPress\Pay\Customer;
  * @link https://woocommerce.com/2017/04/woocommerce-3-0-release/
  * @link https://woocommerce.wordpress.com/2016/10/27/the-new-crud-classes-in-woocommerce-2-7/
  * @author  Remco Tolsma
- * @version 2.2.6
+ * @version 2.4.0
  * @since   2.0.1
  */
 class SubscriptionsDataStoreCPT extends LegacySubscriptionsDataStoreCPT {
@@ -124,7 +124,7 @@ class SubscriptionsDataStoreCPT extends LegacySubscriptionsDataStoreCPT {
 		$key = array_search( $post_status, $this->status_map, true );
 
 		if ( false !== $key ) {
-			return $key;
+			return \strval( $key );
 		}
 
 		return null;
@@ -551,12 +551,20 @@ class SubscriptionsDataStoreCPT extends LegacySubscriptionsDataStoreCPT {
 				$subscription->config_id = $first_payment->config_id;
 			}
 
-			if ( empty( $subscription->user_id ) ) {
-				$subscription->user_id = $first_payment->user_id;
-			}
-
 			if ( empty( $subscription->payment_method ) ) {
 				$subscription->payment_method = $first_payment->method;
+			}
+
+			$customer = $subscription->get_customer();
+
+			$first_customer = $first_payment->get_customer();
+
+			if ( null !== $customer && null !== $first_customer ) {
+				$user_id = $customer->get_user_id();
+
+				if ( empty( $user_id ) ) {
+					$customer->set_user_id( $first_customer->get_user_id() );
+				}
 			}
 		}
 
@@ -627,6 +635,8 @@ class SubscriptionsDataStoreCPT extends LegacySubscriptionsDataStoreCPT {
 			return;
 		}
 
+		$customer = $subscription->get_customer();
+
 		$this->update_meta( $id, 'config_id', $subscription->config_id );
 		$this->update_meta( $id, 'key', $subscription->key );
 		$this->update_meta( $id, 'source', $subscription->source );
@@ -637,8 +647,8 @@ class SubscriptionsDataStoreCPT extends LegacySubscriptionsDataStoreCPT {
 		$this->update_meta( $id, 'currency', $subscription->get_total_amount()->get_currency()->get_alphabetic_code() );
 		$this->update_meta( $id, 'amount', $subscription->get_total_amount()->format() );
 		$this->update_meta( $id, 'description', $subscription->description );
-		$this->update_meta( $id, 'email', $subscription->email );
-		$this->update_meta( $id, 'customer_name', $subscription->customer_name );
+		$this->update_meta( $id, 'email', ( null === $customer ? null : $customer->get_email() ) );
+		$this->update_meta( $id, 'customer_name', ( null === $customer ? null : strval( $customer->get_name() ) ) );
 		$this->update_meta( $id, 'payment_method', $subscription->payment_method );
 		$this->update_meta( $id, 'start_date', $subscription->start_date );
 		$this->update_meta( $id, 'end_date', $subscription->end_date );

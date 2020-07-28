@@ -7,6 +7,20 @@ This projects adheres to [Semantic Versioning](http://semver.org/) and [Keep a C
 ## [Unreleased][unreleased]
 -
 
+## [2.4.1] - 2020-07-22
+- Display email address as customer in payments and subscriptions list and details for unknown customers.
+- Fix using deprecated `email` and `customer_name` properties.
+
+## [2.4.0] - 2020-07-08
+- Added support for customer company name.
+- Added support for updating subscription mandate.
+- Added support for VAT number (validation via VIES).
+- Added `get_pronamic_subscriptions_by_source()` function.
+- Fixed possible duplicate payment on upgrade if pending recurring payment exists.
+- Fixed updating subscription status to 'On Hold' only if subscription is not already active, when processing first payment.
+- Improved subscription date calculations.
+- Updated admin tour.
+
 ## [2.3.2] - 2020-06-02
 - Add payment origin post ID.
 - Add 'Pronamic Pay' block category.
@@ -278,7 +292,9 @@ This projects adheres to [Semantic Versioning](http://semver.org/) and [Keep a C
 ## 1.0.0
 - First release.
 
-[unreleased]: https://github.com/wp-pay/core/compare/2.2.8...HEAD
+[unreleased]: https://github.com/wp-pay/core/compare/2.4.1...HEAD
+[2.4.1]: https://github.com/wp-pay/core/compare/2.4.0...2.4.1
+[2.4.0]: https://github.com/wp-pay/core/compare/2.3.2...2.4.0
 [2.3.2]: https://github.com/wp-pay/core/compare/2.3.1...2.3.2
 [2.3.1]: https://github.com/wp-pay/core/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/wp-pay/core/compare/2.2.8...2.3.0

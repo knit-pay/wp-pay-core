@@ -20,7 +20,7 @@ use WP_Query;
  * WordPress admin subscription post type
  *
  * @author  Reüel van der Steege
- * @version 2.2.6
+ * @version 2.4.0
  * @since   1.0.0
  */
 class AdminSubscriptionPostType {
@@ -325,7 +325,23 @@ class AdminSubscriptionPostType {
 
 				break;
 			case 'pronamic_subscription_customer':
-				echo esc_html( get_post_meta( $post_id, '_pronamic_subscription_customer_name', true ) );
+				$text = get_post_meta( $post_id, '_pronamic_subscription_customer_name', true );
+
+				$customer = $subscription->get_customer();
+
+				if ( null !== $customer ) {
+					$contact_name = $customer->get_name();
+
+					if ( null !== $contact_name ) {
+						$text = strval( $contact_name );
+					}
+
+					if ( empty( $text ) ) {
+						$text = $customer->get_email();
+					}
+				}
+
+				echo esc_html( $text );
 
 				break;
 		}
