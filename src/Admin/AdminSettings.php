@@ -54,7 +54,7 @@ class AdminSettings {
 			'pronamic_pay'
 		);
 
-		add_settings_field(
+		/* add_settings_field(
 			'pronamic_pay_license_key',
 			__( 'Support License Key', 'pronamic_ideal' ),
 			array( $this, 'input_license_key' ),
@@ -64,7 +64,7 @@ class AdminSettings {
 				'label_for' => 'pronamic_pay_license_key',
 				'classes'   => 'regular-text code',
 			)
-		);
+		); */
 
 		// Default Config.
 		add_settings_field(
