@@ -133,6 +133,10 @@ class AdminGatewayPostType {
 						get_post_meta( $post_id, '_pronamic_gateway_targetpay_layoutcode', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_ogone_psp_id', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_ogone_user_id', true ),
+						get_post_meta( $post_id, '_pronamic_gateway_instamojo_client_id', true ),
+						get_post_meta( $post_id, '_pronamic_gateway_easebuzz_merchant_key', true ),
+						get_post_meta( $post_id, '_pronamic_gateway_payumoney_merchant_key', true ),
+						get_post_meta( $post_id, '_pronamic_gateway_razorpay_key_id', true ),
 					)
 				);
 
