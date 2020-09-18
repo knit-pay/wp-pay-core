@@ -61,7 +61,8 @@ class AdminNotices {
 		}
 
 		// License notice.
-		/*if ( 'valid' !== get_option( 'pronamic_pay_license_status' ) ) {
+		/*
+		if ( 'valid' !== get_option( 'pronamic_pay_license_status' ) ) {
 			$class = Plugin::get_number_payments() > 20 ? 'error' : 'updated';
 
 			$license = get_option( 'pronamic_pay_license_key' );

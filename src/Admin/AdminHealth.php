@@ -53,23 +53,23 @@ class AdminHealth {
 		$fields = array();
 
 		// License key.
-		//$fields['license_key'] = array(
-		//	'label'   => __( 'Support license key', 'pronamic_ideal' ),
-		//	'value'   => esc_html( get_option( 'pronamic_pay_license_key', __( 'No license key found', 'pronamic_ideal' ) ) ),
-		//	'private' => true,
-		//);
+		// $fields['license_key'] = array(
+		// 'label'   => __( 'Support license key', 'pronamic_ideal' ),
+		// 'value'   => esc_html( get_option( 'pronamic_pay_license_key', __( 'No license key found', 'pronamic_ideal' ) ) ),
+		// 'private' => true,
+		// );
 
 		// License status.
-		//$fields['license_status'] = array(
-		//	'label' => __( 'License status', 'pronamic_ideal' ),
-		//	'value' => esc_html( $this->plugin->license_manager->get_formatted_license_status() ),
-		//);
+		// $fields['license_status'] = array(
+		// 'label' => __( 'License status', 'pronamic_ideal' ),
+		// 'value' => esc_html( $this->plugin->license_manager->get_formatted_license_status() ),
+		// );
 
 		// Next scheduled license check.
-		//$fields['next_license_check'] = array(
-		//	'label' => __( 'Next scheduled license check', 'pronamic_ideal' ),
-		//	'value' => esc_html( $this->plugin->license_manager->get_formatted_next_license_check() ),
-		//);
+		// $fields['next_license_check'] = array(
+		// 'label' => __( 'Next scheduled license check', 'pronamic_ideal' ),
+		// 'value' => esc_html( $this->plugin->license_manager->get_formatted_next_license_check() ),
+		// );
 
 		// Time.
 		$fields['time'] = array(
@@ -140,10 +140,10 @@ class AdminHealth {
 	 */
 	public function status_tests( $status_tests ) {
 		// Test valid license.
-		//$status_tests['direct']['pronamic_pay_valid_license'] = array(
-		//	'label' => __( 'Knit Pay support license key test' ),
-		//	'test'  => array( $this, 'test_valid_license' ),
-		//);
+		// $status_tests['direct']['pronamic_pay_valid_license'] = array(
+		// 'label' => __( 'Knit Pay support license key test' ),
+		// 'test'  => array( $this, 'test_valid_license' ),
+		// );
 
 		// Test minimum required WordPress version.
 		$status_tests['direct']['pronamic_pay_wordpress_version'] = array(

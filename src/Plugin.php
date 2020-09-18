@@ -568,7 +568,8 @@ class Plugin {
 		$this->tracking_module      = new TrackingModule();
 
 		// Blocks module.
-		/*if ( function_exists( 'register_block_type' ) ) {
+		/*
+		if ( function_exists( 'register_block_type' ) ) {
 			$this->blocks_module = new Blocks\BlocksModule();
 			$this->blocks_module->setup();
 		}*/
@@ -677,10 +678,10 @@ class Plugin {
 	 * @return array
 	 */
 	public static function get_config_select_options( $payment_method = null ) {
-	    if ('knit_pay' === $payment_method){
-	        $payment_method = null;
-	    }
-	    
+		if ( 'knit_pay' === $payment_method ) {
+			$payment_method = null;
+		}
+
 		$args = array(
 			'post_type' => 'pronamic_gateway',
 			'orderby'   => 'post_title',
@@ -693,7 +694,7 @@ class Plugin {
 		}
 
 		if ( null !== $payment_method && empty( $args['post__in'] ) ) {
-		    $args['post__in'] = array(0);
+			$args['post__in'] = array( 0 );
 		}
 
 		$query = new WP_Query( $args );

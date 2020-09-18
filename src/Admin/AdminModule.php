@@ -771,7 +771,8 @@ class AdminModule {
 					$this->reports->page_reports();
 				},
 			),
-			/* array(
+			/*
+			 array(
 				'page_title' => __( 'Payment Forms', 'pronamic_ideal' ),
 				'menu_title' => __( 'Forms', 'pronamic_ideal' ),
 				'capability' => 'edit_forms',
