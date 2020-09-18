@@ -677,6 +677,10 @@ class Plugin {
 	 * @return array
 	 */
 	public static function get_config_select_options( $payment_method = null ) {
+	    if ('knit_pay' === $payment_method){
+	        $payment_method = null;
+	    }
+	    
 		$args = array(
 			'post_type' => 'pronamic_gateway',
 			'orderby'   => 'post_title',
