@@ -150,7 +150,7 @@ class PaymentTestData extends PaymentData {
 	 * @return null|string
 	 */
 	public function get_telephone_number() {
-	    return filter_input( INPUT_POST, 'test_phone', FILTER_SANITIZE_STRING );
+		return filter_input( INPUT_POST, 'test_phone', FILTER_SANITIZE_STRING );
 	}
 
 	/**
