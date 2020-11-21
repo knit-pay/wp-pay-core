@@ -29,7 +29,7 @@ use WP_Query;
  * Plugin
  *
  * @author  Remco Tolsma
- * @version 2.3.2
+ * @version 2.5.1
  * @since   2.0.1
  */
 class Plugin {
@@ -433,7 +433,13 @@ class Plugin {
 		// Check if we should redirect.
 		$should_redirect = apply_filters( 'pronamic_pay_return_should_redirect', true, $payment );
 
-		self::update_payment( $payment, $should_redirect );
+		try {
+			self::update_payment( $payment, $should_redirect );
+		} catch ( \Exception $e ) {
+			self::render_exception( $e );
+
+			exit;
+		}
 	}
 
 	/**
@@ -690,7 +696,9 @@ class Plugin {
 		);
 
 		if ( null !== $payment_method ) {
-			$args['post__in'] = PaymentMethods::get_config_ids( $payment_method );
+			$config_ids = PaymentMethods::get_config_ids( $payment_method );
+
+			$args['post__in'] = empty( $config_ids ) ? array( 0 ) : $config_ids;
 		}
 
 		if ( null !== $payment_method && empty( $args['post__in'] ) ) {
@@ -804,8 +812,11 @@ class Plugin {
 		$title = $data->get_title();
 
 		if ( ! empty( $title ) ) {
-			/* translators: %s: payment data title */
-			$payment->title = sprintf( __( 'Payment for %s', 'pronamic_ideal' ), $title );
+			$payment->title = sprintf(
+				/* translators: %s: payment data title */
+				__( 'Payment for %s', 'pronamic_ideal' ),
+				$title
+			);
 		}
 
 		// Other.
@@ -826,35 +837,73 @@ class Plugin {
 		$payment->set_total_amount( $data->get_amount() );
 		$payment->set_credit_card( $data->get_credit_card() );
 
-		// Customer.
-		$customer = array(
-			'name'    => (object) array(
-				'first_name' => $data->get_first_name(),
-				'last_name'  => $data->get_last_name(),
-			),
-			'email'   => $data->get_email(),
-			'phone'   => $data->get_telephone_number(),
-			'user_id' => $data->get_user_id(),
+		// Data.
+		$first_name = $data->get_first_name();
+		$last_name  = $data->get_last_name();
+
+		$email   = $data->get_email();
+		$phone   = $data->get_telephone_number();
+		$user_id = $data->get_user_id();
+
+		$line_1       = $data->get_address();
+		$postal_code  = $data->get_zip();
+		$city         = $data->get_city();
+		$country_name = $data->get_country();
+
+		// Name.
+		$name = null;
+
+		$name_data = array(
+			$first_name,
+			$last_name,
 		);
 
-		$customer = array_filter( $customer );
+		$name_data = array_filter( $name_data );
 
-		if ( ! empty( $customer ) ) {
-			$customer = Customer::from_json( (object) $customer );
+		if ( ! empty( $name_data ) ) {
+			$name = new ContactName();
+
+			if ( ! empty( $first_name ) ) {
+				$name->set_first_name( $first_name );
+			}
+
+			if ( ! empty( $last_name ) ) {
+				$name->set_last_name( $last_name );
+			}
+		}
+
+		// Customer.
+		$customer_data = array(
+			$name,
+			$email,
+			$phone,
+			$user_id,
+		);
+
+		$customer_data = array_filter( $customer_data );
+
+		if ( ! empty( $customer_data ) ) {
+			$customer = new Customer();
+
+			$customer->set_name( $name );
+
+			if ( ! empty( $email ) ) {
+				$customer->set_email( $email );
+			}
+
+			if ( ! empty( $phone ) ) {
+				$customer->set_phone( $phone );
+			}
+
+			if ( ! empty( $user_id ) ) {
+				$customer->set_user_id( \intval( $user_id ) );
+			}
 
 			$payment->set_customer( $customer );
 		}
 
 		// Billing address.
-		$name         = ( $customer instanceof Customer ? $customer->get_name() : null );
-		$line_1       = $data->get_address();
-		$postal_code  = $data->get_zip();
-		$city         = $data->get_city();
-		$country_name = $data->get_country();
-		$email        = $data->get_email();
-		$phone        = $data->get_telephone_number();
-
-		$parts = array(
+		$address_data = array(
 			$name,
 			$line_1,
 			$postal_code,
@@ -864,9 +913,9 @@ class Plugin {
 			$phone,
 		);
 
-		$parts = array_filter( $parts );
+		$address_data = array_filter( $address_data );
 
-		if ( ! empty( $parts ) ) {
+		if ( ! empty( $address_data ) ) {
 			$address = new Address();
 
 			if ( ! empty( $name ) ) {
@@ -970,24 +1019,30 @@ class Plugin {
 			$payment->analytics_client_id = GoogleAnalyticsEcommerce::get_cookie_client_id();
 		}
 
-		// Complements.
+		// Customer.
 		$customer = $payment->get_customer();
 
-		if ( null !== $customer ) {
-			CustomerHelper::complement_customer( $customer );
+		if ( null === $customer ) {
+			$customer = new Customer();
 
-			// Email.
-			if ( null === $payment->get_email() ) {
-				$payment->email = $customer->get_email();
-			}
+			$payment->set_customer( $customer );
 		}
 
+		CustomerHelper::complement_customer( $customer );
+
+		// Email.
+		if ( null === $payment->get_email() ) {
+			$payment->email = $customer->get_email();
+		}
+
+		// Billing address.
 		$billing_address = $payment->get_billing_address();
 
 		if ( null !== $billing_address ) {
 			AddressHelper::complement_address( $billing_address );
 		}
 
+		// Shipping address.
 		$shipping_address = $payment->get_shipping_address();
 
 		if ( null !== $shipping_address ) {
@@ -1017,6 +1072,22 @@ class Plugin {
 			if ( PaymentMethods::IDEAL === $payment->method && filter_has_var( INPUT_POST, 'pronamic_ideal_issuer_id' ) ) {
 				$payment->issuer = filter_input( INPUT_POST, 'pronamic_ideal_issuer_id', FILTER_SANITIZE_STRING );
 			}
+		}
+
+		/**
+		 * If an issuer has been specified and the payment
+		 * method is unknown, we set the payment method to
+		 * iDEAL. This may not be correct in all cases,
+		 * but for now Pronamic Pay works this way.
+		 *
+		 * @link https://github.com/wp-pay-extensions/gravityforms/blob/2.4.0/src/Processor.php#L251-L256
+		 * @link https://github.com/wp-pay-extensions/contact-form-7/blob/1.0.0/src/Pronamic.php#L181-L187
+		 * @link https://github.com/wp-pay-extensions/formidable-forms/blob/2.1.0/src/Extension.php#L318-L329
+		 * @link https://github.com/wp-pay-extensions/ninjaforms/blob/1.2.0/src/PaymentGateway.php#L80-L83
+		 * @link https://github.com/wp-pay/core/blob/2.4.0/src/Forms/FormProcessor.php#L131-L134
+		 */
+		if ( null !== $payment->issuer && null === $payment->method ) {
+			$payment->method = PaymentMethods::IDEAL;
 		}
 
 		// Consumer bank details.

@@ -20,8 +20,8 @@ use Pronamic\WordPress\DateTime\DateTimeZone;
  * @link https://woocommerce.com/2017/04/woocommerce-3-0-release/
  * @link https://woocommerce.wordpress.com/2016/10/27/the-new-crud-classes-in-woocommerce-2-7/
  * @author  Remco Tolsma
- * @version 2.2.6
- * @since   3.7.0
+ * @version 2.5.0
+ * @since   1.0.0
  */
 abstract class AbstractDataStoreCPT {
 	/**
@@ -72,13 +72,15 @@ abstract class AbstractDataStoreCPT {
 	/**
 	 * Get MySQL UTC datetime of the specified date.
 	 *
-	 * @param \DateTime $date The date.
+	 * @param \DateTimeInterface $date The date.
 	 * @return string
 	 */
-	protected function get_mysql_utc_date( \DateTime $date ) {
+	protected function get_mysql_utc_date( \DateTimeInterface $date ) {
 		$date = clone $date;
 
-		$date->setTimezone( new DateTimeZone( 'UTC' ) );
+		if ( \method_exists( $date, 'setTimezone' ) ) {
+			$date = $date->setTimezone( new DateTimeZone( 'UTC' ) );
+		}
 
 		return $date->format( DateTime::MYSQL );
 	}
@@ -227,7 +229,7 @@ abstract class AbstractDataStoreCPT {
 			return false;
 		}
 
-		if ( $value instanceof \DateTime ) {
+		if ( $value instanceof \DateTimeInterface ) {
 			$value = $this->get_mysql_utc_date( $value );
 		}
 

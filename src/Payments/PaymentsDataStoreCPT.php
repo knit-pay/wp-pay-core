@@ -12,6 +12,7 @@ namespace Pronamic\WordPress\Pay\Payments;
 
 use Pronamic\WordPress\DateTime\DateTime;
 use Pronamic\WordPress\DateTime\DateTimeZone;
+use Pronamic\WordPress\Money\TaxedMoney;
 use Pronamic\WordPress\Pay\Customer;
 
 /**
@@ -23,7 +24,7 @@ use Pronamic\WordPress\Pay\Customer;
  * @see     https://woocommerce.com/2017/04/woocommerce-3-0-release/
  * @see     https://woocommerce.wordpress.com/2016/10/27/the-new-crud-classes-in-woocommerce-2-7/
  * @author  Remco Tolsma
- * @version 2.4.0
+ * @version 2.5.0
  * @since   3.7.0
  */
 class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
@@ -86,9 +87,27 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 	 * @param int $id Payment ID.
 	 * @return Payment|null
 	 */
-	private function get_payment( $id ) {
+	public function get_payment( $id ) {
 		if ( ! isset( $this->payments[ $id ] ) ) {
-			$this->payments[ $id ] = get_pronamic_payment( $id );
+			if ( empty( $id ) ) {
+				return null;
+			}
+
+			$id = (int) $id;
+
+			$post_type = get_post_type( $id );
+
+			if ( 'pronamic_payment' !== $post_type ) {
+				return null;
+			}
+
+			$payment = new Payment();
+
+			$payment->set_id( $id );
+
+			$this->payments[ $id ] = $payment;
+
+			$this->read( $payment );
 		}
 
 		return $this->payments[ $id ];
@@ -731,6 +750,20 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 
 		// Legacy.
 		parent::read_post_meta( $payment );
+
+		// Amount.
+		$amount = $payment->get_meta( 'amount' );
+
+		$amount_value = $payment->get_total_amount()->get_value();
+
+		if ( empty( $amount_value ) && ! empty( $amount ) ) {
+			$payment->set_total_amount(
+				new TaxedMoney(
+					$amount,
+					$payment->get_meta( 'currency' )
+				)
+			);
+		}
 	}
 
 	/**

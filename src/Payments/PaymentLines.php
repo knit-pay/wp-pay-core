@@ -11,12 +11,13 @@
 namespace Pronamic\WordPress\Pay\Payments;
 
 use Pronamic\WordPress\Money\Money;
+use Pronamic\WordPress\Money\TaxedMoney;
 
 /**
  * Payment lines
  *
  * @author     Remco Tolsma
- * @version    2.2.6
+ * @version    2.5.1
  * @since      2.1.0
  * @implements \IteratorAggregate<int, PaymentLine>
  */
@@ -88,16 +89,43 @@ class PaymentLines implements \Countable, \IteratorAggregate {
 	/**
 	 * Calculate the total amount of all lines.
 	 *
-	 * @return Money
+	 * @return TaxedMoney
 	 */
 	public function get_amount() {
-		$amount = new Money();
+		$total    = new Money();
+		$tax      = new Money();
+		$currency = null;
 
 		foreach ( $this->lines as $line ) {
-			$amount = $amount->add( $line->get_total_amount() );
+			// Total.
+			$line_total = $line->get_total_amount();
+
+			$total = $total->add( $line_total );
+
+			// Tax.
+			$line_tax = $line_total->get_tax_amount();
+
+			if ( null !== $line_tax ) {
+				$tax = $tax->add( $line_tax );
+			}
+
+			// Currency.
+			if ( null === $currency ) {
+				$currency = $line_total->get_currency();
+			}
 		}
 
-		return $amount;
+		// Currency.
+		if ( null === $currency ) {
+			$currency = 'EUR';
+		}
+
+		// Return payment lines amount.
+		return new TaxedMoney(
+			$total->get_value(),
+			$currency,
+			$tax->get_value()
+		);
 	}
 
 	/**

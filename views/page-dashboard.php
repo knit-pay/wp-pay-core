@@ -23,8 +23,9 @@ $container_index = 1;
 					<div id="normal-sortables" class="meta-box-sortables ui-sortable">
 
 						<div class="postbox">
-							<h2 class="hndle"><span><?php esc_html_e( 'Knit Pay Status', 'pronamic_ideal' ); ?></span>
-							</h2>
+							<div class="postbox-header">
+								<h2 class="hndle"><span><?php esc_html_e( 'Knit Pay Status', 'pronamic_ideal' ); ?></span></h2>
+							</div>
 
 							<div class="inside">
 								<?php
@@ -39,7 +40,9 @@ $container_index = 1;
 					<div id="normal-sortables" class="meta-box-sortables ui-sortable">
 
 						<div class="postbox">
-							<h2 class="hndle"><span><?php esc_html_e( 'Latest Payments', 'pronamic_ideal' ); ?></span></h2>
+							<div class="postbox-header">
+								<h2 class="hndle"><span><?php esc_html_e( 'Latest Payments', 'pronamic_ideal' ); ?></span></h2>
+							</div>
 
 							<div class="inside">
 								<?php
@@ -189,7 +192,9 @@ $container_index = 1;
 						<div id="normal-sortables" class="meta-box-sortables ui-sortable">
 
 							<div class="postbox">
-								<h2 class="hndle"><span><?php esc_html_e( 'Latest Subscriptions', 'pronamic_ideal' ); ?></span></h2>
+								<div class="postbox-header">
+									<h2 class="hndle"><span><?php esc_html_e( 'Latest Subscriptions', 'pronamic_ideal' ); ?></span></h2>
+								</div>
 
 								<div class="inside">
 									<?php
@@ -314,7 +319,9 @@ $container_index = 1;
 					<?php if ( current_user_can( 'manage_options' ) ) : ?>
 
 						<div class="postbox">
-							<h2 class="hndle"><span><?php esc_html_e( 'Getting Started', 'pronamic_ideal' ); ?></span></h2>
+							<div class="postbox-header">
+								<h2 class="hndle"><span><?php esc_html_e( 'Getting Started', 'pronamic_ideal' ); ?></span></h2>
+							</div>
 
 							<div class="inside">
 								<p>
@@ -406,6 +413,28 @@ $container_index = 1;
 						</div>
 
 					<?php endif; ?>
+
+					<div class="postbox">
+						<div class="postbox-header">
+							<h2 class="hndle"><span><?php esc_html_e( 'Knit Pay News', 'pronamic_ideal' ); ?></span></h2>
+						</div>
+
+						<div class="inside">
+							<?php
+
+							wp_widget_rss_output(
+								'https://www.knitpay.org/feed/rss',
+								array(
+									'link'  => __( 'https://www.knitpay.org/', 'pronamic_ideal' ),
+									'url'   => 'https://www.knitpay.org/feed/rss',
+									'title' => __( 'Knit Pay News', 'pronamic_ideal' ),
+									'items' => 5,
+								)
+							);
+
+							?>
+						</div>
+					</div>
 
 					<?php require __DIR__ . '/follow-us.php'; ?>
 

@@ -20,7 +20,7 @@ use WP_Query;
  * WordPress admin payment post type
  *
  * @author  Remco Tolsma
- * @version 2.4.0
+ * @version 2.5.0
  * @since   1.0.0
  */
 class AdminPaymentPostType {
@@ -504,7 +504,7 @@ class AdminPaymentPostType {
 				// Output.
 				echo wp_kses(
 					sprintf(
-						/* translators: 1: Payment edit post link with post ID, 2: Payment source description, 3: Payment source ID text */
+						/* translators: 1: edit post link with post ID, 2: source description, 3: source ID text */
 						__( '%1$s for %2$s %3$s', 'pronamic_ideal' ),
 						$text,
 						strval( $source_description ),

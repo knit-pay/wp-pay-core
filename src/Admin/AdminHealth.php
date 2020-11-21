@@ -18,7 +18,7 @@ use Pronamic\WordPress\Pay\Plugin;
  * @link https://make.wordpress.org/core/2019/04/25/site-health-check-in-5-2/
  *
  * @author  Reüel van der Steege
- * @version 2.2.6
+ * @version 2.5.0
  * @since   2.2.4
  */
 class AdminHealth {
@@ -271,7 +271,9 @@ class AdminHealth {
 	 * @return array<string, array<string,string>|string>
 	 */
 	public function test_memory_limit() {
-		$memory = pronamic_pay_let_to_num( strval( WP_MEMORY_LIMIT ) );
+		$memory_limit = defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : '';
+
+		$memory = pronamic_pay_let_to_num( strval( $memory_limit ) );
 
 		// Good.
 		$result = array(

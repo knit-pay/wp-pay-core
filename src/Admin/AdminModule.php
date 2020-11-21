@@ -20,7 +20,7 @@ use Pronamic\WordPress\Pay\Webhooks\WebhookManager;
  * WordPress Pay admin
  *
  * @author  Remco Tolsma
- * @version 2.2.6
+ * @version 2.5.0
  * @since   1.0.0
  */
 class AdminModule {
@@ -632,8 +632,6 @@ class AdminModule {
 			$amount = $money_parser->parse( $string )->get_value();
 		} catch ( \Exception $e ) {
 			wp_die( esc_html( $e->getMessage() ) );
-
-			return;
 		}
 
 		// Start.

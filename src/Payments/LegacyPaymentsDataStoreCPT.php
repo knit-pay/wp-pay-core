@@ -26,7 +26,7 @@ use Pronamic\WordPress\Pay\Customer;
  * @see     https://woocommerce.com/2017/04/woocommerce-3-0-release/
  * @see     https://woocommerce.wordpress.com/2016/10/27/the-new-crud-classes-in-woocommerce-2-7/
  * @author  Remco Tolsma
- * @version 2.2.6
+ * @version 2.5.0
  * @since   2.1.0
  */
 class LegacyPaymentsDataStoreCPT extends AbstractDataStoreCPT {
@@ -290,18 +290,6 @@ class LegacyPaymentsDataStoreCPT extends AbstractDataStoreCPT {
 		$this->maybe_create_customer_from_legacy_meta( $payment );
 		$this->maybe_create_billing_address_from_legacy_meta( $payment );
 		$this->maybe_create_consumer_bank_details_from_legacy_meta( $payment );
-
-		// Amount.
-		$amount = $payment->get_meta( 'amount' );
-
-		if ( ! empty( $amount ) ) {
-			$payment->set_total_amount(
-				new TaxedMoney(
-					$amount,
-					$payment->get_meta( 'currency' )
-				)
-			);
-		}
 	}
 
 	/**

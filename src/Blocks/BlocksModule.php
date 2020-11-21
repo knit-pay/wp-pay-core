@@ -20,7 +20,7 @@ use WP_Error;
  * Blocks
  *
  * @author  Reüel van der Steege
- * @since   2.3.2
+ * @since   2.5.0
  * @version 2.1.7
  */
 class BlocksModule {
@@ -124,7 +124,11 @@ class BlocksModule {
 		$amount = '';
 
 		if ( ! empty( $attributes['amount'] ) ) {
-			$amount = $money_parser->parse( $attributes['amount'] )->get_minor_units();
+			try {
+				$amount = $money_parser->parse( $attributes['amount'] )->get_minor_units();
+			} catch ( \Exception $e ) {
+				return '';
+			}
 		}
 
 		// Form settings.
