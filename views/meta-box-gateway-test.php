@@ -125,7 +125,7 @@ require Plugin::$dirname . '/views/errors.php';
 		</td>
 	</tr>
 
-	<?php if ( $gateway->supports( 'recurring' ) ) : // TODO: ?>
+	<?php if ( $gateway->supports( 'recurring' ) ) : ?>
 
 		<?php
 

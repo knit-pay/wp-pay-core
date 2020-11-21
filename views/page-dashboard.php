@@ -416,18 +416,18 @@ $container_index = 1;
 
 					<div class="postbox">
 						<div class="postbox-header">
-							<h2 class="hndle"><span><?php esc_html_e( 'Knit Pay News', 'pronamic_ideal' ); ?></span></h2>
+							<h2 class="hndle"><span><?php esc_html_e( 'Knit Pay Featured Posts', 'knit-pay' ); ?></span></h2>
 						</div>
 
 						<div class="inside">
 							<?php
 
 							wp_widget_rss_output(
-								'https://www.knitpay.org/feed/rss',
+								'https://www.knitpay.org/category/featured/feed',
 								array(
-									'link'  => __( 'https://www.knitpay.org/', 'pronamic_ideal' ),
-									'url'   => 'https://www.knitpay.org/feed/rss',
-									'title' => __( 'Knit Pay News', 'pronamic_ideal' ),
+									'link'  => __( 'https://www.knitpay.org/', 'knit-pay' ),
+									'url'   => 'https://www.knitpay.org/category/featured/feed',
+									'title' => __( 'Knit Pay Featured Posts', 'knit-pay' ),
 									'items' => 5,
 								)
 							);
