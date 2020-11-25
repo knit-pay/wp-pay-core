@@ -837,6 +837,15 @@ class Plugin {
 		$payment->set_total_amount( $data->get_amount() );
 		$payment->set_credit_card( $data->get_credit_card() );
 
+		// TODO: Check if we can improve it.
+		if ( isset( $payment->subscription ) ) {
+			$period = $payment->subscription->new_period();
+		}
+
+		if ( isset( $period ) ) {
+			$payment->add_period( $period );
+		}
+
 		// Data.
 		$first_name = $data->get_first_name();
 		$last_name  = $data->get_last_name();
