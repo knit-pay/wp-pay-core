@@ -568,7 +568,7 @@ class Plugin {
 		$this->webhook_logger->setup();
 
 		// Modules.
-		// $this->forms_module         = new Forms\FormsModule( $this );
+		$this->forms_module         = new Forms\FormsModule( $this );
 		$this->payments_module      = new Payments\PaymentsModule( $this );
 		$this->subscriptions_module = new Subscriptions\SubscriptionsModule( $this );
 		$this->tracking_module      = new TrackingModule();
