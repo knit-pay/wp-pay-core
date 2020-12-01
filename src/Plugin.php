@@ -701,10 +701,6 @@ class Plugin {
 			$args['post__in'] = empty( $config_ids ) ? array( 0 ) : $config_ids;
 		}
 
-		if ( null !== $payment_method && empty( $args['post__in'] ) ) {
-			$args['post__in'] = array( 0 );
-		}
-
 		$query = new WP_Query( $args );
 
 		$options = array( __( '— Select Configuration —', 'pronamic_ideal' ) );
