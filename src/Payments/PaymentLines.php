@@ -117,7 +117,7 @@ class PaymentLines implements \Countable, \IteratorAggregate {
 
 		// Currency.
 		if ( null === $currency ) {
-			$currency = 'EUR';
+			$currency = 'INR';
 		}
 
 		// Return payment lines amount.

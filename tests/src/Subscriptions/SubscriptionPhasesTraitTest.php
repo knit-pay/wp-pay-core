@@ -40,7 +40,7 @@ class SubscriptionPhasesTraitTest extends \WP_UnitTestCase {
 	 * @throws \Exception Throws exception on invalid date interval.
 	 */
 	private function new_phase( $subscription ) {
-		$phase = $subscription->new_phase( new \DateTimeImmutable(), 'P1W', new TaxedMoney( 50, 'EUR' ) );
+		$phase = $subscription->new_phase( new \DateTimeImmutable(), 'P1W', new TaxedMoney( 50, 'INR' ) );
 
 		return $phase;
 	}

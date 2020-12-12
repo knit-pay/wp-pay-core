@@ -31,7 +31,7 @@ class SubscriptionPhaseTest extends \WP_UnitTestCase {
 			$subscription,
 			new \DateTimeImmutable(),
 			new SubscriptionInterval( 'P5Y' ),
-			new TaxedMoney( 50, 'EUR' )
+			new TaxedMoney( 50, 'INR' )
 		);
 
 		return $subscription_phase;

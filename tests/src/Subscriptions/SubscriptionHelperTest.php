@@ -54,7 +54,7 @@ class SubscriptionHelperTest extends \WP_UnitTestCase {
 			$subscription,
 			new \DateTimeImmutable( '2005-05-05 00:00:00' ),
 			new SubscriptionInterval( 'P1M' ),
-			new TaxedMoney( 5, 'EUR' )
+			new TaxedMoney( 5, 'INR' )
 		);
 
 		$phase->set_total_periods( 12 );
