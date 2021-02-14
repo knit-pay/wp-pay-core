@@ -3,7 +3,7 @@
  * Gateway
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2020 Pronamic
+ * @copyright 2005-2021 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Core
  */
@@ -20,7 +20,7 @@ use WP_Error;
 /**
  * Title: Gateway
  * Description:
- * Copyright: 2005-2020 Pronamic
+ * Copyright: 2005-2021 Pronamic
  * Company: Pronamic
  *
  * @author  Remco Tolsma
@@ -365,8 +365,14 @@ abstract class Gateway {
 	public function get_payment_method_field_options( $other_first = false ) {
 		$options = array();
 
+		$payment_methods = array();
+
 		try {
-			$payment_methods = $this->get_transient_available_payment_methods();
+			$available_methods = $this->get_transient_available_payment_methods();
+
+			if ( null !== $available_methods ) {
+				$payment_methods = \array_intersect( $available_methods, $this->get_supported_payment_methods() );
+			}
 		} catch ( \Exception $e ) {
 			$payment_methods = array();
 		}

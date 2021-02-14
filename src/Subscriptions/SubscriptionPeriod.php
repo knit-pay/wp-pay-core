@@ -3,7 +3,7 @@
  * Subscription Period
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2020 Pronamic
+ * @copyright 2005-2021 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Subscriptions
  */
@@ -233,5 +233,33 @@ class SubscriptionPeriod {
 		);
 
 		return $json;
+	}
+
+	/**
+	 * Human readable range.
+	 *
+	 * @return string
+	 */
+	public function human_readable_range() {
+		$start = $this->get_start_date();
+		$end   = $this->get_end_date();
+
+		$format_start = __( 'D j M Y', 'pronamic_ideal' );
+
+		// Check if year is equal.
+		if ( $start->format( 'Y' ) === $end->format( 'Y' ) ) {
+			$format_start = __( 'D j M', 'pronamic_ideal' );
+
+			// Check if month is equal.
+			if ( $start->format( 'm' ) === $end->format( 'm' ) ) {
+				$format_start = __( 'D j', 'pronamic_ideal' );
+			}
+		}
+
+		return sprintf(
+			'%1$s – %2$s',
+			$start->format_i18n( $format_start ),
+			$end->format_i18n()
+		);
 	}
 }

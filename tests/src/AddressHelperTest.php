@@ -3,7 +3,7 @@
  * Address helper test
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2020 Pronamic
+ * @copyright 2005-2021 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Payments
  */
@@ -37,5 +37,33 @@ class AddressHelperTest extends WP_UnitTestCase {
 		$this->assertEquals( '39b', $address->get_house_number() );
 		$this->assertEquals( '39', $address->get_house_number_base() );
 		$this->assertEquals( 'b', $address->get_house_number_addition() );
+	}
+
+	/**
+	 * Test address from array.
+	 */
+	public function test_name_from_array() {
+		$address = AddressHelper::from_array( array() );
+
+		$this->assertNull( $address );
+
+		$address = AddressHelper::from_array(
+			array(
+				'line_1' => '',
+				'line_2' => '',
+			)
+		);
+
+		$this->assertNull( $address );
+
+		$address = AddressHelper::from_array(
+			array(
+				'line_1' => 'Burgemeester Wuiteweg 39b',
+				'line_2' => '',
+			)
+		);
+
+		$this->assertEquals( 'Burgemeester Wuiteweg 39b', $address->get_line_1() );
+		$this->assertNull( $address->get_line_2() );
 	}
 }

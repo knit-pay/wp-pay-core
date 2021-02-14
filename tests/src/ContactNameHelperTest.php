@@ -3,7 +3,7 @@
  * Contact name helper test
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2020 Pronamic
+ * @copyright 2005-2021 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Payments
  */
@@ -93,5 +93,33 @@ class ContactNameHelperTest extends \PHPUnit\Framework\TestCase {
 		ContactNameHelper::complement_name( $name );
 
 		$this->assertEquals( 'J.', $name->get_initials() );
+	}
+
+	/**
+	 * Test name from array.
+	 */
+	public function test_name_from_array() {
+		$name = ContactNameHelper::from_array( array() );
+
+		$this->assertNull( $name );
+
+		$name = ContactNameHelper::from_array(
+			array(
+				'first_name' => '',
+				'last_name'  => '',
+			)
+		);
+
+		$this->assertNull( $name );
+
+		$name = ContactNameHelper::from_array(
+			array(
+				'first_name' => 'John',
+				'last_name'  => '',
+			)
+		);
+
+		$this->assertEquals( 'John', $name->get_first_name() );
+		$this->assertNull( $name->get_last_name() );
 	}
 }

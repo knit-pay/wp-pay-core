@@ -3,7 +3,7 @@
  * Settings
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2020 Pronamic
+ * @copyright 2005-2021 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -83,7 +83,22 @@ class Settings {
 			)
 		);
 
-		foreach ( $this->plugin->get_pages() as $id => $label ) {
+		\register_setting(
+			'pronamic_pay',
+			'pronamic_pay_debug_mode',
+			array(
+				'type'        => 'boolean',
+				'description' => 'Setting that can be used to trigger the “debug” mode throughout Pronamic Pay.',
+				'default'     => false,
+			)
+		);
+
+		// Pages.
+		$pages = $this->plugin->get_pages();
+
+		$pages['pronamic_pay_subscription_canceled_page_id'] = __( 'Subscription Canceled', 'pronamic_ideal' );
+
+		foreach ( $pages as $id => $label ) {
 			register_setting(
 				'pronamic_pay',
 				$id,

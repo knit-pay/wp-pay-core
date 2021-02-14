@@ -3,7 +3,7 @@
  * Functions
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2020 Pronamic
+ * @copyright 2005-2021 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -82,14 +82,16 @@ function get_pronamic_payments_by_meta( $meta_key, $meta_value, $args = array() 
 	$args = wp_parse_args( $args, $defaults );
 
 	// Add meta query for given meta key and value.
-	if ( ! is_array( $args['meta_query'] ) ) {
-		$args['meta_query'] = array();
-	}
+	if ( ! empty( $meta_key ) ) {
+		if ( ! is_array( $args['meta_query'] ) ) {
+			$args['meta_query'] = array();
+		}
 
-	$args['meta_query'][] = array(
-		'key'   => $meta_key,
-		'value' => $meta_value,
-	);
+		$args['meta_query'][] = array(
+			'key'   => $meta_key,
+			'value' => $meta_value,
+		);
+	}
 
 	$query = new WP_Query( $args );
 

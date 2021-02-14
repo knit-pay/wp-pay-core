@@ -3,7 +3,7 @@
  * Form Post Type
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2020 Pronamic
+ * @copyright 2005-2021 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Forms
  */
@@ -348,7 +348,11 @@ class FormPostType {
 			),
 		);
 
-		$data = filter_input_array( INPUT_POST, $definition );
+		$data = \filter_input_array( INPUT_POST, $definition );
+
+		if ( ! \is_array( $data ) ) {
+			return;
+		}
 
 		// Convert amount choices to cents.
 		if ( isset( $data['_pronamic_payment_form_amount_choices'] ) ) {

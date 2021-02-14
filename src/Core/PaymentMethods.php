@@ -3,7 +3,7 @@
  * Payment methods
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2020 Pronamic
+ * @copyright 2005-2021 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Core
  */
@@ -16,7 +16,7 @@ use WP_Query;
 /**
  * Title: WordPress pay payment methods
  * Description:
- * Copyright: 2005-2020 Pronamic
+ * Copyright: 2005-2021 Pronamic
  * Company: Pronamic
  *
  * @author  Remco Tolsma
@@ -259,6 +259,14 @@ class PaymentMethods {
 	const PRZELEWY24 = 'przelewy24';
 
 	/**
+	 * Santander
+	 *
+	 * @var string
+	 * @since 2.6.0
+	 */
+	const SANTANDER = 'santander';
+
+	/**
 	 * SOFORT Banking
 	 *
 	 * @var string
@@ -315,6 +323,7 @@ class PaymentMethods {
 			self::PAYCONIQ                => __( 'Payconiq', 'pronamic_ideal' ),
 			self::PAYPAL                  => __( 'PayPal', 'pronamic_ideal' ),
 			self::PRZELEWY24              => __( 'Przelewy24', 'pronamic_ideal' ),
+			self::SANTANDER               => __( 'Santander', 'pronamic_ideal' ),
 			self::SOFORT                  => __( 'SOFORT Banking', 'pronamic_ideal' ),
 		);
 
@@ -385,6 +394,7 @@ class PaymentMethods {
 		$payment_methods = self::get_direct_debit_methods();
 
 		// Add additional methods suitable for recurring payments.
+		$payment_methods[ self::APPLE_PAY ]   = self::APPLE_PAY;
 		$payment_methods[ self::CREDIT_CARD ] = self::CREDIT_CARD;
 
 		return $payment_methods;
@@ -482,6 +492,11 @@ class PaymentMethods {
 					$active_payment_methods[ $payment_method ] = array();
 				}
 
+				// Check if payment method is supported.
+				if ( ! \in_array( $payment_method, $gateway->get_supported_payment_methods(), true ) ) {
+					continue;
+				}
+
 				$active_payment_methods[ $payment_method ][] = $config_id;
 			}
 		}
@@ -539,6 +554,17 @@ class PaymentMethods {
 			}
 
 			$config_ids = array_unique( $config_ids );
+		}
+
+		// Make sure payment method is also supported.
+		if ( null !== $payment_method ) {
+			foreach ( $config_ids as $key => $config_id ) {
+				$gateway = Plugin::get_gateway( $config_id );
+
+				if ( null === $gateway || ! \in_array( $payment_method, $gateway->get_supported_payment_methods(), true ) ) {
+					unset( $config_ids[ $key ] );
+				}
+			}
 		}
 
 		return $config_ids;

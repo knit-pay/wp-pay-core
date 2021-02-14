@@ -3,7 +3,7 @@
  * Meta Box Payment Info
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2020 Pronamic
+ * @copyright 2005-2021 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -806,16 +806,21 @@ $purchase_id = get_post_meta( $payment_id, '_pronamic_payment_purchase_id', true
 
 	<?php endif; ?>
 
-	<?php if ( PRONAMIC_PAY_DEBUG ) : ?>
+	<?php if ( $this->plugin->is_debug_mode() ) : ?>
 
-		<tr>
-			<th scope="row">
-				<?php esc_html_e( 'User Agent', 'pronamic_ideal' ); ?>
-			</th>
-			<td>
-				<?php echo esc_html( $payment->user_agent ); ?>
-			</td>
-		</tr>
+		<?php if ( ! empty( $payment->user_agent ) ) : ?>
+
+			<tr>
+				<th scope="row">
+					<?php esc_html_e( 'User Agent', 'pronamic_ideal' ); ?>
+				</th>
+				<td>
+					<?php echo esc_html( $payment->user_agent ); ?>
+				</td>
+			</tr>
+
+		<?php endif; ?>
+
 		<tr>
 			<th scope="row">
 				<?php esc_html_e( 'IP Address', 'pronamic_ideal' ); ?>

@@ -3,7 +3,7 @@
  * Payment info
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2020 Pronamic
+ * @copyright 2005-2021 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Payments
  */
@@ -493,7 +493,7 @@ abstract class PaymentInfo {
 	/**
 	 * Set the payment description.
 	 *
-	 * @param string $description Description.
+	 * @param string|null $description Description.
 	 * @return void
 	 */
 	public function set_description( $description ) {
