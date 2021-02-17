@@ -741,7 +741,7 @@ class AdminModule {
 
 		$line = $payment->lines->new_line();
 
-		$price = new TaxedMoney( $amount, 'EUR' );
+		$price = new TaxedMoney( $amount, 'INR' );
 
 		$line->set_name( __( 'Test', 'pronamic_ideal' ) );
 		$line->set_unit_price( $price );
