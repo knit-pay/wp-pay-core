@@ -1,7 +1,7 @@
 <?php
 /**
  * Title: Knit Pay - Follow Us
- * Copyright: 2020 Knit Pay
+ * Copyright: 2020-2021 Knit Pay
  *
  * @author  Knit Pay
  * @version 1.0.0
