@@ -19,7 +19,7 @@ use WP_Post;
  * Form Post Type
  *
  * @author  Remco Tolsma
- * @version 2.2.6
+ * @version 2.7.1
  * @since   1.0.0
  */
 class FormPostType {
@@ -74,7 +74,7 @@ class FormPostType {
 		$this->plugin = $plugin;
 
 		/**
-		 * Priotiry of the initial post types function should be set to < 10.
+		 * Priority of the initial post types function should be set to < 10.
 		 *
 		 * @link https://core.trac.wordpress.org/ticket/28488.
 		 * @link https://core.trac.wordpress.org/changeset/29318.
@@ -342,6 +342,7 @@ class FormPostType {
 			// General.
 			'_pronamic_payment_form_config_id'      => FILTER_SANITIZE_NUMBER_INT,
 			'_pronamic_payment_form_button_text'    => FILTER_SANITIZE_STRING,
+			'_pronamic_payment_form_description'    => FILTER_SANITIZE_STRING,
 			'_pronamic_payment_form_amount_method'  => FILTER_SANITIZE_STRING,
 			'_pronamic_payment_form_amount_choices' => array(
 				'flags' => FILTER_REQUIRE_ARRAY,

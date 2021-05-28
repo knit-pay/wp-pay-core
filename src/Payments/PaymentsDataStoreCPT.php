@@ -24,7 +24,7 @@ use Pronamic\WordPress\Pay\Customer;
  * @see     https://woocommerce.com/2017/04/woocommerce-3-0-release/
  * @see     https://woocommerce.wordpress.com/2016/10/27/the-new-crud-classes-in-woocommerce-2-7/
  * @author  Remco Tolsma
- * @version 2.5.0
+ * @version 2.7.1
  * @since   3.7.0
  */
 class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
@@ -376,9 +376,11 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 		}
 
 		if ( null === $customer->get_user_id() ) {
-			$post_author = get_post_field( 'post_author', $id, 'raw' );
+			$post_author = intval( get_post_field( 'post_author', $id, 'raw' ) );
 
-			$customer->set_user_id( intval( $post_author ) );
+			if ( ! empty( $post_author ) ) {
+				$customer->set_user_id( $post_author );
+			}
 		}
 
 		$this->read_post_meta( $payment );
