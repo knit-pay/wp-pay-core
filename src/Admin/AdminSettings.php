@@ -286,6 +286,9 @@ class AdminSettings {
 	 * @return void
 	 */
 	public function input_license_key( $args ) {
+		/**
+		 * Perform license check.
+		 */
 		do_action( 'pronamic_pay_license_check' );
 
 		$this->input_element( $args );

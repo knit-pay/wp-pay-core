@@ -11,6 +11,7 @@
 namespace Pronamic\WordPress\Pay\Admin;
 
 use Pronamic\WordPress\Money\Parser as MoneyParser;
+use Pronamic\WordPress\Money\Money;
 use Pronamic\WordPress\Money\TaxedMoney;
 use Pronamic\WordPress\Pay\Address;
 use Pronamic\WordPress\Pay\AddressHelper;
@@ -741,7 +742,7 @@ class AdminModule {
 
 		$line = $payment->lines->new_line();
 
-		$price = new TaxedMoney( $amount, 'INR' );
+		$price = new Money( $amount, 'INR' );
 
 		$line->set_name( __( 'Test', 'pronamic_ideal' ) );
 		$line->set_unit_price( $price );
@@ -980,6 +981,18 @@ class AdminModule {
 				'menu_slug'  => 'pronamic_pay_tools',
 				'function'   => function() {
 					$this->render_page( 'tools' );
+				},
+			);
+		}
+
+		if ( \filter_input( INPUT_GET, 'pronamic_pay_debug', FILTER_VALIDATE_BOOLEAN ) ) {
+			$submenu_pages[] = array(
+				'page_title' => __( 'Debug', 'pronamic_ideal' ),
+				'menu_title' => __( 'Debug', 'pronamic_ideal' ),
+				'capability' => 'manage_options',
+				'menu_slug'  => 'pronamic_pay_debug',
+				'function'   => function() {
+					$this->render_page( 'debug' );
 				},
 			);
 		}

@@ -11,6 +11,7 @@
 namespace Pronamic\WordPress\Pay\Core;
 
 use Pronamic\WordPress\Pay\Plugin;
+use WP_Post;
 use WP_Query;
 
 /**
@@ -39,6 +40,14 @@ class PaymentMethods {
 	 * @since 2.0.0
 	 */
 	const ALIPAY = 'alipay';
+
+	/**
+	 * American Express.
+	 * 
+	 * @var string
+	 * @since 3.0.1
+	 */
+	const AMERICAN_EXPRESS = 'american_express';
 
 	/**
 	 * Apple Pay
@@ -227,6 +236,15 @@ class PaymentMethods {
 	const MAESTRO = 'maestro';
 
 	/**
+	 * Constant for the Mastercard payment method.
+	 *
+	 * @link https://www.mastercard.nl/
+	 * @var string
+	 * @since 3.0.1
+	 */
+	const MASTERCARD = 'mastercard';
+
+	/**
 	 * Bancontact/Mister Cash
 	 *
 	 * @deprecated "Bancontact/Mister Cash" was renamed to just "Bancontact".
@@ -275,6 +293,14 @@ class PaymentMethods {
 	const SOFORT = 'sofort';
 
 	/**
+	 * SprayPay
+	 *
+	 * @var string
+	 * @since 2.8.0
+	 */
+	const SPRAYPAY = 'spraypay';
+
+	/**
 	 * Swish
 	 *
 	 * @var string
@@ -283,12 +309,30 @@ class PaymentMethods {
 	const SWISH = 'swish';
 
 	/**
+	 * Constant for the V PAY payment method.
+	 *
+	 * @link https://en.wikipedia.org/wiki/V_Pay
+	 * @var string
+	 * @since 3.0.1
+	 */
+	const V_PAY = 'v_pay';
+
+	/**
 	 * Vipps
 	 *
 	 * @var string
 	 * @since 2.6.3
 	 */
 	const VIPPS = 'vipps';
+
+	/**
+	 * Constant for the Visa payment method.
+	 *
+	 * @link https://www.visa.nl/
+	 * @var string
+	 * @since 3.0.1
+	 */
+	const VISA = 'visa';
 
 	/**
 	 * Get payment methods
@@ -300,6 +344,7 @@ class PaymentMethods {
 		$payment_methods = array(
 			self::AFTERPAY                => __( 'AfterPay', 'pronamic_ideal' ),
 			self::ALIPAY                  => __( 'Alipay', 'pronamic_ideal' ),
+			self::AMERICAN_EXPRESS        => __( 'American Express', 'pronamic_ideal' ),
 			self::APPLE_PAY               => __( 'Apple Pay', 'pronamic_ideal' ),
 			self::BANCONTACT              => __( 'Bancontact', 'pronamic_ideal' ),
 			self::BANK_TRANSFER           => __( 'Bank Transfer', 'pronamic_ideal' ),
@@ -336,13 +381,17 @@ class PaymentMethods {
 			self::KBC                     => __( 'KBC/CBC Payment Button', 'pronamic_ideal' ),
 			self::KLARNA_PAY_LATER        => __( 'Klarna Pay Later', 'pronamic_ideal' ),
 			self::MAESTRO                 => __( 'Maestro', 'pronamic_ideal' ),
+			self::MASTERCARD              => __( 'Mastercard', 'pronamic_ideal' ),
 			self::PAYCONIQ                => __( 'Payconiq', 'pronamic_ideal' ),
 			self::PAYPAL                  => __( 'PayPal', 'pronamic_ideal' ),
 			self::PRZELEWY24              => __( 'Przelewy24', 'pronamic_ideal' ),
 			self::SANTANDER               => __( 'Santander', 'pronamic_ideal' ),
 			self::SOFORT                  => __( 'SOFORT Banking', 'pronamic_ideal' ),
+			self::SPRAYPAY                => __( 'SprayPay', 'pronamic_ideal' ),
 			self::SWISH                   => __( 'Swish', 'pronamic_ideal' ),
+			self::V_PAY                   => __( 'V PAY', 'pronamic_ideal' ),
 			self::VIPPS                   => __( 'Vipps', 'pronamic_ideal' ),
+			self::VISA                    => __( 'Visa', 'pronamic_ideal' ),
 		);
 
 		return $payment_methods;
@@ -513,6 +562,10 @@ class PaymentMethods {
 		);
 
 		foreach ( $query->posts as $config_id ) {
+			if ( $config_id instanceof WP_Post ) {
+				$config_id = $config_id->ID;
+			}
+
 			$gateway = Plugin::get_gateway( $config_id );
 
 			if ( ! $gateway ) {
