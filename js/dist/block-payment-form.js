@@ -1,12 +1,12 @@
 /* globals pronamic_payment_form */
-( function ( blocks, components, editor, element ) {
+( function ( wp, blocks, components, editor, element ) {
 	var el = element.createElement;
 	var Fragment = element.Fragment;
 	var InspectorControls = editor.InspectorControls;
 	var Button = components.Button;
 	var Placeholder = components.Placeholder;
 	var TextControl = components.TextControl;
-	var ServerSideRender = components.ServerSideRender;
+	var ServerSideRender = wp.serverSideRender;
 
 	/**
 	 * Register payment form block type.
@@ -49,6 +49,8 @@
 				el( InspectorControls, null,
 					el( Fragment, null,
 						el( TextControl, {
+							type: 'number',
+							step: 'any',
 							label: pronamic_payment_form.label_amount,
 							value: amount,
 							onChange: onChangeAmount
@@ -64,6 +66,8 @@
 					},
 					el( Fragment, null,
 						el( TextControl, {
+							type: 'number',
+							step: 'any',
 							label: pronamic_payment_form.label_amount,
 							onChange: function ( value ) {
 							},
@@ -97,8 +101,9 @@
 		}
 	} );
 } )(
+	window.wp,
 	window.wp.blocks,
 	window.wp.components,
-	window.wp.editor,
+	window.wp.blockEditor,
 	window.wp.element
 );
