@@ -650,7 +650,7 @@ class AdminModule {
 		}
 
 		// Currency.
-		$currency = Currency::get_instance( 'EUR' );
+		$currency = Currency::get_instance( 'INR' );
 
 		// Amount.
 		$string = \filter_input( INPUT_POST, 'test_amount', \FILTER_SANITIZE_STRING );
