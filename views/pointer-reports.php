@@ -3,7 +3,7 @@
  * Pointer Reports
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2021 Pronamic
+ * @copyright 2005-2022 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -21,7 +21,7 @@ if ( ! isset( $admin_tour ) ) {
 </p>
 
 <div class="wp-pointer-buttons pp-pointer-buttons">
-	<a href="<?php echo \esc_attr( add_query_arg( 'post_type', 'pronamic_gateway', admin_url( 'edit.php' ) ) ); ?>" class="button-secondary pp-pointer-button-prev"><?php esc_html_e( 'Previous', 'pronamic_ideal' ); ?></a>
+	<a href="<?php echo \esc_url( add_query_arg( 'post_type', 'pronamic_gateway', admin_url( 'edit.php' ) ) ); ?>" class="button-secondary pp-pointer-button-prev"><?php esc_html_e( 'Previous', 'pronamic_ideal' ); ?></a>
 
 	<span class="pp-pointer-buttons-right">
 		<a href="<?php echo \esc_url( $admin_tour->get_close_url() ); ?>" class="button-secondary pp-pointer-button-close"><?php esc_html_e( 'Close', 'pronamic_ideal' ); ?></a>

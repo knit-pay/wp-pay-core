@@ -3,7 +3,7 @@
  * Gateway Post Type
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2021 Pronamic
+ * @copyright 2005-2022 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -131,10 +131,6 @@ class AdminGatewayPostType {
 						get_post_meta( $post_id, '_pronamic_gateway_targetpay_layoutcode', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_ogone_psp_id', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_ogone_user_id', true ),
-						get_post_meta( $post_id, '_pronamic_gateway_instamojo_client_id', true ),
-						get_post_meta( $post_id, '_pronamic_gateway_easebuzz_merchant_key', true ),
-						get_post_meta( $post_id, '_pronamic_gateway_payumoney_merchant_key', true ),
-						get_post_meta( $post_id, '_pronamic_gateway_razorpay_key_id', true ),
 					)
 				);
 
@@ -292,16 +288,18 @@ class AdminGatewayPostType {
 	public function meta_box_config( $post ) {
 		wp_nonce_field( 'pronamic_pay_save_gateway', 'pronamic_pay_nonce' );
 
+		$plugin = $this->plugin;
+
 		$gateway = Plugin::get_gateway( $post->ID );
 
 		include __DIR__ . '/../../views/meta-box-gateway-config.php';
 
-		wp_localize_script(
+		\wp_localize_script(
 			'pronamic-pay-admin',
 			'pronamicPayGatewayAdmin',
 			array(
-				'rest_url' => rest_url( 'pronamic-pay/v1/gateways/' . $post->ID ),
-				'nonce'    => wp_create_nonce( 'wp_rest' ),
+				'rest_url' => \rest_url( 'pronamic-pay/v1/gateways/' . $post->ID . '/admin' ),
+				'nonce'    => \wp_create_nonce( 'wp_rest' ),
 			)
 		);
 	}
@@ -357,6 +355,19 @@ class AdminGatewayPostType {
 			}
 		);
 
+		$columns = array(
+			'payment_method' => __( 'Payment method', 'pronamic_ideal' ),
+			'active'         => __( 'Active', 'pronamic_ideal' ),
+		);
+
+		if ( null !== $gateway_id ) {
+			$integration = pronamic_pay_plugin()->gateway_integrations->get_integration( $gateway_id );
+
+			if ( null !== $integration && $integration->supports( 'recurring' ) ) {
+				$columns['recurring'] = __( 'Recurring', 'pronamic_ideal' );
+			}
+		}
+
 		require __DIR__ . '/../../views/meta-box-gateway-payment-methods.php';
 	}
 
@@ -404,7 +415,7 @@ class AdminGatewayPostType {
 		\check_admin_referer( 'pronamic_pay_save_gateway', 'pronamic_pay_nonce' );
 
 		// If this is an autosave, our form has not been submitted, so we don't want to do anything.
-		if ( \defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		if ( \defined( 'DOING_AUTOSAVE' ) && \DOING_AUTOSAVE ) {
 			return;
 		}
 
