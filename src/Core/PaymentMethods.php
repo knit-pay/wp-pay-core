@@ -486,6 +486,14 @@ class PaymentMethods {
 			$size = '640x360';
 		}
 
+		// Added by Knit Pay.
+		$file_relative_path = '/images/' . str_replace( '_', '-', $method );
+		$image_file         = KNITPAY_DIR . $file_relative_path;
+		$svg_file_name      = '/icon.svg';
+		if ( file_exists( $image_file . $svg_file_name ) ) {
+			return esc_attr( KNITPAY_URL ) . $file_relative_path . $svg_file_name;
+		}
+
 		return \sprintf(
 			'https://cdn.wp-pay.org/jsdelivr.net/npm/@wp-pay/logos@1.7.0/dist/methods/%1$s/method-%1$s-%2$s.svg',
 			\str_replace( '_', '-', $method ),
