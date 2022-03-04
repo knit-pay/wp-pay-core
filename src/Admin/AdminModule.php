@@ -932,12 +932,13 @@ class AdminModule {
 				'capability' => 'edit_payments',
 				'menu_slug'  => 'edit.php?post_type=pronamic_payment',
 			),
+			/*
 			array(
 				'page_title' => __( 'Subscriptions', 'pronamic_ideal' ),
 				'menu_title' => __( 'Subscriptions', 'pronamic_ideal' ),
 				'capability' => 'edit_payments',
 				'menu_slug'  => 'edit.php?post_type=pronamic_pay_subscr',
-			),
+			), */
 			array(
 				'page_title' => __( 'Reports', 'pronamic_ideal' ),
 				'menu_title' => __( 'Reports', 'pronamic_ideal' ),
