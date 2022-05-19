@@ -37,7 +37,7 @@ class AdminSettings {
 		$this->plugin = $plugin;
 
 		// Actions.
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_init', [ $this, 'admin_init' ] );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class AdminSettings {
 		add_settings_section(
 			'pronamic_pay_general',
 			__( 'General', 'pronamic_ideal' ),
-			array( $this, 'settings_section' ),
+			[ $this, 'settings_section' ],
 			'pronamic_pay'
 		);
 
@@ -58,66 +58,66 @@ class AdminSettings {
 		 add_settings_field(
 			'pronamic_pay_license_key',
 			__( 'Support License Key', 'pronamic_ideal' ),
-			array( $this, 'input_license_key' ),
+			[ $this, 'input_license_key' ],
 			'pronamic_pay',
 			'pronamic_pay_general',
-			array(
+			[
 				'label_for' => 'pronamic_pay_license_key',
 				'classes'   => 'regular-text code',
-			)
+			]
 		); */
 
 		// Default Config.
 		add_settings_field(
 			'pronamic_pay_config_id',
 			__( 'Default Gateway', 'pronamic_ideal' ),
-			array( $this, 'input_page' ),
+			[ $this, 'input_page' ],
 			'pronamic_pay',
 			'pronamic_pay_general',
-			array(
+			[
 				'post_type'        => 'pronamic_gateway',
 				'show_option_none' => __( '— Select a gateway —', 'pronamic_ideal' ),
 				'label_for'        => 'pronamic_pay_config_id',
-			)
+			]
 		);
 
 		// Google Analytics property UA code.
 		add_settings_field(
 			'pronamic_pay_google_analytics_property',
 			__( 'Google Analytics tracking ID', 'pronamic_ideal' ),
-			array( $this, 'input_element' ),
+			[ $this, 'input_element' ],
 			'pronamic_pay',
 			'pronamic_pay_general',
-			array(
+			[
 				'description' => __( 'Set a Google Analytics tracking UA code to track ecommerce revenue.', 'pronamic_ideal' ),
 				'label_for'   => 'pronamic_pay_google_analytics_property',
 				'classes'     => 'regular-text code',
-			)
+			]
 		);
 
 		// Remove data on uninstall.
 		add_settings_field(
 			'pronamic_pay_uninstall_clear_data',
 			__( 'Remove Data', 'pronamic_ideal' ),
-			array( $this, 'input_checkbox' ),
+			[ $this, 'input_checkbox' ],
 			'pronamic_pay',
 			'pronamic_pay_general',
-			array(
+			[
 				'legend'      => __( 'Remove Data', 'pronamic_ideal' ),
 				'description' => __( 'Remove all plugin data on uninstall', 'pronamic_ideal' ),
 				'label_for'   => 'pronamic_pay_uninstall_clear_data',
 				'classes'     => 'regular-text',
 				'type'        => 'checkbox',
-			)
+			]
 		);
 
 		// Debug mode.
-		$debug_mode_args = array(
+		$debug_mode_args = [
 			'legend'      => \__( 'Debug Mode', 'pronamic_ideal' ),
 			'description' => \__( 'Enable debug mode', 'pronamic_ideal' ),
 			'label_for'   => 'pronamic_pay_debug_mode',
 			'type'        => 'checkbox',
-		);
+		];
 
 		if ( \PRONAMIC_PAY_DEBUG ) {
 			$debug_mode_args['value']    = true;
@@ -127,7 +127,7 @@ class AdminSettings {
 		\add_settings_field(
 			'pronamic_pay_debug_mode',
 			\__( 'Debug Mode', 'pronamic_ideal' ),
-			array( $this, 'input_checkbox' ),
+			[ $this, 'input_checkbox' ],
 			'pronamic_pay',
 			'pronamic_pay_general',
 			$debug_mode_args
@@ -137,15 +137,15 @@ class AdminSettings {
 			\add_settings_field(
 				'pronamic_pay_subscriptions_processing_disabled',
 				\__( 'Disable Recurring Payments', 'pronamic_ideal' ),
-				array( $this, 'input_checkbox' ),
+				[ $this, 'input_checkbox' ],
 				'pronamic_pay',
 				'pronamic_pay_general',
-				array(
+				[
 					'legend'      => \__( 'Disable starting recurring payments at gateway', 'pronamic_ideal' ),
 					'description' => \__( 'Disable starting recurring payments at gateway', 'pronamic_ideal' ),
 					'label_for'   => 'pronamic_pay_subscriptions_processing_disabled',
 					'type'        => 'checkbox',
-				)
+				]
 			);
 		}
 
@@ -153,7 +153,7 @@ class AdminSettings {
 		add_settings_section(
 			'pronamic_pay_pages',
 			__( 'Payment Status Pages', 'pronamic_ideal' ),
-			array( $this, 'settings_section' ),
+			[ $this, 'settings_section' ],
 			'pronamic_pay'
 		);
 
@@ -165,12 +165,12 @@ class AdminSettings {
 			add_settings_field(
 				$id,
 				$label,
-				array( $this, 'input_page' ),
+				[ $this, 'input_page' ],
 				'pronamic_pay',
 				'pronamic_pay_pages',
-				array(
+				[
 					'label_for' => $id,
-				)
+				]
 			);
 		}
 	}
@@ -188,7 +188,7 @@ class AdminSettings {
 				esc_html_e( 'The page an user will get redirected to after payment, based on the payment status.', 'pronamic_ideal' );
 				echo '</p>';
 
-				$pages = array( 'completed', 'cancel', 'expired', 'error', 'unknown' );
+				$pages = [ 'completed', 'cancel', 'expired', 'error', 'unknown' ];
 
 				foreach ( $pages as $status ) {
 					$option_name = sprintf( 'pronamic_pay_%s_page_id', $status );
@@ -220,24 +220,24 @@ class AdminSettings {
 	 * @return void
 	 */
 	public function input_element( $args ) {
-		$defaults = array(
+		$defaults = [
 			'type'        => 'text',
 			'classes'     => 'regular-text',
 			'description' => '',
-		);
+		];
 
 		$args = wp_parse_args( $args, $defaults );
 
 		$name  = $args['label_for'];
 		$value = get_option( $name );
 
-		$atts = array(
+		$atts = [
 			'name'  => $name,
 			'id'    => $name,
 			'type'  => $args['type'],
 			'class' => $args['classes'],
 			'value' => $value,
-		);
+		];
 
 		printf(
 			'<input %s />',

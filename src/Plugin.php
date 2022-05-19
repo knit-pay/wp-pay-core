@@ -78,7 +78,7 @@ class Plugin {
 	 *
 	 * @return Plugin
 	 */
-	public static function instance( $args = array() ) {
+	public static function instance( $args = [] ) {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self( $args );
 		}
@@ -238,18 +238,18 @@ class Plugin {
 	 *
 	 * @param string|array|object $args The plugin arguments.
 	 */
-	public function __construct( $args = array() ) {
+	public function __construct( $args = [] ) {
 		$args = wp_parse_args(
 			$args,
-			array(
+			[
 				'file'    => null,
-				'options' => array(),
-			)
+				'options' => [],
+			]
 		);
 
 		// Version from plugin file header.
 		if ( null !== $args['file'] ) {
-			$file_data = get_file_data( $args['file'], array( 'Version' => 'Version' ) );
+			$file_data = get_file_data( $args['file'], [ 'Version' => 'Version' ] );
 
 			if ( \array_key_exists( 'Version', $file_data ) ) {
 				$this->version = $file_data['Version'];
@@ -264,7 +264,7 @@ class Plugin {
 		$this->options = $args['options'];
 
 		// Integrations.
-		$this->integrations = array();
+		$this->integrations = [];
 
 		/*
 		 * Plugins loaded.
@@ -281,20 +281,20 @@ class Plugin {
 		 * @link https://github.com/wp-e-commerce/WP-e-Commerce/blob/branch-3.11.2/wp-shopping-cart.php#L54
 		 * @link https://github.com/wp-e-commerce/WP-e-Commerce/blob/branch-3.11.2/wp-shopping-cart.php#L296-L297
 		 */
-		add_action( 'plugins_loaded', array( $this, 'plugins_loaded' ), 0 );
+		add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ], 0 );
 
 		// Plugin locale.
-		add_filter( 'plugin_locale', array( $this, 'plugin_locale' ), 10, 2 );
+		add_filter( 'plugin_locale', [ $this, 'plugin_locale' ], 10, 2 );
 
 		// Register styles.
-		add_action( 'init', array( $this, 'register_styles' ), 9 );
+		add_action( 'init', [ $this, 'register_styles' ], 9 );
 
 		// If WordPress is loaded check on returns and maybe redirect requests.
-		add_action( 'wp_loaded', array( $this, 'handle_returns' ), 10 );
-		add_action( 'wp_loaded', array( $this, 'maybe_redirect' ), 10 );
+		add_action( 'wp_loaded', [ $this, 'handle_returns' ], 10 );
+		add_action( 'wp_loaded', [ $this, 'maybe_redirect' ], 10 );
 
 		// Default date time format.
-		add_filter( 'pronamic_datetime_default_format', array( $this, 'datetime_format' ), 10, 1 );
+		add_filter( 'pronamic_datetime_default_format', [ $this, 'datetime_format' ], 10, 1 );
 
 		/**
 		 * Action scheduler.
@@ -369,19 +369,24 @@ class Plugin {
 		}
 
 		// Update status.
-		$gateway->update_status( $payment );
+		try {
+			$gateway->update_status( $payment );
 
-		// Add gateway errors as payment notes.
-		$error = $gateway->get_error();
+			// Update payment in data store.
+			$payment->save();
+		} catch ( \Exception $error ) {
+			$message = $error->getMessage();
 
-		if ( $error instanceof WP_Error ) {
-			foreach ( $error->get_error_codes() as $code ) {
-				$payment->add_note( sprintf( '%s: %s', $code, $error->get_error_message( $code ) ) );
+			// Maybe include error code in message.
+			$code = $error->getCode();
+
+			if ( $code > 0 ) {
+				$message = \sprintf( '%s: %s', $code, $message );
 			}
-		}
 
-		// Update payment in data store.
-		$payment->save();
+			// Add note.
+			$payment->add_note( $message );
+		}
 
 		// Maybe redirect.
 		if ( ! $can_redirect ) {
@@ -522,13 +527,7 @@ class Plugin {
 			if ( $gateway->is_html_form() ) {
 				$gateway->start( $payment );
 
-				$error = $gateway->get_error();
-
-				if ( $error instanceof WP_Error ) {
-					self::render_errors( $error );
-				} else {
-					$gateway->redirect( $payment );
-				}
+				$gateway->redirect( $payment );
 			}
 		}
 
@@ -589,7 +588,7 @@ class Plugin {
 		$this->subscription_post_type = new SubscriptionPostType();
 
 		// License Manager.
-		// $this->license_manager = new LicenseManager( $this );
+		// $this->license_manager = new LicenseManager();
 
 		// Privacy Manager.
 		$this->privacy_manager = new PrivacyManager();
@@ -619,7 +618,7 @@ class Plugin {
 			$this->admin = new Admin\AdminModule( $this );
 		}
 
-		$gateways = array();
+		$gateways = [];
 
 		/**
 		 * Filters the gateway integrations.
@@ -634,7 +633,7 @@ class Plugin {
 			$integration->setup();
 		}
 
-		$plugin_integrations = array();
+		$plugin_integrations = [];
 
 		/**
 		 * Filters the plugin integrations.
@@ -656,10 +655,10 @@ class Plugin {
 		PaymentMethods::maybe_update_active_payment_methods();
 
 		// Filters.
-		\add_filter( 'pronamic_payment_redirect_url', array( $this, 'payment_redirect_url' ), 10, 2 );
+		\add_filter( 'pronamic_payment_redirect_url', [ $this, 'payment_redirect_url' ], 10, 2 );
 
 		// Actions.
-		\add_action( 'pronamic_pay_pre_create_payment', array( __CLASS__, 'complement_payment' ), 10, 1 );
+		\add_action( 'pronamic_pay_pre_create_payment', [ __CLASS__, 'complement_payment' ], 10, 1 );
 	}
 
 	/**
@@ -718,7 +717,7 @@ class Plugin {
 	 * @return string
 	 */
 	public static function get_default_error_message() {
-		return __( 'Something went wrong with the payment. Please try again later or pay another way.', 'pronamic_ideal' );
+		return __( 'Something went wrong with the payment. Please try again or pay another way.', 'pronamic_ideal' );
 	}
 
 	/**
@@ -733,7 +732,7 @@ class Plugin {
 		\wp_register_style(
 			'pronamic-pay-redirect',
 			\plugins_url( 'css/redirect' . $min . '.css', \dirname( __FILE__ ) ),
-			array(),
+			[],
 			$this->get_version()
 		);
 	}
@@ -750,22 +749,22 @@ class Plugin {
 			$payment_method = null;
 		}
 
-		$args = array(
+		$args = [
 			'post_type' => 'pronamic_gateway',
 			'orderby'   => 'post_title',
 			'order'     => 'ASC',
 			'nopaging'  => true,
-		);
+		];
 
 		if ( null !== $payment_method ) {
 			$config_ids = PaymentMethods::get_config_ids( $payment_method );
 
-			$args['post__in'] = empty( $config_ids ) ? array( 0 ) : $config_ids;
+			$args['post__in'] = empty( $config_ids ) ? [ 0 ] : $config_ids;
 		}
 
 		$query = new WP_Query( $args );
 
-		$options = array( __( '— Select Configuration —', 'pronamic_ideal' ) );
+		$options = [ __( '— Select Configuration —', 'pronamic_ideal' ) ];
 
 		foreach ( $query->posts as $post ) {
 			if ( ! \is_object( $post ) ) {
@@ -774,11 +773,7 @@ class Plugin {
 
 			$id = $post->ID;
 
-			$options[ $id ] = sprintf(
-				'%s (%s)',
-				get_the_title( $id ),
-				get_post_meta( $id, '_pronamic_gateway_mode', true )
-			);
+			$options[ $id ] = \get_the_title( $id );
 		}
 
 		return $options;
@@ -790,9 +785,9 @@ class Plugin {
 	 * @param array|WP_Error $errors An array with errors to render.
 	 * @return void
 	 */
-	public static function render_errors( $errors = array() ) {
+	public static function render_errors( $errors = [] ) {
 		if ( ! is_array( $errors ) ) {
-			$errors = array( $errors );
+			$errors = [ $errors ];
 		}
 
 		foreach ( $errors as $pay_error ) {
@@ -820,7 +815,7 @@ class Plugin {
 	 *
 	 * @return null|Gateway
 	 */
-	public static function get_gateway( $config_id, $args = array() ) {
+	public static function get_gateway( $config_id, $args = [] ) {
 		// Get gateway from data store.
 		$gateway = \pronamic_pay_plugin()->gateways_data_store->get_gateway( $config_id );
 
@@ -829,9 +824,9 @@ class Plugin {
 			// Get integration.
 			$args = wp_parse_args(
 				$args,
-				array(
+				[
 					'gateway_id' => \get_post_meta( $config_id, '_pronamic_gateway_id', true ),
-				)
+				]
 			);
 
 			$integration = pronamic_pay_plugin()->gateway_integrations->get_integration( $args['gateway_id'] );
@@ -924,15 +919,6 @@ class Plugin {
 			$payment->set_version( pronamic_pay_plugin()->get_version() );
 		}
 
-		// Mode.
-		$config_id = $payment->get_config_id();
-
-		if ( null === $payment->get_mode() && null !== $config_id ) {
-			$mode = get_post_meta( $config_id, '_pronamic_gateway_mode', true );
-
-			$payment->set_mode( $mode );
-		}
-
 		// Issuer.
 		$issuer = $payment->get_meta( 'issuer' );
 
@@ -943,7 +929,7 @@ class Plugin {
 			}
 
 			// iDEAL.
-			$ideal_methods = array( PaymentMethods::IDEAL, PaymentMethods::DIRECT_DEBIT_IDEAL );
+			$ideal_methods = [ PaymentMethods::IDEAL, PaymentMethods::DIRECT_DEBIT_IDEAL ];
 
 			if ( \in_array( $payment->get_payment_method(), $ideal_methods, true ) && \filter_has_var( INPUT_POST, 'pronamic_ideal_issuer_id' ) ) {
 				$issuer = \filter_input( INPUT_POST, 'pronamic_ideal_issuer_id', FILTER_SANITIZE_STRING );
@@ -1050,6 +1036,24 @@ class Plugin {
 		// Save payment.
 		$payment->save();
 
+		// Periods.
+		$periods = $payment->get_periods();
+
+		if ( null !== $periods ) {
+			foreach ( $periods as $period ) {
+				$subscription = $period->get_phase()->get_subscription();
+
+				$subscription->set_next_payment_date( \max( $subscription->get_next_payment_date(), $period->get_end_date() ) );
+			}
+		}
+
+		// Subscriptions.
+		$subscriptions = $payment->get_subscriptions();
+
+		foreach ( $subscriptions as $subscription ) {
+			$subscription->save();
+		}
+
 		// Gateway.
 		$gateway = $payment->get_gateway();
 
@@ -1061,6 +1065,9 @@ class Plugin {
 			return $payment;
 		}
 
+		// Mode.
+		$payment->set_mode( $gateway->get_mode() );
+
 		// Subscriptions.
 		$subscriptions = $payment->get_subscriptions();
 
@@ -1068,68 +1075,31 @@ class Plugin {
 			throw new \Exception( 'Gateway does not support recurring payments.' );
 		}
 
-		// Periods.
-		$periods = $payment->get_periods();
-
-		if ( null !== $periods ) {
-			foreach ( $periods as $period ) {
-				$phase = $period->get_phase();
-
-				$phase->set_next_date( \max( $phase->get_next_date(), $period->get_end_date() ) );
-			}
-		}
-
-		// Subscriptions.
-		foreach ( $subscriptions as $subscription ) {
-			$subscription->save();
-		}
-
 		// Start payment at the gateway.
 		try {
 			$gateway->start( $payment );
-
-			// Add gateway errors as payment notes.
-			$error = $gateway->get_error();
-
-			if ( $error instanceof \WP_Error ) {
-				$message = $error->get_error_message();
-				$code    = $error->get_error_code();
-
-				if ( ! \is_int( $code ) ) {
-					$message = sprintf( '%s: %s', $code, $message );
-					$code    = 0;
-				}
-
-				throw new \Exception( $message, $code );
-			}
-		} catch ( \Exception $error ) {
-			$message = $error->getMessage();
+		} catch ( \Exception $exception ) {
+			$message = $exception->getMessage();
 
 			// Maybe include error code in message.
-			$code = $error->getCode();
+			$code = $exception->getCode();
 
 			if ( $code > 0 ) {
 				$message = \sprintf( '%s: %s', $code, $message );
 			}
 
-			// Add note.
 			$payment->add_note( $message );
 
-			// Set payment status.
 			$payment->set_status( PaymentStatus::FAILURE );
-		}
 
-		// Save payment.
-		$payment->save();
+			throw $exception;
+		} finally {
+			$payment->save();
+		}
 
 		// Schedule payment status check.
 		if ( $gateway->supports( 'payment_status_request' ) ) {
 			StatusChecker::schedule_event( $payment );
-		}
-
-		// Throw/rethrow exception.
-		if ( $error instanceof \Exception ) {
-			throw $error;
 		}
 
 		return $payment;
@@ -1206,15 +1176,15 @@ class Plugin {
 	 * @return array
 	 */
 	public function get_pages() {
-		$return = array();
+		$return = [];
 
-		$pages = array(
+		$pages = [
 			'completed' => __( 'Completed', 'pronamic_ideal' ),
 			'cancel'    => __( 'Canceled', 'pronamic_ideal' ),
 			'expired'   => __( 'Expired', 'pronamic_ideal' ),
 			'error'     => __( 'Error', 'pronamic_ideal' ),
 			'unknown'   => __( 'Unknown', 'pronamic_ideal' ),
-		);
+		];
 
 		foreach ( $pages as $key => $label ) {
 			$id = sprintf( 'pronamic_pay_%s_page_id', $key );
@@ -1238,8 +1208,8 @@ class Plugin {
 		/**
 		 * Filters the payment redirect URL by plugin integration source.
 		 *
-		 * @param null|string $url     Redirect URL.
-		 * @param Payment     $payment Payment.
+		 * @param string  $url     Redirect URL.
+		 * @param Payment $payment Payment.
 		 */
 		$url = \apply_filters( 'pronamic_payment_redirect_url_' . $source, $url, $payment );
 

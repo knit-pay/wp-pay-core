@@ -10,20 +10,14 @@
 
 namespace Pronamic\WordPress\Pay\Subscriptions;
 
-use DateInterval;
-use Pronamic\WordPress\DateTime\DateTime;
 use Pronamic\WordPress\DateTime\DateTimeImmutable;
-use Pronamic\WordPress\DateTime\DateTimeZone;
 use Pronamic\WordPress\Money\Money;
 use Pronamic\WordPress\Pay\Core\PaymentMethods;
 use Pronamic\WordPress\Pay\Core\Server;
-use Pronamic\WordPress\Pay\Payments\PaymentStatus;
 use Pronamic\WordPress\Pay\Core\Util;
 use Pronamic\WordPress\Pay\Payments\Payment;
+use Pronamic\WordPress\Pay\Payments\PaymentStatus;
 use Pronamic\WordPress\Pay\Plugin;
-use WP_CLI;
-use WP_Error;
-use WP_Query;
 
 /**
  * Title: Subscriptions module
@@ -64,24 +58,28 @@ class SubscriptionsModule {
 		$this->privacy = new SubscriptionsPrivacy();
 
 		// Actions.
-		\add_action( 'wp_loaded', array( $this, 'maybe_handle_subscription_action' ) );
+		\add_action( 'wp_loaded', [ $this, 'maybe_handle_subscription_action' ] );
 
-		\add_action( 'init', array( $this, 'maybe_schedule_subscription_events' ) );
+		\add_action( 'init', [ $this, 'maybe_schedule_subscription_events' ] );
 
 		// Exclude subscription notes.
-		\add_filter( 'comments_clauses', array( $this, 'exclude_subscription_comment_notes' ), 10, 2 );
+		\add_filter( 'comments_clauses', [ $this, 'exclude_subscription_comment_notes' ], 10, 2 );
 
-		\add_action( 'pronamic_pay_pre_create_subscription', array( SubscriptionHelper::class, 'complement_subscription' ), 10, 1 );
-		\add_action( 'pronamic_pay_pre_create_payment', array( $this, 'complement_subscription_by_payment' ), 10, 1 );
+		\add_action( 'pronamic_pay_pre_create_subscription', [ SubscriptionHelper::class, 'complement_subscription' ], 10, 1 );
+		\add_action( 'pronamic_pay_pre_create_payment', [ $this, 'complement_subscription_by_payment' ], 10, 1 );
+
+		// Payment source filters.
+		\add_filter( 'pronamic_payment_source_text_subscription_payment_method_change', [ $this, 'source_text_subscription_payment_method_change' ] );
+		\add_filter( 'pronamic_payment_source_description_subscription_payment_method_change', [ $this, 'source_description_subscription_payment_method_change' ] );
 
 		// Listen to payment status changes so we can update related subscriptions.
-		\add_action( 'pronamic_payment_status_update', array( $this, 'payment_status_update' ) );
+		\add_action( 'pronamic_payment_status_update', [ $this, 'payment_status_update' ] );
 
 		// Listen to subscription status changes so we can log these in a note.
-		\add_action( 'pronamic_subscription_status_update', array( $this, 'log_subscription_status_update' ), 10, 4 );
+		\add_action( 'pronamic_subscription_status_update', [ $this, 'log_subscription_status_update' ], 10, 4 );
 
 		// REST API.
-		\add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
+		\add_action( 'rest_api_init', [ $this, 'rest_api_init' ] );
 
 		// Follow-up payments.
 		$follow_up_payments_controller = new SubscriptionsFollowUpPaymentsController();
@@ -162,7 +160,7 @@ class SubscriptionsModule {
 					 * @link https://www.europeanpaymentscouncil.eu/document-library/guidance-documents/guidance-reason-codes-sepa-direct-debit-r-transactions
 					 * @link https://github.com/pronamic/wp-pronamic-ideal/commit/48449417eac49eb6a93480e3b523a396c7db9b3d#diff-6712c698c6b38adfa7190a4be983a093
 					 */
-					$status_update = SubscriptionStatus::FAILURE;
+					$status_update = SubscriptionStatus::ON_HOLD;
 
 					break;
 				case PaymentStatus::CANCELLED:
@@ -185,7 +183,7 @@ class SubscriptionsModule {
 				$is_renewal = true;
 			}
 
-			if ( $is_renewal || ! in_array( $status_before, array( SubscriptionStatus::CANCELLED, SubscriptionStatus::COMPLETED, SubscriptionStatus::ON_HOLD ), true ) ) {
+			if ( $is_renewal || ! in_array( $status_before, [ SubscriptionStatus::CANCELLED, SubscriptionStatus::COMPLETED, SubscriptionStatus::ON_HOLD ], true ) ) {
 				$subscription->set_status( $status_update );
 			}
 
@@ -250,7 +248,7 @@ class SubscriptionsModule {
 	 * @return void
 	 */
 	public function maybe_handle_subscription_action() {
-		if ( ! Util::input_has_vars( INPUT_GET, array( 'subscription', 'action', 'key' ) ) ) {
+		if ( ! Util::input_has_vars( INPUT_GET, [ 'subscription', 'action', 'key' ] ) ) {
 			return;
 		}
 
@@ -395,14 +393,6 @@ class SubscriptionsModule {
 				exit;
 			}
 
-			$error = $gateway->get_error();
-
-			if ( $error instanceof WP_Error ) {
-				Plugin::render_errors( $error );
-
-				exit;
-			}
-
 			// Redirect.
 			try {
 				$gateway->redirect( $payment );
@@ -446,7 +436,7 @@ class SubscriptionsModule {
 
 			if ( ! empty( $mandate_id ) ) {
 				try {
-					if ( ! \is_callable( array( $gateway, 'update_subscription_mandate' ) ) ) {
+					if ( ! \is_callable( [ $gateway, 'update_subscription_mandate' ] ) ) {
 						throw new \Exception( __( 'Gateway does not support subscription mandate updates.', 'pronamic_ideal' ) );
 					}
 
@@ -465,6 +455,10 @@ class SubscriptionsModule {
 			// Start new first payment.
 			try {
 				$payment = $subscription->new_payment();
+
+				// Set source.
+				$payment->set_source( 'subscription_payment_method_change' );
+				$payment->set_source_id( null );
 
 				// Set payment method.
 				$payment_method = \filter_input( \INPUT_POST, 'pronamic_pay_subscription_payment_method', \FILTER_SANITIZE_STRING );
@@ -515,14 +509,6 @@ class SubscriptionsModule {
 				exit;
 			}
 
-			$error = $gateway->get_error();
-
-			if ( $error instanceof WP_Error ) {
-				Plugin::render_errors( $error );
-
-				exit;
-			}
-
 			$gateway->redirect( $payment );
 
 			return;
@@ -531,7 +517,7 @@ class SubscriptionsModule {
 		\wp_register_script(
 			'pronamic-pay-subscription-mandate',
 			'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js',
-			array( 'jquery' ),
+			[ 'jquery' ],
 			$this->plugin->get_version(),
 			false
 		);
@@ -539,21 +525,21 @@ class SubscriptionsModule {
 		\wp_register_style(
 			'pronamic-pay-card-slider-slick',
 			'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css',
-			array(),
+			[],
 			$this->plugin->get_version()
 		);
 
 		\wp_register_style(
 			'pronamic-pay-card-slider-google-font',
 			'https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap',
-			array(),
+			[],
 			$this->plugin->get_version()
 		);
 
 		\wp_register_style(
 			'pronamic-pay-subscription-mandate',
 			plugins_url( 'css/card-slider.css', dirname( dirname( __FILE__ ) ) ),
-			array( 'pronamic-pay-redirect', 'pronamic-pay-card-slider-slick', 'pronamic-pay-card-slider-google-font' ),
+			[ 'pronamic-pay-redirect', 'pronamic-pay-card-slider-slick', 'pronamic-pay-card-slider-google-font' ],
 			$this->plugin->get_version()
 		);
 
@@ -582,10 +568,10 @@ class SubscriptionsModule {
 		}
 
 		// Check for pending and successful child payments.
-		$payments = \get_pronamic_payments_by_meta( '', '', array( 'post_parent' => $payment->get_id() ) );
+		$payments = \get_pronamic_payments_by_meta( '', '', [ 'post_parent' => $payment->get_id() ] );
 
 		foreach ( $payments as $child_payment ) {
-			if ( \in_array( $child_payment->get_status(), array( PaymentStatus::OPEN, PaymentStatus::SUCCESS ), true ) ) {
+			if ( \in_array( $child_payment->get_status(), [ PaymentStatus::OPEN, PaymentStatus::SUCCESS ], true ) ) {
 				return false;
 			}
 		}
@@ -625,41 +611,41 @@ class SubscriptionsModule {
 		\register_rest_route(
 			'pronamic-pay/v1',
 			'/subscriptions/(?P<subscription_id>\d+)',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'rest_api_subscription' ),
+				'callback'            => [ $this, 'rest_api_subscription' ],
 				'permission_callback' => function() {
 					return \current_user_can( 'edit_payments' );
 				},
-				'args'                => array(
-					'subscription_id' => array(
+				'args'                => [
+					'subscription_id' => [
 						'description' => __( 'Subscription ID.', 'pronamic_ideal' ),
 						'type'        => 'integer',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		\register_rest_route(
 			'pronamic-pay/v1',
 			'/subscriptions/(?P<subscription_id>\d+)/phases/(?P<sequence_number>\d+)',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'rest_api_subscription_phase' ),
+				'callback'            => [ $this, 'rest_api_subscription_phase' ],
 				'permission_callback' => function() {
 					return \current_user_can( 'edit_payments' );
 				},
-				'args'                => array(
-					'subscription_id' => array(
+				'args'                => [
+					'subscription_id' => [
 						'description' => __( 'Subscription ID.', 'pronamic_ideal' ),
 						'type'        => 'integer',
-					),
-					'sequence_number' => array(
+					],
+					'sequence_number' => [
 						'description' => __( 'Subscription phase sequence number.', 'pronamic_ideal' ),
 						'type'        => 'integer',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -729,5 +715,25 @@ class SubscriptionsModule {
 		}
 
 		return $phase;
+	}
+
+	/**
+	 * Source text filter.
+	 *
+	 * @param string $text The source text to filter.
+	 * @return string
+	 */
+	public function source_text_subscription_payment_method_change( $text ) {
+		return __( 'Subscription payment method change', 'pronamic_ideal' );
+	}
+
+	/**
+	 * Source description filter.
+	 *
+	 * @param string $text The source text to filter.
+	 * @return string
+	 */
+	public function source_description_subscription_payment_method_change( $text ) {
+		return __( 'subscription payment method change', 'pronamic_ideal' );
 	}
 }

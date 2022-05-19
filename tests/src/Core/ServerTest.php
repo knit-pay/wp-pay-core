@@ -10,6 +10,8 @@
 
 namespace Pronamic\WordPress\Pay\Core;
 
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
 /**
  * Title: WordPress pay server test
  * Description:
@@ -20,13 +22,13 @@ namespace Pronamic\WordPress\Pay\Core;
  * @version 2.0.0
  * @since 1.1.0
  */
-class ServerTest extends \WP_UnitTestCase {
+class ServerTest extends TestCase {
 	/**
 	 * Test server get.
 	 */
 	public function test_server_get() {
 		$value = Server::get( 'REQUEST_METHOD', FILTER_SANITIZE_STRING );
 
-		$this->assertTrue( in_array( $value, array( null, 'GET' ), true ) );
+		$this->assertTrue( in_array( $value, [ null, 'GET' ], true ) );
 	}
 }

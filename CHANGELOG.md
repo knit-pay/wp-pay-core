@@ -5,7 +5,37 @@ All notable changes to this project will be documented in this file.
 This projects adheres to [Semantic Versioning](http://semver.org/) and [Keep a CHANGELOG](http://keepachangelog.com/).
 
 ## [Unreleased][unreleased]
-- Updated https://github.com/pronamic/wp-pay-logos to version `1.7.1`.
+-
+
+## [4.1.3] - 2022-05-04
+### Changed
+- Solved some PHPStan and Psalm errors.
+- Improved PHP 8.1 support.
+
+### Removed
+- Removed `plugins_api` filter, callback does not exist.
+- Removed specific s2Member code, we no longer support s2Member.
+- Removed specific WP e-Commerce code, we no longer support WP e-Commerce.
+
+## [4.1.2] - 2022-04-19
+### Fixed
+- Fixed plugin updater.
+
+## [4.1.1] - 2022-04-12
+### Changed
+- Changed WordPress requirement from `^5.9` to `^5.7`.
+
+## [4.1.0] - 2022-04-11
+### Added
+- Added a user interface to change a subscription's next payment date.
+- Added a count badge in the WordPress admin menu for the number of subscriptions on hold.
+
+### Changed
+- The next payment date is now stored in the subscription and no longer in the subscription phases.
+
+### Removed
+- The general / global gateway integration mode setting for test or live mode is removed.
+- Sorting payments by customer or transaction number in the WordPress admin dashboard has been removed.
 
 ## [4.0.2] - 2022-02-16
 - Changed minimum PHP version requirement to `7.4` ([pronamic/wp-pronamic-pay#274](https://github.com/pronamic/wp-pronamic-pay/issues/274)).
@@ -457,7 +487,11 @@ This projects adheres to [Semantic Versioning](http://semver.org/) and [Keep a C
 ## 1.0.0
 - First release.
 
-[unreleased]: https://github.com/pronamic/wp-pay-core/compare/4.0.2...HEAD
+[unreleased]: https://github.com/pronamic/wp-pay-core/compare/4.1.3...HEAD
+[4.1.3]: https://github.com/pronamic/wp-pay-core/compare/4.1.2...4.1.3
+[4.1.2]: https://github.com/pronamic/wp-pay-core/compare/4.1.1...4.1.2
+[4.1.1]: https://github.com/pronamic/wp-pay-core/compare/4.1.0...4.1.1
+[4.1.0]: https://github.com/pronamic/wp-pay-core/compare/4.0.2...4.1.0
 [4.0.2]: https://github.com/pronamic/wp-pay-core/compare/4.0.1...4.0.2
 [4.0.1]: https://github.com/pronamic/wp-pay-core/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/pronamic/wp-pay-core/compare/3.2.0...4.0.0

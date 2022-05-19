@@ -10,7 +10,7 @@
 
 namespace Pronamic\WordPress\Pay;
 
-use WP_UnitTestCase;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * Payment test
@@ -18,7 +18,7 @@ use WP_UnitTestCase;
  * @author Remco Tolsma
  * @version 2.2.6
  */
-class CreditCardTest extends WP_UnitTestCase {
+class CreditCardTest extends TestCase {
 	/**
 	 * Test construct payment object.
 	 */
@@ -93,13 +93,13 @@ class CreditCardTest extends WP_UnitTestCase {
 	 * @return array
 	 */
 	public function expiration_dates_provider() {
-		return array(
-			array( '2018', '12', new \DateTime( 'first day of December 2018' ) ),
-			array( 2018, 12, new \DateTime( 'first day of December 2018' ) ),
-			array( '2018', null, null ),
-			array( null, null, null ),
-			array( false, false, null ),
-		);
+		return [
+			[ '2018', '12', new \DateTime( 'first day of December 2018' ) ],
+			[ 2018, 12, new \DateTime( 'first day of December 2018' ) ],
+			[ '2018', null, null ],
+			[ null, null, null ],
+			[ false, false, null ],
+		];
 	}
 
 	/**

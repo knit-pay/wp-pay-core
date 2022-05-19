@@ -39,35 +39,26 @@ class AdminGatewayPostType {
 	private $plugin;
 
 	/**
-	 * Admin.
+	 * Construct admin gateway post type.
 	 *
-	 * @var AdminModule
+	 * @param Plugin $plugin Plugin.
 	 */
-	private $admin;
-
-	/**
-	 * Constructs and initializes an admin gateway post type object.
-	 *
-	 * @param Plugin      $plugin Plugin.
-	 * @param AdminModule $admin  Admin Module.
-	 */
-	public function __construct( Plugin $plugin, AdminModule $admin ) {
+	public function __construct( Plugin $plugin ) {
 		$this->plugin = $plugin;
-		$this->admin  = $admin;
 
-		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( $this, 'edit_columns' ) );
+		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', [ $this, 'edit_columns' ] );
 
-		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( $this, 'custom_columns' ), 10, 2 );
+		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', [ $this, 'custom_columns' ], 10, 2 );
 
-		add_action( 'post_edit_form_tag', array( $this, 'post_edit_form_tag' ) );
+		add_action( 'post_edit_form_tag', [ $this, 'post_edit_form_tag' ] );
 
-		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
+		add_action( 'add_meta_boxes', [ $this, 'add_meta_boxes' ] );
 
-		add_action( 'save_post_' . self::POST_TYPE, array( $this, 'save_post' ) );
+		add_action( 'save_post_' . self::POST_TYPE, [ $this, 'save_post' ] );
 
-		add_action( 'display_post_states', array( $this, 'display_post_states' ), 10, 2 );
+		add_action( 'display_post_states', [ $this, 'display_post_states' ], 10, 2 );
 
-		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
+		add_filter( 'post_updated_messages', [ $this, 'post_updated_messages' ] );
 	}
 
 	/**
@@ -77,14 +68,14 @@ class AdminGatewayPostType {
 	 * @return array
 	 */
 	public function edit_columns( $columns ) {
-		$columns = array(
+		$columns = [
 			'cb'                         => '<input type="checkbox" />',
 			'title'                      => __( 'Title', 'pronamic_ideal' ),
 			'pronamic_gateway_variant'   => __( 'Variant', 'pronamic_ideal' ),
 			'pronamic_gateway_id'        => __( 'ID', 'pronamic_ideal' ),
 			'pronamic_gateway_dashboard' => __( 'Dashboard', 'pronamic_ideal' ),
 			'date'                       => __( 'Date', 'pronamic_ideal' ),
-		);
+		];
 
 		return $columns;
 	}
@@ -118,7 +109,7 @@ class AdminGatewayPostType {
 				break;
 			case 'pronamic_gateway_id':
 				$data = array_filter(
-					array(
+					[
 						get_post_meta( $post_id, '_pronamic_gateway_ems_ecommerce_storename', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_ideal_merchant_id', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_buckaroo_website_key', true ),
@@ -131,7 +122,7 @@ class AdminGatewayPostType {
 						get_post_meta( $post_id, '_pronamic_gateway_targetpay_layoutcode', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_ogone_psp_id', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_ogone_user_id', true ),
-					)
+					]
 				);
 
 				$display_value = \implode( ' ', $data );
@@ -162,14 +153,14 @@ class AdminGatewayPostType {
 				break;
 			case 'pronamic_gateway_secret':
 				$data = array_filter(
-					array(
+					[
 						get_post_meta( $post_id, '_pronamic_gateway_ideal_basic_hash_key', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_omnikassa_secret_key', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_buckaroo_secret_key', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_icepay_secret_code', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_sisow_merchant_key', true ),
 						get_post_meta( $post_id, '_pronamic_gateway_ogone_password', true ),
-					)
+					]
 				);
 
 				echo esc_html( implode( ' ', $data ) );
@@ -177,35 +168,15 @@ class AdminGatewayPostType {
 				break;
 			case 'pronamic_gateway_dashboard':
 				if ( isset( $integration ) ) {
-					$urls = $integration->get_dashboard_url();
+					$url = $integration->get_dashboard_url();
 
-					// Output.
-					$content = array();
-
-					foreach ( $urls as $name => $url ) {
-						if ( empty( $name ) ) {
-							$name = __( 'Dashboard', 'pronamic_ideal' );
-						}
-
-						$content[] = sprintf(
+					if ( null !== $url ) {
+						\printf(
 							'<a href="%s" target="_blank">%s</a>',
-							esc_attr( $url ),
-							esc_html( ucfirst( strval( $name ) ) )
+							esc_url( $url ),
+							esc_html__( 'Dashboard', 'pronamic_ideal' )
 						);
 					}
-
-					echo wp_kses(
-						implode(
-							' | ',
-							$content
-						),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-							),
-						)
-					);
 				}
 
 				break;
@@ -263,7 +234,7 @@ class AdminGatewayPostType {
 		add_meta_box(
 			'pronamic_gateway_config',
 			__( 'Configuration', 'pronamic_ideal' ),
-			array( $this, 'meta_box_config' ),
+			[ $this, 'meta_box_config' ],
 			$post_type,
 			'normal',
 			'high'
@@ -272,7 +243,7 @@ class AdminGatewayPostType {
 		add_meta_box(
 			'pronamic_gateway_test',
 			__( 'Test', 'pronamic_ideal' ),
-			array( $this, 'meta_box_test' ),
+			[ $this, 'meta_box_test' ],
 			$post_type,
 			'normal',
 			'high'
@@ -297,10 +268,10 @@ class AdminGatewayPostType {
 		\wp_localize_script(
 			'pronamic-pay-admin',
 			'pronamicPayGatewayAdmin',
-			array(
+			[
 				'rest_url' => \rest_url( 'pronamic-pay/v1/gateways/' . $post->ID . '/admin' ),
 				'nonce'    => \wp_create_nonce( 'wp_rest' ),
-			)
+			]
 		);
 	}
 
@@ -323,29 +294,29 @@ class AdminGatewayPostType {
 		try {
 			$available = $gateway->get_transient_available_payment_methods();
 		} catch ( \Exception $e ) {
-			$available = array();
+			$available = [];
 		}
 
 		// Handle methods request support.
 		$supports_methods_request = false;
 
 		if ( null === $available ) {
-			$available = array();
+			$available = [];
 		} else {
 			// Set method request support variable for use in HTML.
 			$supports_methods_request = true;
 		}
 
-		$payment_methods = array();
+		$payment_methods = [];
 
 		foreach ( $supported as $payment_method ) {
 			$name = PaymentMethods::get_name( $payment_method );
 
-			$payment_methods[ $payment_method ] = (object) array(
+			$payment_methods[ $payment_method ] = (object) [
 				'id'        => $payment_method,
 				'name'      => $name,
 				'available' => in_array( $payment_method, $available, true ),
-			);
+			];
 		}
 
 		usort(
@@ -355,10 +326,10 @@ class AdminGatewayPostType {
 			}
 		);
 
-		$columns = array(
+		$columns = [
 			'payment_method' => __( 'Payment method', 'pronamic_ideal' ),
 			'active'         => __( 'Active', 'pronamic_ideal' ),
-		);
+		];
 
 		if ( null !== $gateway_id ) {
 			$integration = pronamic_pay_plugin()->gateway_integrations->get_integration( $gateway_id );
@@ -429,13 +400,6 @@ class AdminGatewayPostType {
 
 		\update_post_meta( $post_id, '_pronamic_gateway_id', $gateway_id );
 
-		// Mode.
-		if ( \filter_has_var( INPUT_POST, '_pronamic_gateway_mode' ) ) {
-			$gateway_mode = \filter_input( INPUT_POST, '_pronamic_gateway_mode', FILTER_SANITIZE_STRING );
-
-			\update_post_meta( $post_id, '_pronamic_gateway_mode', $gateway_mode );
-		}
-
 		// Transient.
 		\delete_transient( 'pronamic_outdated_webhook_urls' );
 
@@ -474,7 +438,7 @@ class AdminGatewayPostType {
 			}
 
 			// Filter options.
-			$options = array();
+			$options = [];
 
 			if ( isset( $filter['flags'] ) ) {
 				$options['flags'] = $filter['flags'];
@@ -520,7 +484,7 @@ class AdminGatewayPostType {
 		// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352797&filters[translation_id]=37948900
 		$scheduled_date = date_i18n( __( 'M j, Y @ H:i', 'pronamic_ideal' ), strtotime( $post->post_date ) );
 
-		$messages[ self::POST_TYPE ] = array(
+		$messages[ self::POST_TYPE ] = [
 			0  => '', // Unused. Messages start at index 1.
 			1  => __( 'Configuration updated.', 'pronamic_ideal' ),
 			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352799&filters[translation_id]=37947229
@@ -545,7 +509,7 @@ class AdminGatewayPostType {
 			9  => sprintf( __( 'Configuration scheduled for: %s.', 'pronamic_ideal' ), '<strong>' . $scheduled_date . '</strong>' ),
 			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352806&filters[translation_id]=37949301
 			10 => __( 'Configuration draft updated.', 'pronamic_ideal' ),
-		);
+		];
 
 		return $messages;
 	}

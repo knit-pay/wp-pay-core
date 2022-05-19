@@ -27,12 +27,12 @@ if ( ! isset( $admin_tour ) ) {
 			esc_attr( 'http://go.thearrangers.xyz/ninjaforms' ),
 			esc_attr( '_blank' )
 		),
-		array(
-			'a' => array(
+		[
+			'a' => [
 				'href'   => true,
 				'target' => true,
-			),
-		)
+			],
+		]
 	);
 
 	?>

@@ -10,6 +10,8 @@
 
 namespace Pronamic\WordPress\Pay;
 
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
 /**
  * Contact name helper test
  *
@@ -17,7 +19,7 @@ namespace Pronamic\WordPress\Pay;
  * @version 2.2.8
  * @since   2.2.8
  */
-class ContactNameHelperTest extends \PHPUnit\Framework\TestCase {
+class ContactNameHelperTest extends TestCase {
 	/**
 	 * Test empty name.
 	 */
@@ -99,24 +101,24 @@ class ContactNameHelperTest extends \PHPUnit\Framework\TestCase {
 	 * Test name from array.
 	 */
 	public function test_name_from_array() {
-		$name = ContactNameHelper::from_array( array() );
+		$name = ContactNameHelper::from_array( [] );
 
 		$this->assertNull( $name );
 
 		$name = ContactNameHelper::from_array(
-			array(
+			[
 				'first_name' => '',
 				'last_name'  => '',
-			)
+			]
 		);
 
 		$this->assertNull( $name );
 
 		$name = ContactNameHelper::from_array(
-			array(
+			[
 				'first_name' => 'John',
 				'last_name'  => '',
-			)
+			]
 		);
 
 		$this->assertEquals( 'John', $name->get_first_name() );

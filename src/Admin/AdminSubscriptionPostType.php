@@ -14,9 +14,8 @@ use Pronamic\WordPress\DateTime\DateTimeImmutable;
 use Pronamic\WordPress\Pay\Core\PaymentMethods;
 use Pronamic\WordPress\Pay\Plugin;
 use Pronamic\WordPress\Pay\Subscriptions\SubscriptionPeriod;
-use Pronamic\WordPress\Pay\Subscriptions\SubscriptionStatus;
-use Pronamic\WordPress\Pay\Util;
 use Pronamic\WordPress\Pay\Subscriptions\SubscriptionPostType;
+use Pronamic\WordPress\Pay\Util;
 use WP_Post;
 use WP_Query;
 
@@ -50,25 +49,28 @@ class AdminSubscriptionPostType {
 	public function __construct( $plugin ) {
 		$this->plugin = $plugin;
 
-		add_filter( 'request', array( $this, 'request' ) );
+		add_filter( 'request', [ $this, 'request' ] );
 
-		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( $this, 'columns' ) );
-		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( $this, 'sortable_columns' ) );
-		add_filter( 'list_table_primary_column', array( $this, 'primary_column' ), 10, 2 );
+		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', [ $this, 'columns' ] );
+		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', [ $this, 'sortable_columns' ] );
+		add_filter( 'bulk_actions-edit-' . self::POST_TYPE, [ $this, 'bulk_actions' ] );
+		add_filter( 'list_table_primary_column', [ $this, 'primary_column' ], 10, 2 );
 
-		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( $this, 'custom_columns' ), 10, 2 );
+		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', [ $this, 'custom_columns' ], 10, 2 );
 
-		add_action( 'load-post.php', array( $this, 'maybe_process_subscription_action' ) );
+		add_action( 'load-post.php', [ $this, 'maybe_process_subscription_action' ] );
 
-		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+		add_action( 'admin_notices', [ $this, 'admin_notices' ] );
 
-		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
+		add_action( 'add_meta_boxes', [ $this, 'add_meta_boxes' ] );
 
-		add_filter( 'post_row_actions', array( $this, 'post_row_actions' ), 10, 2 );
+		add_filter( 'post_row_actions', [ $this, 'post_row_actions' ], 10, 2 );
 
-		add_action( 'pre_get_posts', array( $this, 'pre_get_posts' ) );
+		add_action( 'pre_get_posts', [ $this, 'pre_get_posts' ] );
 
-		add_filter( 'removable_query_args', array( $this, 'removable_query_args' ) );
+		add_filter( 'removable_query_args', [ $this, 'removable_query_args' ] );
+
+		add_filter( 'post_updated_messages', [ $this, 'post_updated_messages' ] );
 	}
 
 	/**
@@ -115,6 +117,21 @@ class AdminSubscriptionPostType {
 		$args[] = 'pronamic_payment_created';
 
 		return $args;
+	}
+
+	/**
+	 * Custom bulk actions.
+	 *
+	 * @link https://make.wordpress.org/core/2016/10/04/custom-bulk-actions/
+	 * @link https://github.com/WordPress/WordPress/blob/4.7/wp-admin/includes/class-wp-list-table.php#L440-L452
+	 * @param array $bulk_actions Bulk actions.
+	 * @return array
+	 */
+	public function bulk_actions( $bulk_actions ) {
+		// Don't allow edit in bulk.
+		unset( $bulk_actions['edit'] );
+
+		return $bulk_actions;
 	}
 
 	/**
@@ -251,10 +268,9 @@ class AdminSubscriptionPostType {
 			return;
 		}
 
-		$map = array(
-			'pronamic_subscription_customer'     => '_pronamic_subscription_customer_name',
+		$map = [
 			'pronamic_subscription_next_payment' => '_pronamic_subscription_next_payment',
-		);
+		];
 
 		if ( ! isset( $map[ $orderby ] ) ) {
 			return;
@@ -273,7 +289,7 @@ class AdminSubscriptionPostType {
 	 * @return array
 	 */
 	public function columns( $columns ) {
-		$columns = array(
+		$columns = [
 			'cb'                                 => '<input type="checkbox" />',
 			'pronamic_subscription_status'       => sprintf(
 				'<span class="pronamic-pay-tip pronamic-pay-icon" title="%s">%s</span>',
@@ -287,7 +303,7 @@ class AdminSubscriptionPostType {
 			'pronamic_subscription_recurring'    => __( 'Recurrence', 'pronamic_ideal' ),
 			'pronamic_subscription_next_payment' => __( 'Next payment', 'pronamic_ideal' ),
 			'pronamic_subscription_date'         => __( 'Date', 'pronamic_ideal' ),
-		);
+		];
 
 		return $columns;
 	}
@@ -300,7 +316,6 @@ class AdminSubscriptionPostType {
 	 */
 	public function sortable_columns( $sortable_columns ) {
 		$sortable_columns['pronamic_subscription_title']        = 'ID';
-		$sortable_columns['pronamic_subscription_customer']     = 'pronamic_subscription_customer_name';
 		$sortable_columns['pronamic_subscription_next_payment'] = 'pronamic_subscription_next_payment';
 		$sortable_columns['pronamic_subscription_date']         = 'date';
 
@@ -418,13 +433,13 @@ class AdminSubscriptionPostType {
 						$source_description,
 						$source_id_text
 					),
-					array(
-						'a'      => array(
+					[
+						'a'      => [
 							'href'  => true,
 							'class' => true,
-						),
-						'strong' => array(),
-					)
+						],
+						'strong' => [],
+					]
 				);
 
 				break;
@@ -523,7 +538,7 @@ class AdminSubscriptionPostType {
 		add_meta_box(
 			'pronamic_subscription',
 			__( 'Subscription', 'pronamic_ideal' ),
-			array( $this, 'meta_box_info' ),
+			[ $this, 'meta_box_info' ],
 			$post_type,
 			'normal',
 			'high'
@@ -532,7 +547,7 @@ class AdminSubscriptionPostType {
 		add_meta_box(
 			'pronamic_payment_lines',
 			__( 'Payment Lines', 'pronamic_ideal' ),
-			array( $this, 'meta_box_lines' ),
+			[ $this, 'meta_box_lines' ],
 			$post_type,
 			'normal',
 			'high'
@@ -541,7 +556,7 @@ class AdminSubscriptionPostType {
 		add_meta_box(
 			'pronamic_subscription_phases',
 			__( 'Phases', 'pronamic_ideal' ),
-			array( $this, 'meta_box_phases' ),
+			[ $this, 'meta_box_phases' ],
 			$post_type,
 			'normal',
 			'high'
@@ -550,7 +565,7 @@ class AdminSubscriptionPostType {
 		add_meta_box(
 			'pronamic_subscription_payments',
 			__( 'Payments', 'pronamic_ideal' ),
-			array( $this, 'meta_box_payments' ),
+			[ $this, 'meta_box_payments' ],
 			$post_type,
 			'normal',
 			'high'
@@ -559,7 +574,7 @@ class AdminSubscriptionPostType {
 		add_meta_box(
 			'pronamic_subscription_notes',
 			__( 'Notes', 'pronamic_ideal' ),
-			array( $this, 'meta_box_notes' ),
+			[ $this, 'meta_box_notes' ],
 			$post_type,
 			'normal',
 			'high'
@@ -568,7 +583,7 @@ class AdminSubscriptionPostType {
 		add_meta_box(
 			'pronamic_subscription_update',
 			__( 'Update', 'pronamic_ideal' ),
-			array( $this, 'meta_box_update' ),
+			[ $this, 'meta_box_update' ],
 			$post_type,
 			'side',
 			'high'
@@ -621,11 +636,11 @@ class AdminSubscriptionPostType {
 	 */
 	public function meta_box_notes( $post ) {
 		$notes = get_comments(
-			array(
+			[
 				'post_id' => $post->ID,
 				'type'    => 'subscription_note',
-				'orderby' => array( 'comment_date_gmt', 'comment_ID' ),
-			)
+				'orderby' => [ 'comment_date_gmt', 'comment_ID' ],
+			]
 		);
 
 		include __DIR__ . '/../../views/meta-box-notes.php';
@@ -664,8 +679,6 @@ class AdminSubscriptionPostType {
 
 		$plugin = $this->plugin;
 
-		$periods = $subscription->get_payments_by_period();
-
 		include __DIR__ . '/../../views/meta-box-subscription-payments.php';
 	}
 
@@ -690,9 +703,54 @@ class AdminSubscriptionPostType {
 	 */
 	public function post_row_actions( $actions, $post ) {
 		if ( self::POST_TYPE === $post->post_type ) {
-			$actions = array( '' );
+			$actions = [ '' ];
 		}
 
 		return $actions;
+	}
+
+	/**
+	 * Post updated messages.
+	 *
+	 * @link https://codex.wordpress.org/Function_Reference/register_post_type
+	 * @link https://github.com/WordPress/WordPress/blob/4.4.2/wp-admin/edit-form-advanced.php#L134-L173
+	 * @link https://github.com/woothemes/woocommerce/blob/2.5.5/includes/admin/class-wc-admin-post-types.php#L111-L168
+	 * @param array $messages Message.
+	 * @return array
+	 */
+	public function post_updated_messages( $messages ) {
+		global $post;
+
+		// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352797&filters[translation_id]=37948900
+		$scheduled_date = date_i18n( __( 'M j, Y @ H:i', 'pronamic_ideal' ), strtotime( $post->post_date ) );
+
+		$messages[ self::POST_TYPE ] = [
+			0  => '', // Unused. Messages start at index 1.
+			1  => __( 'Subscription updated.', 'pronamic_ideal' ),
+			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352799&filters[translation_id]=37947229.
+			2  => $messages['post'][2],
+			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352800&filters[translation_id]=37947870.
+			3  => $messages['post'][3],
+			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352798&filters[translation_id]=37947230.
+			4  => __( 'Subscription updated.', 'pronamic_ideal' ),
+			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352801&filters[translation_id]=37947231.
+			/* phpcs:disable WordPress.Security.NonceVerification.Recommended */
+			/* translators: %s: date and time of the revision */
+			5  => isset( $_GET['revision'] ) ? sprintf( __( 'Subscription restored to revision from %s.', 'pronamic_ideal' ), strval( wp_post_revision_title( (int) $_GET['revision'], false ) ) ) : false,
+			/* phpcs:enable WordPress.Security.NonceVerification.Recommended */
+			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352802&filters[translation_id]=37949178.
+			6  => __( 'Subscription published.', 'pronamic_ideal' ),
+			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352803&filters[translation_id]=37947232.
+			7  => __( 'Subscription saved.', 'pronamic_ideal' ),
+			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352804&filters[translation_id]=37949303.
+			8  => __( 'Subscription submitted.', 'pronamic_ideal' ),
+			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352805&filters[translation_id]=37949302.
+			/* translators: %s: scheduled date */
+			9  => sprintf( __( 'Subscription scheduled for: %s.', 'pronamic_ideal' ), '<strong>' . $scheduled_date . '</strong>' ),
+			// @link https://translate.wordpress.org/projects/wp/4.4.x/admin/nl/default?filters[status]=either&filters[original_id]=2352806&filters[translation_id]=37949301.
+			10 => __( 'Subscription draft updated.', 'pronamic_ideal' ),
+		];
+
+		return $messages;
 	}
 }

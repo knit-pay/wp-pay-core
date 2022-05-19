@@ -12,6 +12,7 @@ namespace Pronamic\WordPress\Pay\Subscriptions;
 
 use Pronamic\WordPress\DateTime\DateTime;
 use Pronamic\WordPress\Money\TaxedMoney;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * Subscription Helper Test
@@ -19,7 +20,7 @@ use Pronamic\WordPress\Money\TaxedMoney;
  * @author  Remco Tolsma
  * @version 2.5.0
  */
-class SubscriptionHelperTest extends \WP_UnitTestCase {
+class SubscriptionHelperTest extends TestCase {
 	/**
 	 * Test next.
 	 */
@@ -102,14 +103,14 @@ class SubscriptionHelperTest extends \WP_UnitTestCase {
 	 * @return array
 	 */
 	public function subscription_interval_provider() {
-		return array(
-			array( '2005-05-05', 'P1W', 1, null ),
-			array( '2005-05-05', 'P3W', 2, '2005-05-26' ),
-			array( '2005-05-05', 'P1M', 3, '2005-06-05' ),
-			array( '2005-05-05', 'P1M', 6, '2005-06-05' ),
-			array( '2005-05-05', 'P1Y', 1, null ),
-			array( '2005-05-05', 'P1Y', 4, '2006-05-05' ),
-		);
+		return [
+			[ '2005-05-05', 'P1W', 1, null ],
+			[ '2005-05-05', 'P3W', 2, '2005-05-26' ],
+			[ '2005-05-05', 'P1M', 3, '2005-06-05' ],
+			[ '2005-05-05', 'P1M', 6, '2005-06-05' ],
+			[ '2005-05-05', 'P1Y', 1, null ],
+			[ '2005-05-05', 'P1Y', 4, '2006-05-05' ],
+		];
 	}
 
 	/**

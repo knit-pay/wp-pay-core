@@ -43,9 +43,9 @@ class Install {
 	 *
 	 * @var array
 	 */
-	private $db_updates = array(
+	private $db_updates = [
 		'1.0.0',
-	);
+	];
 
 	/**
 	 * Constructs and initializes an install object.
@@ -60,9 +60,9 @@ class Install {
 		$this->admin  = $admin;
 
 		// Actions.
-		add_action( 'admin_init', array( $this, 'admin_init' ), 5 );
+		add_action( 'admin_init', [ $this, 'admin_init' ], 5 );
 
-		add_filter( 'removable_query_args', array( $this, 'removable_query_args' ) );
+		add_filter( 'removable_query_args', [ $this, 'removable_query_args' ] );
 	}
 
 	/**
@@ -77,8 +77,8 @@ class Install {
 		}
 
 		// Notices.
-		add_action( 'admin_notices', array( $this, 'admin_notice_upgrades_available' ), 20 );
-		add_action( 'admin_notices', array( $this, 'admin_notice_upgraded' ), 20 );
+		add_action( 'admin_notices', [ $this, 'admin_notice_upgrades_available' ], 20 );
+		add_action( 'admin_notices', [ $this, 'admin_notice_upgraded' ], 20 );
 
 		// Maybe update database.
 		if ( filter_has_var( INPUT_GET, 'pronamic_pay_upgrade' ) && wp_verify_nonce( filter_input( INPUT_GET, 'pronamic_pay_nonce', FILTER_SANITIZE_STRING ), 'pronamic_pay_upgrade' ) ) {
@@ -100,11 +100,11 @@ class Install {
 			}
 
 			$location = add_query_arg(
-				array(
+				[
 					'pronamic_pay_upgrade'  => false,
 					'pronamic_pay_nonce'    => false,
 					'pronamic_pay_upgraded' => true,
-				),
+				],
 				$location
 			);
 
@@ -167,10 +167,10 @@ class Install {
 
 			if ( null !== $tab ) {
 				$url = add_query_arg(
-					array(
+					[
 						'page' => 'pronamic-pay-about',
 						'tab'  => $tab,
-					),
+					],
 					admin_url( 'index.php' )
 				);
 
@@ -234,9 +234,9 @@ class Install {
 		add_role(
 			'payer',
 			__( 'Payer', 'pronamic_ideal' ),
-			array(
+			[
 				'read' => true,
-			)
+			]
 		);
 
 		// @link https://developer.wordpress.org/reference/functions/wp_roles/.

@@ -6,17 +6,12 @@
  * @copyright 2005-2022 Pronamic
  * @license GPL-3.0-or-later
  * @package Pronamic\WordPress\Pay
- * @var \WP_Post $post                  WordPress post.
- * @var array    $pronamic_ideal_errors Pronamic IDEAL errors.
+ * @var \WP_Post $post WordPress post.
  */
 
 use Pronamic\WordPress\Money\Currency;
 use Pronamic\WordPress\Pay\Core\PaymentMethods;
-use Pronamic\WordPress\Pay\Gateways\IDealAdvancedV3\Gateway as IDealAdvancedV3_Gateway;
-use Pronamic\WordPress\Pay\Gateways\IDealBasic\Gateway as IDealBasic_Gateway;
 use Pronamic\WordPress\Pay\Plugin;
-
-global $pronamic_ideal_errors;
 
 $gateway = Plugin::get_gateway( $post->ID );
 
@@ -34,31 +29,43 @@ wp_nonce_field( 'test_pay_gateway', 'pronamic_pay_test_nonce' );
 // Payment method selector.
 $payment_methods = $gateway->get_payment_method_field_options( true );
 
-$inputs = array();
+$inputs = [];
 
-foreach ( $payment_methods as $payment_method => $method_name ) {
-	if ( ! \is_string( $payment_method ) ) {
-		$payment_method = null;
+try {
+	foreach ( $payment_methods as $payment_method => $method_name ) {
+		if ( ! \is_string( $payment_method ) ) {
+			$payment_method = null;
+		}
+
+		$gateway->set_payment_method( $payment_method );
+
+		// Payment method input HTML.
+		$html = $gateway->get_input_html();
+
+		if ( ! empty( $html ) ) {
+			$inputs[ $payment_method ] = [
+				'label' => $method_name,
+				'html'  => $html,
+			];
+		}
 	}
+} catch ( \Exception $exception ) {
+	?>
+	<div class="error">
+		<dl>
+			<dt><?php esc_html_e( 'Message', 'pronamic_ideal' ); ?></dt>
+			<dd><?php echo esc_html( $exception->getMessage() ); ?></dd>
 
-	$gateway->set_payment_method( $payment_method );
+			<?php if ( 0 !== $exception->getCode() ) : ?>
 
-	// Payment method input HTML.
-	$html = $gateway->get_input_html();
+				<dt><?php esc_html_e( 'Code', 'pronamic_ideal' ); ?></dt>
+				<dd><?php echo esc_html( $exception->getCode() ); ?></dd>
 
-	if ( ! empty( $html ) ) {
-		$inputs[ $payment_method ] = array(
-			'label' => $method_name,
-			'html'  => $html,
-		);
-	}
+			<?php endif; ?>
+		</dl>
+	</div>
+	<?php
 }
-
-if ( $gateway->has_error() ) {
-	$pronamic_ideal_errors[] = $gateway->get_error();
-}
-
-require Plugin::$dirname . '/views/errors.php';
 
 $currency = Currency::get_instance( 'INR' );
 
@@ -130,20 +137,20 @@ $currency = Currency::get_instance( 'INR' );
 
 		<?php
 
-		$options = array(
+		$options = [
 			''  => __( '— Select Repeat —', 'pronamic_ideal' ),
 			'D' => __( 'Daily', 'pronamic_ideal' ),
 			'W' => __( 'Weekly', 'pronamic_ideal' ),
 			'M' => __( 'Monthly', 'pronamic_ideal' ),
 			'Y' => __( 'Annually', 'pronamic_ideal' ),
-		);
+		];
 
-		$options_interval_suffix = array(
+		$options_interval_suffix = [
 			'D' => __( 'days', 'pronamic_ideal' ),
 			'W' => __( 'weeks', 'pronamic_ideal' ),
 			'M' => __( 'months', 'pronamic_ideal' ),
 			'Y' => __( 'year', 'pronamic_ideal' ),
-		);
+		];
 
 		?>
 		<tr>
@@ -238,16 +245,16 @@ $currency = Currency::get_instance( 'INR' );
 					<label for="pronamic_pay_ends_count">
 						<?php
 
-						$allowed_html = array(
-							'input' => array(
+						$allowed_html = [
+							'input' => [
 								'id'    => true,
 								'name'  => true,
 								'type'  => true,
 								'value' => true,
 								'size'  => true,
 								'class' => true,
-							),
-						);
+							],
+						];
 
 						echo wp_kses(
 							sprintf(

@@ -12,6 +12,7 @@ namespace Pronamic\WordPress\Pay;
 
 use Pronamic\WordPress\Pay\Core\Gateway;
 use Pronamic\WordPress\Pay\Core\GatewayConfig;
+use Pronamic\WordPress\Pay\Core\ModeTrait;
 
 /**
  * Title: Abstract gateway integration
@@ -28,14 +29,14 @@ abstract class AbstractGatewayIntegration extends AbstractIntegration {
 	/**
 	 * URL.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	public $url;
 
 	/**
 	 * Product URL.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	public $product_url;
 
@@ -49,7 +50,7 @@ abstract class AbstractGatewayIntegration extends AbstractIntegration {
 	/**
 	 * Dashboard URL.
 	 *
-	 * @var string|array
+	 * @var string|null
 	 */
 	public $dashboard_url;
 
@@ -65,27 +66,33 @@ abstract class AbstractGatewayIntegration extends AbstractIntegration {
 	 *
 	 * @var array
 	 */
-	protected $supports = array();
+	protected $supports = [];
+
+	use ModeTrait;
 
 	/**
 	 * Construct.
 	 *
 	 * @param array $args Arguments.
 	 */
-	public function __construct( $args = array() ) {
+	public function __construct( $args = [] ) {
 		$args = wp_parse_args(
 			$args,
-			array(
+			[
+				'mode'          => 'live',
 				'provider'      => null,
 				'url'           => null,
 				'product_url'   => null,
-				'dashboard_url' => array(),
+				'dashboard_url' => null,
 				'manual_url'    => null,
-				'supports'      => array(),
-			)
+				'supports'      => [],
+			]
 		);
 
 		parent::__construct( $args );
+
+		// Mode.
+		$this->set_mode( $args['mode'] );
 
 		// Provider.
 		$this->provider = $args['provider'];
@@ -116,7 +123,7 @@ abstract class AbstractGatewayIntegration extends AbstractIntegration {
 	 * @return array
 	 */
 	public function get_settings() {
-		return array();
+		return [];
 	}
 
 	/**
@@ -125,26 +132,16 @@ abstract class AbstractGatewayIntegration extends AbstractIntegration {
 	 * @return array
 	 */
 	public function get_settings_fields() {
-		return array();
+		return [];
 	}
 
 	/**
 	 * Get dashboard URL.
 	 *
-	 * @return array
+	 * @return string|null
 	 */
 	public function get_dashboard_url() {
-		$url = array();
-
-		if ( isset( $this->dashboard_url ) ) {
-			if ( is_string( $this->dashboard_url ) ) {
-				$url = array( $this->dashboard_url );
-			} elseif ( is_array( $this->dashboard_url ) ) {
-				$url = $this->dashboard_url;
-			}
-		}
-
-		return $url;
+		return $this->dashboard_url;
 	}
 
 	/**
@@ -186,7 +183,7 @@ abstract class AbstractGatewayIntegration extends AbstractIntegration {
 	/**
 	 * Get provider URL.
 	 *
-	 * @return string|false
+	 * @return string|null
 	 */
 	public function get_url() {
 		return $this->url;

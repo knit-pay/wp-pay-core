@@ -10,7 +10,7 @@
 
 namespace Pronamic\WordPress\Pay;
 
-use WP_UnitTestCase;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * Address helper test
@@ -19,7 +19,7 @@ use WP_UnitTestCase;
  * @version 2.1.0
  * @since   1.0.0
  */
-class AddressHelperTest extends WP_UnitTestCase {
+class AddressHelperTest extends TestCase {
 	/**
 	 * Test address setters and getters.
 	 */
@@ -43,24 +43,24 @@ class AddressHelperTest extends WP_UnitTestCase {
 	 * Test address from array.
 	 */
 	public function test_name_from_array() {
-		$address = AddressHelper::from_array( array() );
+		$address = AddressHelper::from_array( [] );
 
 		$this->assertNull( $address );
 
 		$address = AddressHelper::from_array(
-			array(
+			[
 				'line_1' => '',
 				'line_2' => '',
-			)
+			]
 		);
 
 		$this->assertNull( $address );
 
 		$address = AddressHelper::from_array(
-			array(
+			[
 				'line_1' => 'Burgemeester Wuiteweg 39b',
 				'line_2' => '',
-			)
+			]
 		);
 
 		$this->assertEquals( 'Burgemeester Wuiteweg 39b', $address->get_line_1() );

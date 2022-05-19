@@ -45,7 +45,9 @@ use Pronamic\WordPress\DateTime\DateTimeZone;
 
 						break;
 					default:
-						echo esc_html( $license_status );
+						if ( \is_string( $license_status ) ) {
+							echo \esc_html( $license_status );
+						}
 
 						break;
 				}
@@ -117,10 +119,6 @@ use Pronamic\WordPress\DateTime\DateTimeZone;
 				<?php
 
 				$php_version = \phpversion();
-
-				if ( false === $php_version ) {
-					\esc_html_e( 'Unable to get the current PHP version.', 'pronamic_ideal' );
-				}
 
 				if ( false !== $php_version ) {
 					if ( \version_compare( $php_version, '5.2', '>' ) ) {
@@ -210,12 +208,12 @@ use Pronamic\WordPress\DateTime\DateTimeZone;
 							__( 'We recommend setting memory to at least 64MB. See: <a href="%s" target="_blank">Increasing memory allocated to PHP</a>', 'pronamic_ideal' ),
 							esc_attr( 'http://codex.wordpress.org/Editing_wp-config.php#Increasing_memory_allocated_to_PHP' )
 						),
-						array(
-							'a' => array(
+						[
+							'a' => [
 								'href'   => true,
 								'target' => true,
-							),
-						)
+							],
+						]
 					);
 				}
 
