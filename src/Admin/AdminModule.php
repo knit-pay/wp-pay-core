@@ -636,7 +636,7 @@ class AdminModule {
 		}
 
 		// Amount.
-		$currency_code = 'EUR';
+		$currency_code = 'INR';
 
 		if ( \array_key_exists( 'test_currency_code', $_POST ) ) {
 			$currency_code = \sanitize_text_field( \wp_unslash( $_POST['test_currency_code'] ) );

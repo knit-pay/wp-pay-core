@@ -62,7 +62,7 @@ class MoneyJsonTransformer {
 		 * for backward compatibility we fall back to the euro.
 		 */
 		if ( null === $currency ) {
-			$currency = 'EUR';
+			$currency = 'INR';
 		}
 
 		if ( ! empty( $tax_value ) || ! empty( $tax_percentage ) ) {

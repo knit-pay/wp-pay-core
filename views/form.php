@@ -40,7 +40,7 @@ if ( null === $gateway ) {
 	return;
 }
 
-$currency = Currency::get_instance( 'EUR' );
+$currency = Currency::get_instance( 'INR' );
 
 ?>
 <div class="pronamic-pay-form-wrap">
