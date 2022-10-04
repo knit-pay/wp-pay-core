@@ -997,13 +997,12 @@ class AdminModule {
 				'capability' => 'edit_payments',
 				'menu_slug'  => 'edit.php?post_type=pronamic_payment',
 			],
-			/*
 			[
 				'page_title' => __( 'Subscriptions', 'pronamic_ideal' ),
 				'menu_title' => __( 'Subscriptions', 'pronamic_ideal' ) . $badges['subscriptions']['html'],
 				'capability' => 'edit_payments',
 				'menu_slug'  => 'edit.php?post_type=pronamic_pay_subscr',
-			], */
+			],
 			[
 				'page_title' => __( 'Reports', 'pronamic_ideal' ),
 				'menu_title' => __( 'Reports', 'pronamic_ideal' ),
@@ -1036,6 +1035,11 @@ class AdminModule {
 				},
 			],
 		];
+		
+		// Added by Knit Pay.
+		if ( !defined( 'KNIT_PAY_RAZORPAY_SUBSCRIPTION' ) ) {
+		  unset($submenu_pages[1]);
+		}
 
 		if ( version_compare( get_bloginfo( 'version' ), '5.2', '<' ) ) {
 			$submenu_pages[] = [
