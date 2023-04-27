@@ -3,7 +3,7 @@
  * Admin Report
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -58,9 +58,8 @@ class AdminReports {
 	 */
 	public function admin_css() {
 		// Check if this is the reports page.
-		$page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING );
-
-		if ( 'pronamic_pay_reports' !== $page ) {
+		/* phpcs:ignore WordPress.Security.NonceVerification.Recommended */
+		if ( ! \array_key_exists( 'page', $_GET ) || 'pronamic_pay_reports' !== $_GET['page'] ) {
 			return;
 		}
 

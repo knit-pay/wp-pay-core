@@ -3,7 +3,7 @@
  * Cards
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -202,7 +202,7 @@ class Cards {
 	 */
 	public function get_card_logo_url( $brand ) {
 		return sprintf(
-			'https://cdn.wp-pay.org/jsdelivr.net/npm/@wp-pay/logos@1.8.3/dist/cards/%1$s/card-%1$s-logo-_x80.svg',
+			'https://cdn.wp-pay.org/jsdelivr.net/npm/@wp-pay/logos@1.13.0/dist/cards/%1$s/card-%1$s-logo-_x80.svg',
 			$brand
 		);
 	}

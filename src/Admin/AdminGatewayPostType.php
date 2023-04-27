@@ -3,7 +3,7 @@
  * Gateway Post Type
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -58,7 +58,7 @@ class AdminGatewayPostType {
 
 		add_action( 'after_delete_post', [ $this, 'after_delete_post' ], 10, 2 );
 
-		add_action( 'display_post_states', [ $this, 'display_post_states' ], 10, 2 );
+		add_filter( 'display_post_states', [ $this, 'display_post_states' ], 10, 2 );
 
 		add_filter( 'post_updated_messages', [ $this, 'post_updated_messages' ] );
 	}
@@ -343,17 +343,17 @@ class AdminGatewayPostType {
 		\check_admin_referer( 'pronamic_pay_save_gateway', 'pronamic_pay_nonce' );
 
 		// If this is an autosave, our form has not been submitted, so we don't want to do anything.
-		if ( \defined( 'DOING_AUTOSAVE' ) && \DOING_AUTOSAVE ) {
+		if ( \defined( '\DOING_AUTOSAVE' ) && \DOING_AUTOSAVE ) {
 			return;
 		}
 
-		// OK, its safe for us to save the data now.
-		if ( ! \filter_has_var( INPUT_POST, '_pronamic_gateway_id' ) ) {
+		// OK, it's safe for us to save the data now.
+		if ( ! \array_key_exists( '_pronamic_gateway_id', $_POST ) ) {
 			return;
 		}
 
 		// Gateway.
-		$gateway_id = \filter_input( INPUT_POST, '_pronamic_gateway_id', FILTER_SANITIZE_STRING );
+		$gateway_id = \sanitize_text_field( \wp_unslash( $_POST['_pronamic_gateway_id'] ) );
 
 		\update_post_meta( $post_id, '_pronamic_gateway_id', $gateway_id );
 
@@ -385,33 +385,40 @@ class AdminGatewayPostType {
 
 		foreach ( $fields as $field ) {
 			// Check presence of required field settings.
-			if ( ! isset( $field['meta_key'], $field['filter'] ) ) {
+			if ( ! isset( $field['meta_key'] ) ) {
 				continue;
 			}
 
-			$name   = $field['meta_key'];
-			$filter = $field['filter'];
+			$name = $field['meta_key'];
 
 			// Check field in input.
 			if ( ! \filter_has_var( INPUT_POST, $name ) ) {
 				continue;
 			}
 
-			// Filter options.
-			$options = [];
+			$value = array_key_exists( $name, $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST[ $name ] ) ) : '';
 
-			if ( isset( $filter['flags'] ) ) {
-				$options['flags'] = $filter['flags'];
+			// Filter input.
+			if ( isset( $field['filter'] ) ) {
+				$filter = $field['filter'];
+
+				$options = [];
+
+				// Make sure filter is not an array.
+				if ( \is_array( $filter ) ) {
+					if ( isset( $filter['flags'] ) ) {
+						$options['flags'] = $filter['flags'];
+					}
+
+					if ( isset( $filter['filter'] ) ) {
+						$filter = $filter['filter'];
+					}
+				}
+
+				$value = \filter_input( INPUT_POST, $name, $filter, $options );
 			}
 
-			// Make sure filter is not an array.
-			if ( \is_array( $filter ) && isset( $filter['filter'] ) ) {
-				$filter = $filter['filter'];
-			}
-
-			// Get filtered input and update post meta.
-			$value = \filter_input( INPUT_POST, $name, $filter, $options );
-
+			// Update post meta.
 			if ( '' !== $value ) {
 				\update_post_meta( $post_id, $name, $value );
 			} else {
@@ -432,7 +439,7 @@ class AdminGatewayPostType {
 	 * @param WP_Post $post    Post.
 	 * @return void
 	 */
-	public function after_delete_post( $post_id, $post ) : void {
+	public function after_delete_post( $post_id, $post ): void {
 		if ( self::POST_TYPE !== $post->post_type ) {
 			return;
 		}

@@ -3,7 +3,7 @@
  * Settings
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -61,7 +61,7 @@ class Settings {
 			'pronamic_pay_config_id',
 			[
 				'type'              => 'integer',
-				'sanitize_callback' => [ $this, 'sanitize_published_post_id' ],
+				'sanitize_callback' => [ self::class, 'sanitize_published_post_id' ],
 			]
 		);
 
@@ -103,22 +103,6 @@ class Settings {
 			]
 		);
 
-		// Pages.
-		$pages = $this->plugin->get_pages();
-
-		$pages['pronamic_pay_subscription_canceled_page_id'] = __( 'Subscription Canceled', 'pronamic_ideal' );
-
-		foreach ( $pages as $id => $label ) {
-			register_setting(
-				'pronamic_pay',
-				$id,
-				[
-					'type'              => 'integer',
-					'sanitize_callback' => [ $this, 'sanitize_published_post_id' ],
-				]
-			);
-		}
-
 		// Payment Methods.
 		$payment_methods = $this->plugin->get_payment_methods();
 
@@ -143,7 +127,7 @@ class Settings {
 	 * @param integer $value Check if the value is published post ID.
 	 * @return int|null Post ID if value is published post ID, null otherwise.
 	 */
-	public function sanitize_published_post_id( $value ) {
+	public static function sanitize_published_post_id( $value ) {
 		if ( 'publish' === get_post_status( $value ) ) {
 			return $value;
 		}

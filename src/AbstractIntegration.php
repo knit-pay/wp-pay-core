@@ -3,7 +3,7 @@
  * Abstract integration
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Gateways\Common
  */
@@ -16,7 +16,7 @@ use Pronamic\WordPress\Pay\Upgrades\Upgrades;
 /**
  * Title: Abstract integration
  * Description:
- * Copyright: 2005-2022 Pronamic
+ * Copyright: 2005-2023 Pronamic
  * Company: Pronamic
  *
  * @author  Remco Tolsma
@@ -76,13 +76,6 @@ abstract class AbstractIntegration {
 	private $version_option_name;
 
 	/**
-	 * Data version option name.
-	 *
-	 * @var string|null
-	 */
-	private $db_version_option_name;
-
-	/**
 	 * Construct.
 	 *
 	 * @param array $args Arguments.
@@ -91,12 +84,11 @@ abstract class AbstractIntegration {
 		$args = wp_parse_args(
 			$args,
 			[
-				'id'                     => null,
-				'name'                   => null,
-				'version'                => null,
-				'version_option_name'    => null,
-				'db_version_option_name' => null,
-				'deprecated'             => false,
+				'id'                  => null,
+				'name'                => null,
+				'version'             => null,
+				'version_option_name' => null,
+				'deprecated'          => false,
 			]
 		);
 
@@ -111,9 +103,6 @@ abstract class AbstractIntegration {
 
 		// Version option name.
 		$this->set_version_option_name( $args['version_option_name'] );
-
-		// Database version option name.
-		$this->set_db_version_option_name( $args['db_version_option_name'] );
 
 		// Deprecated.
 		$this->deprecated = $args['deprecated'];
@@ -239,7 +228,7 @@ abstract class AbstractIntegration {
 			return null;
 		}
 
-		return \get_option( $this->version_option_name );
+		return \get_option( $this->version_option_name, null );
 	}
 
 	/**
@@ -258,38 +247,6 @@ abstract class AbstractIntegration {
 		}
 
 		\update_option( $this->version_option_name, $this->version );
-	}
-
-	/**
-	 * Get database version option name.
-	 *
-	 * @return string|null
-	 */
-	public function get_db_version_option_name() {
-		return $this->db_version_option_name;
-	}
-
-	/**
-	 * Set database version option name.
-	 *
-	 * @param string $option_name Option name.
-	 * @return void
-	 */
-	public function set_db_version_option_name( $option_name ) {
-		$this->db_version_option_name = $option_name;
-	}
-
-	/**
-	 * Get database version option.
-	 *
-	 * @return string|null
-	 */
-	public function get_db_version_option() {
-		if ( null === $this->db_version_option_name ) {
-			return null;
-		}
-
-		return \get_option( $this->db_version_option_name );
 	}
 
 	/**

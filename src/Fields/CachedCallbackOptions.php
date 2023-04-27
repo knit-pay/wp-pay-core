@@ -3,7 +3,7 @@
  * Cached callback options
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Core
  */
@@ -12,6 +12,7 @@ namespace Pronamic\WordPress\Pay\Fields;
 
 use ArrayIterator;
 use IteratorAggregate;
+use Traversable;
 
 /**
  * Cached callback options class
@@ -45,11 +46,11 @@ class CachedCallbackOptions implements IteratorAggregate {
 	}
 
 	/**
-	 * Get itreator.
+	 * Get iterator.
 	 *
 	 * @return ArrayIterator<int, SelectFieldOption|SelectFieldOptionGroup>
 	 */
-	public function getIterator() {
+	public function getIterator(): Traversable {
 		$options = $this->get_transient_options();
 
 		return new ArrayIterator( $options );

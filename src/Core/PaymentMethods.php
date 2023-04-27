@@ -3,7 +3,7 @@
  * Payment methods
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Core
  */
@@ -17,7 +17,7 @@ use WP_Query;
 /**
  * Title: WordPress pay payment methods
  * Description:
- * Copyright: 2005-2022 Pronamic
+ * Copyright: 2005-2023 Pronamic
  * Company: Pronamic
  *
  * @author  Remco Tolsma
@@ -37,7 +37,9 @@ class PaymentMethods {
 	/**
 	 * AfterPay (afterpay.nl).
 	 *
+	 * @link https://github.com/pronamic/wp-pronamic-pay/issues/339
 	 * @link https://www.afterpay.nl/
+	 * @deprecated Use `RIVERTY` instead, see https://github.com/pronamic/wp-pronamic-pay/issues/339 for details.
 	 * @var string
 	 */
 	const AFTERPAY_NL = 'afterpay_nl';
@@ -339,6 +341,15 @@ class PaymentMethods {
 	const PRZELEWY24 = 'przelewy24';
 
 	/**
+	 * Riverty.
+	 *
+	 * @link https://github.com/pronamic/wp-pronamic-pay/issues/339
+	 * @since 4.6.0
+	 * @var string
+	 */
+	const RIVERTY = 'riverty';
+
+	/**
 	 * Santander
 	 *
 	 * @var string
@@ -460,6 +471,7 @@ class PaymentMethods {
 			self::PAYCONIQ                => __( 'Payconiq', 'pronamic_ideal' ),
 			self::PAYPAL                  => __( 'PayPal', 'pronamic_ideal' ),
 			self::PRZELEWY24              => __( 'Przelewy24', 'pronamic_ideal' ),
+			self::RIVERTY                 => __( 'Riverty', 'pronamic_ideal' ),
 			self::SANTANDER               => __( 'Santander', 'pronamic_ideal' ),
 			self::SOFORT                  => __( 'SOFORT Banking', 'pronamic_ideal' ),
 			self::SPRAYPAY                => __( 'SprayPay', 'pronamic_ideal' ),
@@ -524,7 +536,7 @@ class PaymentMethods {
 		}
 
 		return \sprintf(
-			'https://cdn.wp-pay.org/jsdelivr.net/npm/@wp-pay/logos@1.8.3/dist/methods/%1$s/method-%1$s-%2$s.svg',
+			'https://cdn.wp-pay.org/jsdelivr.net/npm/@wp-pay/logos@1.13.0/dist/methods/%1$s/method-%1$s-%2$s.svg',
 			\str_replace( '_', '-', $method ),
 			$size
 		);

@@ -6,6 +6,159 @@ This projects adheres to [Semantic Versioning](http://semver.org/) and [Keep a C
 
 ## [Unreleased][unreleased]
 
+## [4.9.2] - 2023-03-31
+
+### Commits
+
+- Added quotes around URLs in changed home URL notice. ([ea5f026](https://github.com/pronamic/wp-pay-core/commit/ea5f026d008ff2c4e5550a658695aff5b5e9eb56))
+
+Full set of changes: [`4.9.1...4.9.2`][4.9.2]
+
+[4.9.2]: https://github.com/pronamic/wp-pay-core/compare/v4.9.1...v4.9.2
+
+## [4.9.1] - 2023-03-30
+
+### Commits
+
+- Fixed refunded amount check. ([073e1a7](https://github.com/pronamic/wp-pay-core/commit/073e1a7792f45f1961f83ff2e8ef7b4851d16b75))
+- Fixed text domains. ([d2f591e](https://github.com/pronamic/wp-pay-core/commit/d2f591e9482272b62eda0dd1df9cfc669e7faec1), [af3a4ed](https://github.com/pronamic/wp-pay-core/commit/af3a4ed14be1c18d8126d72adf867e7f4d0eb294))
+- Updated default payment status pages. ([f19598e](https://github.com/pronamic/wp-pay-core/commit/f19598e973ac82f289e37f2dfe8d6760a742dd13), [9e551f5](https://github.com/pronamic/wp-pay-core/commit/9e551f5650d196c5b4bdb9b3628d8b06301154aa))
+- Updated tests. ([6f7a434](https://github.com/pronamic/wp-pay-core/commit/6f7a4342adfca277601b4153eb20c53b773cc456), [8029d8e](https://github.com/pronamic/wp-pay-core/commit/8029d8e33cc7cb6d74413a92192ba094587df964))
+
+Full set of changes: [`4.9.0...4.9.1`][4.9.1]
+
+[4.9.1]: https://github.com/pronamic/wp-pay-core/compare/v4.9.0...v4.9.1
+
+## [4.9.0] - 2023-03-29
+### Changed
+
+- Extended support for refunds.
+
+### Commits
+
+- No longer create WordPress user for built-in form entries. ([10e04cf](https://github.com/pronamic/wp-pay-core/commit/10e04cf2597cc2c9ec322cf2c87d891e0fbce663))
+- Fixed setting customer email address in subscription. ([5d853f1](https://github.com/pronamic/wp-pay-core/commit/5d853f18567355f78b74117ba05e1312a8d5dcdc))
+
+### Composer
+
+- Changed `pronamic/wp-money` from `^2.2` to `v2.4.0`.
+	Release notes: https://github.com/pronamic/wp-money/releases/tag/v2.4.0
+- Changed `pronamic/wp-number` from `^1.2` to `v1.3.0`.
+	Release notes: https://github.com/pronamic/wp-number/releases/tag/v1.3.0
+Full set of changes: [`4.8.0...4.9.0`][4.9.0]
+
+[4.9.0]: https://github.com/pronamic/wp-pay-core/compare/v4.8.0...v4.9.0
+
+## [4.8.0] - 2023-03-10
+### Added
+
+- Added a home URL change detector to warn users.
+
+### Changed
+
+- Simplified the payment status pages generator feature.
+
+### Removed
+
+- Removed webhook manager, instead there is now the home URL change detector feature.
+
+Full set of changes: [`4.7.3...4.8.0`][4.8.0]
+
+[4.8.0]: https://github.com/pronamic/wp-pay-core/compare/v4.7.3...v4.8.0
+
+## [4.7.3] - 2023-02-23
+
+### Commits
+
+- Fixed duplicate execution of `$gateway->start( $payment )` in redirect routine of HTML form gateways. ([467aeb5](https://github.com/pronamic/wp-pay-core/commit/467aeb59e24846c0bbd01e88ff5e1191bcfde6b5))
+- Lowered payment amount to `0.00` for credit card and PayPal authorizations when updating mandate. ([3132ff6](https://github.com/pronamic/wp-pay-core/commit/3132ff61a0a8f78f98c8f499e584364d7bfc869a))
+- Use Mollie Checkout to choose payment method on manual subscription renewal. ([af9c0c9](https://github.com/pronamic/wp-pay-core/commit/af9c0c922b6abcbf5ff1c5bc9417a2ad9568db21))
+
+Full set of changes: [`4.7.2...4.7.3`][4.7.3]
+
+[4.7.3]: https://github.com/pronamic/wp-pay-core/compare/v4.7.2...v4.7.3
+
+## [4.7.2] - 2023-02-07
+### Changed
+
+- Improved admin tour, only navigate to enabled modules.
+- Improved admin dashboard, only show about page link when an about page is defined.
+- Simplified database upgrades, all upgrades are now executed without user confirmation.
+
+### Fixed
+
+- Fixed "Fatal error: Uncaught Error: Undefined constant "PRONAMIC_PAY_DEBUG". ([10b7865](https://github.com/pronamic/wp-pay-core/commit/10b78655eea7c641ee33b0fb0cccc26037074067))
+
+Full set of changes: [`4.7.1...4.7.2`][4.7.2]
+
+[4.7.2]: https://github.com/pronamic/wp-pay-core/compare/v4.7.1...v4.7.2
+
+## [4.7.1] - 2023-01-31
+### Commits
+
+- Updated minified forms style. ([8f8be83](https://github.com/pronamic/wp-pay-core/commit/8f8be830398a8488200dd0c1b74fd346a2cc6962))
+- Select gateway if we already know which one to use, because there is only a single gateway registered. ([eea5b74](https://github.com/pronamic/wp-pay-core/commit/eea5b74230267f67b8c3db1f2ecc5415e29906cb))
+
+### Composer
+
+- Changed `php` from `>=8.0` to `>=7.4`.
+Full set of changes: [`4.7.0...4.7.1`][4.7.1]
+
+[4.7.1]: https://github.com/pronamic/wp-pay-core/compare/v4.7.0...v4.7.1
+
+## [4.7.0] - 2023-01-18
+### Fixed
+
+- Show payment methods list in the built-in payment forms, solves problem with bank choice with iDEAL Advanced. ([#89](https://github.com/pronamic/wp-pay-core/issues/89))
+
+### Commits
+
+- Improve PHP 7.4 compat for now. ([b59cc53](https://github.com/pronamic/wp-pay-core/commit/b59cc53ae4974de599b4c635651f992173d87007))
+- Use file hash as version for forms style. ([005a167](https://github.com/pronamic/wp-pay-core/commit/005a16743824a9e44bc5ff63b888d586bbaaf6d6))
+- Fixed adding new payment method via subscription mandate page. ([0da98dd](https://github.com/pronamic/wp-pay-core/commit/0da98ddcf2baf8b063a94f629dfb25e348723c19))
+- Set `checked` property instead of attribute in mandate selection. ([cad9298](https://github.com/pronamic/wp-pay-core/commit/cad929805172b5333ac8761c45569457478dd03c))
+- Happy 2023. ([11bf73b](https://github.com/pronamic/wp-pay-core/commit/11bf73b3a4e7ab23f0a8fe904cbb7c9c2376805a))
+
+Full set of changes: [`4.6.0...4.7.0`][4.7.0]
+
+[4.7.0]: https://github.com/pronamic/wp-pay-core/compare/v4.6.0...v4.7.0
+
+## [4.6.0] - 2022-12-20
+### Updated
+
+- Increased minimum PHP version to version `8` or higher.
+- Improved support for PHP `8.1` and `8.2`.
+- Removed usage of deprecated constant `FILTER_SANITIZE_STRING`.
+- Updated `pronamic/wp-http` library to version `^1.2`.
+- Updated logos library to version `1.13.0`. ([25ea2f9](https://github.com/pronamic/wp-pay-core/commit/25ea2f9661b1d9bd08bf6d55a13708f799c742f9))
+
+### Fixed
+
+- Fixed using Mollie client from `pronamic/wp-mollie`. ([dc21b2a](https://github.com/pronamic/wp-pay-core/commit/dc21b2a4f8a3a564bcc8936ae5c3c4560dc71682))
+- The `display_post_states` hook is a filter, not an action. ([8b82c99](https://github.com/pronamic/wp-pay-core/commit/8b82c992957e5c2b083a9923b14690f88083d953))
+
+### Changed
+
+- Credit card properties are nullable. ([80a7db9](https://github.com/pronamic/wp-pay-core/commit/80a7db99cff86188477d3e93b1f02fb798986a3e))
+
+### Removed
+
+- Removed `Util::simplexml_load_string( $string )`, no longer used. ([ff878d7](https://github.com/pronamic/wp-pay-core/commit/ff878d7ba7f8934db0ce41696357933180ca00e2))
+- Removed `Pronamic\WordPress\Pay\Core\Util::remote_get_body()` function, no longer used. ([e0faca4](https://github.com/pronamic/wp-pay-core/commit/e0faca4938c86f782baf9dd110830b9ee9859fde))
+- Removed usage of deprecated `\FILTER_SANITIZE_STRING` in gateway settings fields. ([2a1e778](https://github.com/pronamic/wp-pay-core/commit/2a1e7780fce7b86f57b4bc1404c6d94cd71400bd))
+- Removed unused `Util::input_has_vars()`. ([53fe34f](https://github.com/pronamic/wp-pay-core/commit/53fe34f47dc6bf9a14bef06b6b0a08c86f7ae157))
+- Removed `Pronamic\WordPress\Pay\Core\XML\Security` class, no longer used. ([f7c9169](https://github.com/pronamic/wp-pay-core/commit/f7c91694a23fc84fb722c8277b31b1a5c59d633e))
+- Removed unused method `Core\Util::input_fields_html()`. ([608597b](https://github.com/pronamic/wp-pay-core/commit/608597bee9c39e1dfd98b5dc7f31ff00a7ba334f))
+- Removed `xmlseclibs.php`, library is no longer used. ([8c91fbb](https://github.com/pronamic/wp-pay-core/commit/8c91fbb439f387e497996bea50d5524149da93c3))
+
+### Added
+
+- Added Riverty payment method constant. ([95ba774](https://github.com/pronamic/wp-pay-core/commit/95ba774643c387653e5b6a5a181b6f5501079424))
+
+Full set of changes: [`4.5.0...4.6.0`][4.6.0]
+
+[4.6.0]: https://github.com/pronamic/wp-pay-core/compare/v4.5.0...v4.6.0
+
 ## [4.5.0] - 2022-11-03
 - Catch exceptions while retrieving options from for example iDEAL issuer select fields. ([#78](https://github.com/pronamic/wp-pay-core/issues/78))
 - Allow subscription payments at gateways that don't have support for recurring payments. ([pronamic/wp-pronamic-pay-woocommerce#15](https://github.com/pronamic/wp-pronamic-pay-woocommerce/issues/15))

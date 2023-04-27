@@ -3,7 +3,7 @@
  * Site health
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -51,25 +51,6 @@ class AdminHealth {
 	 */
 	public function debug_information( $debug_information ) {
 		$fields = [];
-
-		// License key.
-		// $fields['license_key'] = [
-		//	'label'   => __( 'Support license key', 'pronamic_ideal' ),
-		//	'value'   => esc_html( get_option( 'pronamic_pay_license_key', __( 'No license key found', 'pronamic_ideal' ) ) ),
-		//	'private' => true,
-		// ];
-
-		// License status.
-		// $fields['license_status'] = [
-		//	'label' => __( 'License status', 'pronamic_ideal' ),
-		//	'value' => esc_html( $this->plugin->license_manager->get_formatted_license_status() ),
-		// ];
-
-		// Next scheduled license check.
-		// $fields['next_license_check'] = [
-		//	'label' => __( 'Next scheduled license check', 'pronamic_ideal' ),
-		//	'value' => esc_html( $this->plugin->license_manager->get_formatted_next_license_check() ),
-		// ];
 
 		// Time.
 		$fields['time'] = [
@@ -258,20 +239,20 @@ class AdminHealth {
 				$result['actions'] .= sprintf(
 					'<a href="%s">%s</a> - ',
 					esc_url( 'https://www.pronamic.eu/plugins/pronamic-ideal/' ),
-					__( 'Purchase license' )
+					\__( 'Purchase license', 'pronamic_ideal' )
 				);
 			}
 
 			$result['actions'] .= sprintf(
 				'<a href="%s">%s</a> - ',
 				add_query_arg( 'page', 'pronamic_pay_settings', get_admin_url( null, 'admin.php' ) ),
-				__( 'License settings' )
+				\__( 'License settings', 'pronamic_ideal' )
 			);
 
 			$result['actions'] .= sprintf(
 				'<a href="%s">%s</a>',
 				esc_url( 'https://www.pronamic.eu/account/' ),
-				__( 'Check existing license' )
+				\__( 'Check existing license', 'pronamic_ideal' )
 			);
 
 			$result['actions'] .= '</p>';

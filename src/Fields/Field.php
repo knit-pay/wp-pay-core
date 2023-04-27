@@ -3,7 +3,7 @@
  * Field
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Core
  */
@@ -61,7 +61,6 @@ class Field implements JsonSerializable {
 	 * @return void
 	 */
 	protected function setup() {
-
 	}
 
 	/**
@@ -78,7 +77,7 @@ class Field implements JsonSerializable {
 	 *
 	 * @return string
 	 */
-	public function get_label() : string {
+	public function get_label(): string {
 		return $this->label;
 	}
 
@@ -87,7 +86,7 @@ class Field implements JsonSerializable {
 	 *
 	 * @param string $label Label.
 	 */
-	public function set_label( string $label ) : void {
+	public function set_label( string $label ): void {
 		$this->label = $label;
 	}
 
@@ -96,7 +95,7 @@ class Field implements JsonSerializable {
 	 *
 	 * @param bool $required Required.
 	 */
-	public function set_required( bool $required ) : void {
+	public function set_required( bool $required ): void {
 		$this->required = $required;
 	}
 
@@ -105,7 +104,7 @@ class Field implements JsonSerializable {
 	 *
 	 * @return bool
 	 */
-	public function is_required() : bool {
+	public function is_required(): bool {
 		return $this->required;
 	}
 
@@ -140,8 +139,9 @@ class Field implements JsonSerializable {
 	/**
 	 * Serialize to JSON.
 	 *
-	 * @return array
+	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return [
 			'type'     => '',

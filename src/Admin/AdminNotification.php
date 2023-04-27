@@ -3,7 +3,7 @@
  * Admin Notification
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -66,7 +66,7 @@ class AdminNotification {
 
 	/**
 	 * Get ID.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function get_id() {
@@ -75,7 +75,7 @@ class AdminNotification {
 
 	/**
 	 * Get name.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function get_name() {
@@ -84,7 +84,7 @@ class AdminNotification {
 
 	/**
 	 * Is met.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function is_met() {
@@ -93,7 +93,7 @@ class AdminNotification {
 
 	/**
 	 * Get version.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function get_version() {
@@ -102,7 +102,7 @@ class AdminNotification {
 
 	/**
 	 * Get message.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function get_message() {

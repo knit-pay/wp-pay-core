@@ -3,7 +3,7 @@
  * Admin Notices
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -50,35 +50,6 @@ class AdminNotices {
 			return;
 		}
 
-		// License notice.
-		/*
-		if ( 'valid' !== get_option( 'pronamic_pay_license_status' ) ) {
-			$class = Plugin::get_number_payments() > 20 ? 'error' : 'updated';
-
-			$license = get_option( 'pronamic_pay_license_key' );
-
-			if ( '' === $license ) {
-				$notice = sprintf(
-					__( '<strong>Pronamic Pay</strong> — You have not entered a valid <a href="%1$s">support license key</a>, please <a href="%2$s" target="_blank">get your key at pronamic.eu</a>.', 'pronamic_ideal' ),
-					add_query_arg( 'page', 'pronamic_pay_settings', get_admin_url( null, 'admin.php' ) ),
-					'https://www.pronamic.eu/plugins/pronamic-ideal/'
-				);
-			} else {
-				$notice = sprintf(
-					__( '<strong>Pronamic Pay</strong> — You have not entered a valid <a href="%1$s">support license key</a>. Please <a href="%2$s" target="_blank">get your key at pronamic.eu</a> or login to <a href="%3$s" target="_blank">check your license status</a>.', 'pronamic_ideal' ),
-					add_query_arg( 'page', 'pronamic_pay_settings', get_admin_url( null, 'admin.php' ) ),
-					'https://www.pronamic.eu/plugins/pronamic-ideal/',
-					'https://www.pronamic.eu/account/'
-				);
-			}
-
-			printf(
-				'<div class="%s"><p>%s</p></div>',
-				esc_attr( $class ),
-				wp_kses_post( $notice )
-			);
-		}*/
-
 		$this->removed_support_notices();
 	}
 
@@ -121,7 +92,7 @@ class AdminNotices {
 		}
 
 		$dismiss_notification_url = \add_query_arg( 'pronamic_pay_dismiss_notification', $notification->get_id() );
-		$dismiss_notification_url = \wp_nonce_url( $dismiss_notification_url, 'pronamic_pay_dismiss_notification:' . $notification->get_id(), 'pronamic_pay_dismiss_notification_nonce' )
+		$dismiss_notification_url = \wp_nonce_url( $dismiss_notification_url, 'pronamic_pay_dismiss_notification:' . $notification->get_id(), 'pronamic_pay_dismiss_notification_nonce' );
 
 		?>
 		<div class="error notice is-dismissible">

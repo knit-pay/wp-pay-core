@@ -3,7 +3,7 @@
  * Subscription mandate.
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -19,7 +19,7 @@ if ( ! isset( $gateway ) ) {
 	return;
 }
 
-if ( ! class_exists( '\Pronamic\WordPress\Pay\Gateways\Mollie\Client' ) ) {
+if ( ! class_exists( '\Pronamic\WordPress\Mollie\Client' ) ) {
 	return;
 }
 
@@ -33,7 +33,7 @@ if ( empty( $mollie_customer_id ) ) {
 
 $api_key = \get_post_meta( $subscription->config_id, '_pronamic_gateway_mollie_api_key', true );
 
-$client = new \Pronamic\WordPress\Pay\Gateways\Mollie\Client( $api_key );
+$client = new \Pronamic\WordPress\Mollie\Client( $api_key );
 
 /**
  * Mandates.
@@ -276,7 +276,7 @@ if ( is_array( $current_mandate ) ) {
 					centerMode: true,
 				} );
 
-				$slider.find( '.slick-current input[type="radio"]' ).attr( 'checked', 'checked' );
+				$slider.find( '.slick-current input[type="radio"]' ).prop( 'checked', true );
 
 				$slider.find( '.slick-slide' ).on( 'click', function () {
 					var index = jQuery( this ).data( 'slick-index' );
@@ -284,10 +284,10 @@ if ( is_array( $current_mandate ) ) {
 					$slider.slick( 'slickGoTo', index );
 				} );
 
-				$slider.on( 'afterChange', function ( event, slick, currentSlide, nextSlide ) {
-					$slider.find( 'input[type="radio"]' ).removeAttr( 'checked' );
+				$slider.on( 'afterChange', function ( event, slick, currentSlide ) {
+					$slider.find( 'input[type="radio"]' ).prop( 'checked', false );
 
-					$slider.find( '.slick-slide' ).eq( currentSlide ).find( 'input[type="radio"]' ).attr( 'checked', 'checked' );
+					$slider.find( '.slick-slide' ).eq( currentSlide ).find( 'input[type="radio"]' ).prop( 'checked', true );
 				} );
 			} );
 		</script>

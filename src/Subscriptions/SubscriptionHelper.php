@@ -3,7 +3,7 @@
  * Subscription Helper
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Subscriptions
  */
@@ -87,6 +87,13 @@ class SubscriptionHelper {
 				$customer->set_user_id( $payment_customer->get_user_id() );
 			}
 
+			// Email.
+			$email = $customer->get_email();
+
+			if ( null === $email ) {
+				$customer->set_email( $payment_customer->get_email() );
+			}
+
 			$subscription->set_customer( $customer );
 		}
 
@@ -110,15 +117,6 @@ class SubscriptionHelper {
 
 		if ( null === $description ) {
 			$subscription->set_description( $payment->get_description() );
-		}
-
-		// Email.
-		$email = $customer->get_email();
-
-		if ( null === $email ) {
-			$customer->set_email( $payment->email );
-
-			$subscription->set_customer( $customer );
 		}
 
 		// Payment method.

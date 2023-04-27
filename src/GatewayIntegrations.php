@@ -3,7 +3,7 @@
  * Gateway integrations.
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -78,7 +78,7 @@ class GatewayIntegrations implements IteratorAggregate {
 	 *
 	 * @return \ArrayIterator<string, AbstractGatewayIntegration>
 	 */
-	public function getIterator() : Traversable {
+	public function getIterator(): Traversable {
 		return new ArrayIterator( $this->integrations );
 	}
 }

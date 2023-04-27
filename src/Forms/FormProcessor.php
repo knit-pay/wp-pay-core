@@ -3,7 +3,7 @@
  * Form Processor
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Forms
  */
@@ -44,13 +44,20 @@ class FormProcessor {
 	 * @return Money
 	 */
 	private function get_amount() {
-		$amount_string = \filter_input( INPUT_POST, 'pronamic_pay_amount', FILTER_SANITIZE_STRING );
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification in init method.
+		$amount_string = 0;
 
-		if ( 'other' === $amount_string ) {
-			$amount_string = \filter_input( INPUT_POST, 'pronamic_pay_amount_other', FILTER_SANITIZE_STRING );
+		if ( \array_key_exists( 'pronamic_pay_amount', $_POST ) ) {
+			$amount_string = \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_amount'] ) );
+
+			if ( 'other' === $amount_string ) {
+				$amount_string = \array_key_exists( 'pronamic_pay_amount_other', $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_amount_other'] ) ) : 0;
+			}
 		}
 
-		$number = Number::from_string( $amount_string );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		$number = Number::from_string( (string) $amount_string );
 
 		$money = new Money( $number, 'INR' );
 
@@ -69,11 +76,11 @@ class FormProcessor {
 		$pronamic_pay_errors = [];
 
 		// Nonce.
-		if ( ! filter_has_var( INPUT_POST, 'pronamic_pay_nonce' ) ) {
+		if ( ! \array_key_exists( 'pronamic_pay_nonce', $_POST ) ) {
 			return;
 		}
 
-		$nonce = filter_input( INPUT_POST, 'pronamic_pay_nonce', FILTER_SANITIZE_STRING );
+		$nonce = \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_nonce'] ) );
 
 		if ( ! wp_verify_nonce( $nonce, 'pronamic_pay' ) ) {
 			return;
@@ -87,15 +94,15 @@ class FormProcessor {
 		}
 
 		// Source.
-		$source    = filter_input( INPUT_POST, 'pronamic_pay_source', FILTER_SANITIZE_STRING );
-		$source_id = filter_input( INPUT_POST, 'pronamic_pay_source_id', FILTER_SANITIZE_STRING );
+		$source    = array_key_exists( 'pronamic_pay_source', $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_source'] ) ) : '';
+		$source_id = array_key_exists( 'pronamic_pay_source_id', $_POST ) ? (int) \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_source_id'] ) ) : 0;
 
 		if ( ! FormsSource::is_valid( $source ) ) {
 			return;
 		}
 
 		// Config ID.
-		$config_id = filter_input( INPUT_POST, 'pronamic_pay_config_id', FILTER_SANITIZE_STRING );
+		$config_id = filter_input( INPUT_POST, 'pronamic_pay_config_id', \FILTER_SANITIZE_NUMBER_INT );
 
 		if ( FormsSource::PAYMENT_FORM === $source ) {
 			$config_id = get_post_meta( $source_id, '_pronamic_payment_form_config_id', true );
@@ -104,8 +111,8 @@ class FormProcessor {
 		/*
 		 * Start payment.
 		 */
-		$first_name = filter_input( INPUT_POST, 'pronamic_pay_first_name', FILTER_SANITIZE_STRING );
-		$last_name  = filter_input( INPUT_POST, 'pronamic_pay_last_name', FILTER_SANITIZE_STRING );
+		$first_name = array_key_exists( 'pronamic_pay_first_name', $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_first_name'] ) ) : '';
+		$last_name  = array_key_exists( 'pronamic_pay_last_name', $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_last_name'] ) ) : '';
 		$email      = filter_input( INPUT_POST, 'pronamic_pay_email', FILTER_VALIDATE_EMAIL );
 		$order_id   = (string) time();
 
@@ -176,6 +183,11 @@ class FormProcessor {
 		// Amount.
 		$payment->set_total_amount( $this->get_amount() );
 
+		// Method.
+		$payment_method = \array_key_exists( 'payment_method', $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST['payment_method'] ) ) : null;
+
+		$payment->set_payment_method( $payment_method );
+
 		// Payment lines.
 		$payment->lines = new PaymentLines();
 
@@ -204,43 +216,6 @@ class FormProcessor {
 			exit;
 		}
 
-		// @link https://github.com/WordImpress/Give/blob/1.1/includes/payments/functions.php#L172-L178.
-		// @link https://github.com/woothemes/woocommerce/blob/2.4.3/includes/wc-user-functions.php#L36-L118.
-		$user = get_user_by( 'email', $email );
-
-		if ( ! empty( $email ) && ! $user ) {
-			// Make a random string for password.
-			$password = wp_generate_password( 10 );
-
-			// Make a user with the username as the email.
-			$result = wp_insert_user(
-				[
-					'user_login' => $email,
-					'user_pass'  => $password,
-					'user_email' => $email,
-					'role'       => 'payer',
-					'first_name' => $first_name,
-					'last_name'  => $last_name,
-				]
-			);
-
-			if ( $result instanceof WP_Error ) {
-				throw new Exception( $result->get_error_message() );
-			}
-
-			// User.
-			$user = new WP_User( $result );
-		}
-
-		if ( is_object( $user ) ) {
-			wp_update_post(
-				[
-					'ID'          => $payment->get_id(),
-					'post_author' => $user->ID,
-				]
-			);
-		}
-
 		$gateway->redirect( $payment );
 
 		exit;
@@ -261,12 +236,18 @@ class FormProcessor {
 			$pronamic_pay_errors['amount'] = __( 'Please enter a valid amount', 'pronamic_ideal' );
 		}
 
-		// First Name.
-		$first_name = filter_input( INPUT_POST, 'pronamic_pay_first_name', FILTER_SANITIZE_STRING );
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification in init method.
 
-		if ( empty( $first_name ) ) {
-			$pronamic_pay_errors['first_name'] = __( 'Please enter your first name', 'pronamic_ideal' );
+		// First Name.
+		if ( \array_key_exists( 'pronamic_pay_first_name', $_POST ) ) {
+			$first_name = \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_first_name'] ) );
+
+			if ( empty( $first_name ) ) {
+				$pronamic_pay_errors['first_name'] = __( 'Please enter your first name', 'pronamic_ideal' );
+			}
 		}
+
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		// E-mail.
 		$email = filter_input( INPUT_POST, 'pronamic_pay_email', FILTER_VALIDATE_EMAIL );

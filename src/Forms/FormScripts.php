@@ -3,14 +3,12 @@
  * Form Scripts
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Forms
  */
 
 namespace Pronamic\WordPress\Pay\Forms;
-
-use Pronamic\WordPress\Pay\Plugin;
 
 /**
  * Form Scripts
@@ -21,20 +19,9 @@ use Pronamic\WordPress\Pay\Plugin;
  */
 class FormScripts {
 	/**
-	 * Plugin.
-	 *
-	 * @var Plugin
+	 * Constructs and initialize a form scripts object.
 	 */
-	private $plugin;
-
-	/**
-	 * Constructs and initialize an form scripts object.
-	 *
-	 * @param Plugin $plugin Plugin.
-	 */
-	public function __construct( $plugin ) {
-		$this->plugin = $plugin;
-
+	public function __construct() {
 		/**
 		 * We register the form style in the 'init' action so the style
 		 * is available on the front end and admin pages. This is
@@ -59,11 +46,13 @@ class FormScripts {
 	public function register() {
 		$min = SCRIPT_DEBUG ? '' : '.min';
 
+		$file = 'css/forms' . $min . '.css';
+
 		wp_register_style(
 			'pronamic-pay-forms',
-			plugins_url( 'css/forms' . $min . '.css', dirname( dirname( __FILE__ ) ) ),
+			plugins_url( $file, dirname( __DIR__ ) ),
 			[],
-			$this->plugin->get_version()
+			\hash_file( 'crc32b', dirname( __DIR__, 2 ) . '/' . $file ),
 		);
 	}
 

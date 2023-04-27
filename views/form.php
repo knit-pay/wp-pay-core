@@ -3,16 +3,16 @@
  * Forms template.
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
 
 global $pronamic_pay_errors;
 
-use Pronamic\WordPress\Number\Number;
 use Pronamic\WordPress\Money\Currency;
 use Pronamic\WordPress\Money\Money;
+use Pronamic\WordPress\Pay\Core\PaymentMethods;
 use Pronamic\WordPress\Pay\Core\SelectField;
 use Pronamic\WordPress\Pay\Forms\FormPostType;
 use Pronamic\WordPress\Pay\Forms\FormsSource;
@@ -24,23 +24,56 @@ if ( ! isset( $settings ) ) {
 }
 
 $methods_with_choices = [
-	\Pronamic\WordPress\Pay\Forms\FormPostType::AMOUNT_METHOD_CHOICES_ONLY,
-	\Pronamic\WordPress\Pay\Forms\FormPostType::AMOUNT_METHOD_CHOICES_AND_INPUT,
+	FormPostType::AMOUNT_METHOD_CHOICES_ONLY,
+	FormPostType::AMOUNT_METHOD_CHOICES_AND_INPUT,
 ];
 
 $gateway = Plugin::get_gateway( $settings['config_id'] );
 
-$amount_value = '';
-
-if ( filter_has_var( INPUT_GET, 'amount' ) ) {
-	$amount_value = filter_input( INPUT_GET, 'amount', FILTER_SANITIZE_STRING );
-}
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$amount_value = array_key_exists( 'amount', $_GET ) ? \sanitize_text_field( \wp_unslash( $_GET['amount'] ) ) : '';
 
 if ( null === $gateway ) {
 	return;
 }
 
 $currency = Currency::get_instance( 'INR' );
+
+// First payment method.
+$payment_methods = $gateway->get_payment_methods(
+	[ 
+		'status' => [
+			'',
+			'active',
+		],
+	]
+)->get_array();
+
+$payment_methods = array_filter(
+	$payment_methods,
+	function( $payment_method ) {
+		return ! in_array(
+			$payment_method->get_id(),
+			[
+				PaymentMethods::AFTERPAY,
+				PaymentMethods::AFTERPAY_NL,
+				PaymentMethods::AFTERPAY_COM,
+				PaymentMethods::APPLE_PAY,
+				PaymentMethods::IN3,
+				PaymentMethods::DIRECT_DEBIT_BANCONTACT,
+				PaymentMethods::DIRECT_DEBIT_IDEAL,
+				PaymentMethods::DIRECT_DEBIT_SOFORT,
+				PaymentMethods::KLARNA_PAY_LATER,
+				PaymentMethods::KLARNA_PAY_OVER_TIME,
+				PaymentMethods::RIVERTY,
+				PaymentMethods::SPRAYPAY,
+			],
+			true
+		);
+	}
+);
+
+$payment_method_default = \reset( $payment_methods );
 
 ?>
 <div class="pronamic-pay-form-wrap">
@@ -82,7 +115,7 @@ $currency = Currency::get_instance( 'INR' );
 
 						<?php endforeach; ?>
 
-						<?php if ( \Pronamic\WordPress\Pay\Forms\FormPostType::AMOUNT_METHOD_CHOICES_AND_INPUT === $settings['amount_method'] ) : ?>
+						<?php if ( FormPostType::AMOUNT_METHOD_CHOICES_AND_INPUT === $settings['amount_method'] ) : ?>
 
 							<div>
 								<input class="pronamic-pay-amount-input pronamic-pay-input" id="pronamic-pay-amount-other" name="pronamic_pay_amount" type="radio" required="required" value="other" />
@@ -97,7 +130,7 @@ $currency = Currency::get_instance( 'INR' );
 
 				<?php endif; ?>
 
-				<?php if ( \Pronamic\WordPress\Pay\Forms\FormPostType::AMOUNT_METHOD_INPUT_ONLY === $settings['amount_method'] ) : ?>
+				<?php if ( FormPostType::AMOUNT_METHOD_INPUT_ONLY === $settings['amount_method'] ) : ?>
 
 					<span class="pronamic-pay-currency-symbol pronamic-pay-currency-position-before">₹</span>
 					<input class="pronamic-pay-amount-input pronamic-pay-input" id="pronamic-pay-amount" name="pronamic_pay_amount" type="number" step="any" autocomplete="off" value="<?php echo esc_attr( $amount_value ); ?>" />
@@ -140,41 +173,76 @@ $currency = Currency::get_instance( 'INR' );
 			</p>
 		</fieldset>
 
-		<?php
+		<fieldset>
+			<legend><?php esc_html_e( 'Payment Info', 'pronamic_ideal' ); ?></legend>
 
-		$fields = [];
+			<ul class="pronamic-pay-payment-method-list">
 
-		foreach ( $gateway->get_payment_methods() as $payment_method ) {
-			foreach ( $payment_method->get_fields() as $field ) {
-				if ( $field->is_required() ) {
-					$fields[] = $field;
-				}
-			}
-		}
+				<?php foreach ( $payment_methods as $payment_method ) : ?>
 
-		?>
+					<li>
+						<?php
 
-		<?php if ( ! empty( $fields ) ) : ?>
+						$html_id = 'pronamic-pay-payment-method-' . $payment_method->get_id();
 
-			<fieldset>
-				<legend><?php esc_html_e( 'Payment Info', 'pronamic_ideal' ); ?></legend>
+						printf(
+							'<input id="%s" type="radio" name="payment_method" value="%s" %s />',
+							\esc_attr( $html_id ),
+							\esc_attr( $payment_method->get_id() ),
+							checked( $payment_method === $payment_method_default, true, false )
+						);
 
-				<?php foreach ( $fields as $field ) : ?>
+						echo ' ';
 
-					<p class="pronamic-pay-form-row pronamic-pay-form-row-wide">
-						<label class="pronamic-pay-label" for="<?php echo esc_attr( $field->get_id() ); ?>">
-							<?php echo esc_html( $field->get_label() ); ?>
-							<span class="pronamic-pay-required-indicator">*</span>
-						</label>
+						printf(
+							'<label for="%s">%s</label>',
+							\esc_attr( $html_id ),
+							\esc_html( $payment_method->get_name() )
+						);
 
-						<?php $field->output(); ?>
-					</p>
+						?>
+						<div class="pronamic-pay-payment-method-fields">
+
+							<?php foreach ( $payment_method->get_fields() as $field ) : ?>
+
+								<p class="pronamic-pay-form-row pronamic-pay-form-row-wide">
+									<label class="pronamic-pay-label" for="<?php echo esc_attr( $field->get_id() ); ?>">
+										<?php echo esc_html( $field->get_label() ); ?>
+
+										<?php if ( $field->is_required() ) : ?>
+											<span class="pronamic-pay-required-indicator">*</span>
+										<?php endif; ?>
+									</label>
+
+									<?php
+
+									try {
+										$field->output();
+									} catch ( \Exception $exception ) {
+										echo '<em>';
+
+										printf(
+											/* translators: %s: Exception message. */
+											esc_html__( 'This field could not be displayed due to the following error message: "%s".', 'pronamic_ideal' ),
+											esc_html( $exception->getMessage() )
+										);
+
+										echo '</em>';
+									}
+
+									?>
+								</p>
+
+							<?php endforeach; ?>
+
+						</div>
+					</li>
 
 				<?php endforeach; ?>
 
-			</fieldset>
+			</ul>
 
-		<?php endif; ?>
+		</fieldset>
 
 		<?php if ( ! empty( $pronamic_pay_errors ) ) : ?>
 

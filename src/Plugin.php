@@ -3,7 +3,7 @@
  * Plugin
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -25,6 +25,7 @@ use Pronamic\WordPress\Pay\Payments\PaymentPostType;
 use Pronamic\WordPress\Pay\Payments\PaymentsDataStoreCPT;
 use Pronamic\WordPress\Pay\Payments\PaymentStatus;
 use Pronamic\WordPress\Pay\Payments\StatusChecker;
+use Pronamic\WordPress\Pay\Refunds\Refund;
 use Pronamic\WordPress\Pay\Subscriptions\SubscriptionPostType;
 use Pronamic\WordPress\Pay\Subscriptions\SubscriptionsDataStoreCPT;
 use Pronamic\WordPress\Pay\Webhooks\WebhookLogger;
@@ -139,13 +140,6 @@ class Plugin {
 	public $subscription_post_type;
 
 	/**
-	 * Licence manager.
-	 *
-	 * @var LicenseManager
-	 */
-	public $license_manager;
-
-	/**
 	 * Privacy manager.
 	 *
 	 * @var PrivacyManager
@@ -158,6 +152,20 @@ class Plugin {
 	 * @var AdminModule
 	 */
 	public $admin;
+
+	/**
+	 * Pages controller.
+	 *
+	 * @var PagesController
+	 */
+	private $pages_controller;
+
+	/**
+	 * Home URL controller.
+	 *
+	 * @var HomeUrlController
+	 */
+	private $home_url_controller;
 
 	/**
 	 * Blocks module.
@@ -371,6 +379,7 @@ class Plugin {
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::PAYCONIQ ) );
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::PAYPAL ) );
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::PRZELEWY24 ) );
+		$this->payment_methods->add( new PaymentMethod( PaymentMethods::RIVERTY ) );
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::SANTANDER ) );
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::SOFORT ) );
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::SPRAYPAY ) );
@@ -510,11 +519,16 @@ class Plugin {
 	 * @return void
 	 */
 	public function handle_returns() {
-		if ( ! filter_has_var( INPUT_GET, 'payment' ) ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if (
+			! \array_key_exists( 'payment', $_GET )
+				||
+			! \array_key_exists( 'key', $_GET )
+		) {
 			return;
 		}
 
-		$payment_id = filter_input( INPUT_GET, 'payment', FILTER_SANITIZE_NUMBER_INT );
+		$payment_id = (int) $_GET['payment'];
 
 		$payment = get_pronamic_payment( $payment_id );
 
@@ -523,21 +537,15 @@ class Plugin {
 		}
 
 		// Check if payment key is valid.
-		$valid_key = false;
+		$key = \sanitize_text_field( \wp_unslash( $_GET['key'] ) );
 
-		if ( empty( $payment->key ) ) {
-			$valid_key = true;
-		} elseif ( filter_has_var( INPUT_GET, 'key' ) ) {
-			$key = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
-
-			$valid_key = ( $key === $payment->key );
-		}
-
-		if ( ! $valid_key ) {
+		if ( $key !== $payment->key ) {
 			wp_safe_redirect( home_url() );
 
 			exit;
 		}
+
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Check if we should redirect.
 		$should_redirect = true;
@@ -565,12 +573,13 @@ class Plugin {
 	 * @return void
 	 */
 	public function maybe_redirect() {
-		if ( ! filter_has_var( INPUT_GET, 'payment_redirect' ) || ! filter_has_var( INPUT_GET, 'key' ) ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! \array_key_exists( 'payment_redirect', $_GET ) || ! \array_key_exists( 'key', $_GET ) ) {
 			return;
 		}
 
 		// Get payment.
-		$payment_id = filter_input( INPUT_GET, 'payment_redirect', FILTER_SANITIZE_NUMBER_INT );
+		$payment_id = (int) $_GET['payment_redirect'];
 
 		$payment = get_pronamic_payment( $payment_id );
 
@@ -579,11 +588,13 @@ class Plugin {
 		}
 
 		// Validate key.
-		$key = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
+		$key = \sanitize_text_field( \wp_unslash( $_GET['key'] ) );
 
 		if ( $key !== $payment->key || empty( $payment->key ) ) {
 			return;
 		}
+
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Don't cache.
 		Core_Util::no_cache();
@@ -608,8 +619,6 @@ class Plugin {
 
 			// Handle HTML form redirect.
 			if ( $gateway->is_html_form() ) {
-				$gateway->start( $payment );
-
 				$gateway->redirect( $payment );
 			}
 		}
@@ -670,9 +679,6 @@ class Plugin {
 		$this->payment_post_type      = new PaymentPostType();
 		$this->subscription_post_type = new SubscriptionPostType();
 
-		// License Manager.
-		// $this->license_manager = new LicenseManager();
-
 		// Privacy Manager.
 		$this->privacy_manager = new PrivacyManager();
 
@@ -681,7 +687,7 @@ class Plugin {
 		$this->webhook_logger->setup();
 
 		// Modules.
-		$this->forms_module         = new Forms\FormsModule( $this );
+		$this->forms_module         = new Forms\FormsModule();
 		$this->payments_module      = new Payments\PaymentsModule( $this );
 		$this->subscriptions_module = new Subscriptions\SubscriptionsModule( $this );
 		$this->tracking_module      = new TrackingModule();
@@ -700,6 +706,12 @@ class Plugin {
 		if ( is_admin() ) {
 			$this->admin = new Admin\AdminModule( $this );
 		}
+
+		$this->pages_controller = new PagesController();
+		$this->pages_controller->setup();
+
+		$this->home_url_controller = new HomeUrlController();
+		$this->home_url_controller->setup();
 
 		$gateways = [];
 
@@ -814,7 +826,7 @@ class Plugin {
 
 		\wp_register_style(
 			'pronamic-pay-redirect',
-			\plugins_url( 'css/redirect' . $min . '.css', \dirname( __FILE__ ) ),
+			\plugins_url( 'css/redirect' . $min . '.css', __DIR__ ),
 			[],
 			$this->get_version()
 		);
@@ -1082,7 +1094,13 @@ class Plugin {
 			return;
 		}
 
-		$payment_method = $gateway->get_payment_method( $payment->get_payment_method() );
+		$payment_method = $payment->get_payment_method();
+
+		if ( null === $payment_method ) {
+			return;
+		}
+
+		$payment_method = $gateway->get_payment_method( $payment_method );
 
 		if ( null === $payment_method ) {
 			return;
@@ -1286,91 +1304,36 @@ class Plugin {
 	/**
 	 * Create refund.
 	 *
-	 * @param string      $transaction_id Gateway transaction ID.
-	 * @param Gateway     $gateway        Gateway.
-	 * @param Money       $amount         Refund amount.
-	 * @param string|null $description    Refund description.
-	 * @return string|null
+	 * @param Refund $refund Refund.
+	 * @return void
 	 * @throws \Exception Throws exception on error.
 	 */
-	public static function create_refund( $transaction_id, $gateway, Money $amount, $description = null ) {
-		// Check if gateway supports refunds.
-		if ( ! $gateway->supports( 'refunds' ) || ! \method_exists( $gateway, 'create_refund' ) ) {
-			throw new \Exception( __( 'Unable to process refund as gateway does not support refunds.', 'pronamic_ideal' ) );
+	public static function create_refund( Refund $refund ) {
+		$payment = $refund->get_payment();
+
+		$gateway = $payment->get_gateway();
+
+		if ( null === $gateway ) {
+			throw new \Exception( __( 'Unable to process refund as gateway could not be found.', 'pronamic_ideal' ) );
 		}
 
-		// Check amount.
-		if ( $amount->get_value() <= 0 ) {
-			throw new \Exception(
-				sprintf(
-					/* translators: %s: formatted amount */
-					__( 'Unable to process refund because of invalid amount (%s).', 'pronamic_ideal' ),
-					$amount->format_i18n()
-				)
-			);
+		try {
+			$gateway->create_refund( $refund );
+
+			$payment->refunds[] = $refund;
+
+			$refunded_amount = $payment->get_refunded_amount();
+
+			$refunded_amount = $refunded_amount->add( $refund->get_amount() );
+
+			$payment->set_refunded_amount( $refunded_amount );
+		} catch ( \Exception $exception ) {
+			$payment->add_note( $exception->getMessage() );
+
+			throw $exception;
+		} finally {
+			$payment->save();
 		}
-
-		// Create refund.
-		$reference = $gateway->create_refund( $transaction_id, $amount, $description );
-
-		// Add note to original payment.
-		$payment = \get_pronamic_payment_by_transaction_id( $transaction_id );
-
-		if ( null !== $payment ) {
-			/* translators: 1: refunded amount */
-			$format = __( 'Refunded %1$s.', 'pronamic_ideal' );
-
-			if ( ! empty( $reference ) ) {
-				/* translators: 1: refunded amount, 3: refund reference */
-				$format = __( 'Refunded %1$s with gateway reference `%3$s`.', 'pronamic_ideal' );
-			}
-
-			if ( ! empty( $description ) ) {
-				/* translators: 1: refunded amount, 2: refund description */
-				$format = __( 'Refunded %1$s ("%2$s").', 'pronamic_ideal' );
-
-				if ( ! empty( $reference ) ) {
-					/* translators: 1: refunded amount, 2: refund description, 3: refund reference */
-					$format = __( 'Refunded %1$s ("%2$s") with gateway reference `%3$s`.', 'pronamic_ideal' );
-				}
-			}
-
-			$note = sprintf(
-				$format,
-				$amount->format_i18n(),
-				$description,
-				$reference
-			);
-
-			$payment->add_note( $note );
-		}
-
-		return $reference;
-	}
-
-	/**
-	 * Get pages.
-	 *
-	 * @return array
-	 */
-	public function get_pages() {
-		$return = [];
-
-		$pages = [
-			'completed' => __( 'Completed', 'pronamic_ideal' ),
-			'cancel'    => __( 'Canceled', 'pronamic_ideal' ),
-			'expired'   => __( 'Expired', 'pronamic_ideal' ),
-			'error'     => __( 'Error', 'pronamic_ideal' ),
-			'unknown'   => __( 'Unknown', 'pronamic_ideal' ),
-		];
-
-		foreach ( $pages as $key => $label ) {
-			$id = sprintf( 'pronamic_pay_%s_page_id', $key );
-
-			$return[ $id ] = $label;
-		}
-
-		return $return;
 	}
 
 	/**
@@ -1403,7 +1366,7 @@ class Plugin {
 	public function is_debug_mode() {
 		$value = \get_option( 'pronamic_pay_debug_mode', false );
 
-		if ( PRONAMIC_PAY_DEBUG ) {
+		if ( defined( '\PRONAMIC_PAY_DEBUG' ) && PRONAMIC_PAY_DEBUG ) {
 			$value = true;
 		}
 

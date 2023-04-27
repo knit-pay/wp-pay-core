@@ -3,7 +3,7 @@
  * Meta Box Gateway Config
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  * @var \Pronamic\WordPress\Pay\Plugin $plugin Plugin.
@@ -25,6 +25,15 @@ usort(
 $config_id = $post->ID;
 
 $gateway_id = get_post_meta( $config_id, '_pronamic_gateway_id', true );
+
+// Select gateway if we already know which one to use, because there is only a single gateway registered.
+if ( empty( $gateway_id ) && 1 === count( $integrations ) ) {
+	$integration = reset( $integrations );
+
+	if ( false !== $integration ) {
+		$gateway_id = $integration->get_id();
+	}
+}
 
 ?>
 <div id="pronamic-pay-gateway-config-editor">

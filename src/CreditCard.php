@@ -3,7 +3,7 @@
  * Credit Card
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -21,49 +21,48 @@ class CreditCard {
 	/**
 	 * Credit card number.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	private $number;
 
 	/**
 	 * Credit card expiration month.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private $expiration_month;
 
 	/**
 	 * Credit card expiration year.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	private $expiration_year;
 
 	/**
 	 * Credit card security code.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	private $security_code;
 
 	/**
 	 * Credit card holder name.
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	private $name;
 
 	/**
-	 * Constructs and initializes an credit card object.
+	 * Constructs and initializes a credit card object.
 	 */
 	public function __construct() {
-
 	}
 
 	/**
 	 * Get credit card number.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public function get_number() {
 		return $this->number;
@@ -72,7 +71,7 @@ class CreditCard {
 	/**
 	 * Set credit card number.
 	 *
-	 * @param string $number Number.
+	 * @param string|null $number Number.
 	 * @return void
 	 */
 	public function set_number( $number ) {
@@ -82,7 +81,7 @@ class CreditCard {
 	/**
 	 * Get expiration month.
 	 *
-	 * @return int
+	 * @return int|null
 	 */
 	public function get_expiration_month() {
 		return $this->expiration_month;
@@ -91,7 +90,7 @@ class CreditCard {
 	/**
 	 * Set expiration month
 	 *
-	 * @param int $month Month.
+	 * @param int|null $month Month.
 	 * @return void
 	 */
 	public function set_expiration_month( $month ) {
@@ -101,7 +100,7 @@ class CreditCard {
 	/**
 	 * Get expiration year.
 	 *
-	 * @return int
+	 * @return int|null
 	 */
 	public function get_expiration_year() {
 		return $this->expiration_year;
@@ -110,7 +109,7 @@ class CreditCard {
 	/**
 	 * Set expiration year
 	 *
-	 * @param int $year Year.
+	 * @param int|null $year Year.
 	 * @return void
 	 */
 	public function set_expiration_year( $year ) {
@@ -140,7 +139,7 @@ class CreditCard {
 	/**
 	 * Get security code.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public function get_security_code() {
 		return $this->security_code;
@@ -149,7 +148,7 @@ class CreditCard {
 	/**
 	 * Set security code.
 	 *
-	 * @param string $security_code Security code.
+	 * @param string|null $security_code Security code.
 	 * @return void
 	 */
 	public function set_security_code( $security_code ) {
@@ -159,7 +158,7 @@ class CreditCard {
 	/**
 	 * Get credit card holder name.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public function get_name() {
 		return $this->name;
@@ -168,7 +167,7 @@ class CreditCard {
 	/**
 	 * Set credit card holder name.
 	 *
-	 * @param string $name Name.
+	 * @param string|null $name Name.
 	 * @return void
 	 */
 	public function set_name( $name ) {

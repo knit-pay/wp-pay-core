@@ -4,6 +4,7 @@
 	"keywords": ["wordpress", "wp", "pay", "core", "gateway", "pronamic"],
 	"homepage": "https://www.wp-pay.org/",
 	"license": "GPL-3.0-or-later" ,
+	"type": "wordpress-plugin",
 	"authors": [
 		{
 			"name": "Pronamic",
@@ -28,8 +29,7 @@
 			"Pronamic\\WordPress\\Pay\\": "src/"
 		},
 		"files": [
-			"includes/functions.php",
-			"includes/xmlseclibs/xmlseclibs-ing.php"
+			"includes/functions.php"
 		]
 	},
 	"config": {
@@ -52,26 +52,27 @@
 		"ext-dom": "*",
 		"ext-libxml": "*",
 		"ext-simplexml": "*",
-		"pronamic/wp-datetime": "^2.0",
-		"pronamic/wp-html": "^2.0",
-		"pronamic/wp-http": "^1.0",
-		"pronamic/wp-money": "^2.0",
-		"pronamic/wp-number": "^1.1",
-		"roots/wordpress": "^5.7",
+		"pronamic/wp-datetime": "^2.1",
+		"pronamic/wp-html": "^2.1",
+		"pronamic/wp-http": "^1.2",
+		"pronamic/wp-money": "^2.3",
+		"pronamic/wp-number": "^1.3",
 		"viison/address-splitter": "^0.3.4",
 		"woocommerce/action-scheduler": "^3.4"
 	},
 	"require-dev": {
-		"automattic/wordbless": "^0.3.1",
+		"automattic/wordbless": "^0.4.2",
 		"bamarni/composer-bin-plugin": "^1.4",
-		"overtrue/phplint": "^2.2",
+		"overtrue/phplint": "^4.5",
 		"php-coveralls/php-coveralls": "^2.4",
 		"php-stubs/wordpress-globals": "^0.2.0",
 		"php-stubs/wp-cli-stubs": "^2.4",
 		"phpmd/phpmd": "^2.9",
-		"pronamic/wp-coding-standards": "^1.0",
+		"pronamic/wp-coding-standards": "^1.3",
+		"pronamic/wp-deployer": "^1.1",
+		"roots/wordpress": "^6.0",
 		"wp-cli/wp-cli": "^2.3",
-		"wp-phpunit/wp-phpunit": "^5.7",
+		"wp-phpunit/wp-phpunit": "^6.1",
 		"yoast/phpunit-polyfills": "^1.0"
 	},
 	"scripts": {
@@ -100,10 +101,10 @@
 		"build-docs": [
 			"XDEBUG_MODE=off vendor/bin/wp-documentor parse src --format=markdown --relative=docs > docs/hooks.md"
 		],
-		"post-install-cmd": "echo 'Optionally run: composer bin all install'",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": [
 			"echo 'Optionally run: composer bin all update'",
-			"php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+			"WorDBless\\Composer\\InstallDropin::copy"
 		]
 	}
 }

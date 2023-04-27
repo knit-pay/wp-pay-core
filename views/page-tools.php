@@ -3,12 +3,10 @@
  * Page Tools
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
-
-use Pronamic\WordPress\Pay\Plugin;
 
 $nav_tabs = [
 	'system_status' => __( 'System Status', 'pronamic_ideal' ),
@@ -16,7 +14,8 @@ $nav_tabs = [
 	'extensions'    => __( 'Extensions', 'pronamic_ideal' ),
 ];
 
-$current_tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_STRING );
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$current_tab = array_key_exists( 'tab', $_GET ) ? \sanitize_text_field( \wp_unslash( $_GET['tab'] ) ) : '';
 $current_tab = empty( $current_tab ) ? key( $nav_tabs ) : $current_tab;
 
 ?>

@@ -3,7 +3,7 @@
  * Subscription Post Type
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -175,8 +175,12 @@ class AdminSubscriptionPostType {
 					return;
 				}
 
-				$start_date = new DateTimeImmutable( \filter_input( \INPUT_GET, 'start_date', \FILTER_SANITIZE_STRING ) );
-				$end_date   = new DateTimeImmutable( \filter_input( \INPUT_GET, 'end_date', \FILTER_SANITIZE_STRING ) );
+				if ( ! isset( $_GET['start_date'] ) || ! isset( $_GET['end_date'] ) ) {
+					return;
+				}
+
+				$start_date = new DateTimeImmutable( \sanitize_text_field( \wp_unslash( $_GET['start_date'] ) ) );
+				$end_date   = new DateTimeImmutable( \sanitize_text_field( \wp_unslash( $_GET['end_date'] ) ) );
 
 				$period = new SubscriptionPeriod( $phase, $start_date, $end_date, $phase->get_amount() );
 
@@ -212,8 +216,15 @@ class AdminSubscriptionPostType {
 	 * @return void
 	 */
 	public function admin_notices() {
+		/* phpcs:ignore WordPress.Security.NonceVerification.Recommended */
+		$payment_ids = \array_key_exists( 'pronamic_payment_created', $_GET ) ? \sanitize_text_field( \wp_unslash( $_GET['pronamic_payment_created'] ) ) : null;
+
+		if ( null === $payment_ids ) {
+			return;
+		}
+
 		// Payment created for period.
-		$payment_ids = \wp_parse_id_list( \filter_input( \INPUT_GET, 'pronamic_payment_created', \FILTER_SANITIZE_STRING ) );
+		$payment_ids = \wp_parse_id_list( $payment_ids );
 
 		foreach ( $payment_ids as $payment_id ) {
 			$edit_post_link = \sprintf(

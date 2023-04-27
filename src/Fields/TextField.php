@@ -3,7 +3,7 @@
  * Text field
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Core
  */
@@ -21,7 +21,7 @@ class TextField extends Field {
 	 *
 	 * @return array<string, string>
 	 */
-	protected function get_html_attributes() : array {
+	protected function get_html_attributes(): array {
 		$attributes = parent::get_html_attributes();
 
 		$attributes['type'] = 'text';
@@ -36,7 +36,7 @@ class TextField extends Field {
 	 *
 	 * @return string
 	 */
-	public function render() : string {
+	public function render(): string {
 		$element = new Element( 'input', $this->get_html_attributes() );
 
 		return $element->render();
@@ -45,9 +45,10 @@ class TextField extends Field {
 	/**
 	 * Serialize to JSON.
 	 *
-	 * @return array
+	 * @return mixed
 	 */
-	public function jsonSerialize() : array {
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
 		$data = parent::jsonSerialize();
 
 		$data['type'] = 'input';

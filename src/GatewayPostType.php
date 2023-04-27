@@ -3,7 +3,7 @@
  * Gateway Post Type
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -221,7 +221,7 @@ class GatewayPostType {
 			return new \WP_Error(
 				'pronamic-pay-gateway-not-found',
 				\sprintf(
-					/* translators: %s: Subscription ID */
+					/* translators: %s: Gateway configuration ID */
 					\__( 'Could not find gateway with ID `%s`.', 'pronamic_ideal' ),
 					$config_id
 				),

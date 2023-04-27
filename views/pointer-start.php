@@ -3,14 +3,10 @@
  * Pointer Start
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
-
-if ( ! isset( $admin_tour ) ) {
-	return;
-}
 
 ?>
 <h3><?php esc_html_e( 'Congratulations', 'pronamic_ideal' ); ?></h3>
@@ -18,11 +14,3 @@ if ( ! isset( $admin_tour ) ) {
 <p>
 	<?php esc_html_e( 'You’ve just installed the Knit Pay plugin. Click “Start Tour” to view a quick introduction of this plugin’s core functionality.', 'pronamic_ideal' ); ?>
 </p>
-
-<div class="wp-pointer-buttons pp-pointer-buttons">
-	<span class="pp-pointer-buttons-right">
-		<a href="<?php echo \esc_url( add_query_arg( 'page', 'pronamic_ideal', admin_url( 'admin.php' ) ) ); ?>" class="button-primary pp-pointer-button-next"><?php esc_html_e( 'Start tour', 'pronamic_ideal' ); ?></a>
-
-		<a href="<?php echo \esc_url( $admin_tour->get_close_url() ); ?>" class="button-secondary pp-pointer-button-close"><?php esc_html_e( 'Close', 'pronamic_ideal' ); ?></a>
-	</span>
-</div>

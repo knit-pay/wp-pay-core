@@ -3,7 +3,7 @@
  * Meta Box Payment Info
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  * @var \Pronamic\WordPress\Pay\Plugin $plugin Plugin.
@@ -98,7 +98,7 @@ use Pronamic\WordPress\Pay\VatNumbers\VatNumberValidationService;
 
 	$amount_refunded = $payment->get_refunded_amount();
 
-	if ( null !== $amount_refunded && $amount_refunded->get_value() > 0 ) :
+	if ( $amount_refunded->get_value() > 0 ) :
 
 		?>
 
@@ -191,9 +191,9 @@ use Pronamic\WordPress\Pay\VatNumbers\VatNumberValidationService;
 			$name = PaymentMethods::get_name( $payment_method );
 			$name = ( null === $name ) ? $payment_method : $name;
 
-			$gateway = Plugin::get_gateway( $payment->get_config_id() );
+			$gateway = Plugin::get_gateway( (int) $payment->get_config_id() );
 
-			if ( null !== $gateway ) {
+			if ( null !== $gateway && null !== $payment_method ) {
 				$method = $gateway->get_payment_method( $payment_method );
 
 				if ( null !== $method ) {

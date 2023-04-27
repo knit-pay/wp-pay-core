@@ -3,7 +3,7 @@
  * Editor Blocks.
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -81,7 +81,7 @@ class BlocksModule {
 
 		wp_register_script(
 			'pronamic-payment-form-editor',
-			plugins_url( '/js/dist/block-payment-form' . $min . '.js', dirname( dirname( __FILE__ ) ) ),
+			plugins_url( '/js/dist/block-payment-form' . $min . '.js', dirname( __DIR__ ) ),
 			[ 'wp-blocks', 'wp-components', 'wp-editor', 'wp-element' ],
 			pronamic_pay_plugin()->get_version(),
 			false

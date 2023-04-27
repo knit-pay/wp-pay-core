@@ -3,7 +3,7 @@
  * Google Analytics E-Commerce
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -55,7 +55,7 @@ class GoogleAnalyticsEcommerce {
 		add_action( 'pronamic_payment_status_update', [ $this, 'maybe_send_transaction' ], 10 );
 
 		// Filters.
-		add_filter( 'pronamic_payment_redirect_url', [ $this, 'payment_redirect_url' ], 15, 2 );
+		add_filter( 'pronamic_payment_redirect_url', [ $this, 'payment_redirect_url' ], 15, 1 );
 	}
 
 	/**
@@ -351,16 +351,20 @@ class GoogleAnalyticsEcommerce {
 	 * @return string|null
 	 */
 	public static function get_cookie_client_id() {
-		$client_id = null;
+		// Check `_ga` cookie.
+		if ( ! \array_key_exists( '_ga', $_COOKIE ) ) {
+			return null;
+		}
 
-		$ga_cookie = filter_input( INPUT_COOKIE, '_ga', FILTER_SANITIZE_STRING );
+		$ga_cookie = \sanitize_text_field( \wp_unslash( $_COOKIE['_ga'] ) );
 
 		if ( empty( $ga_cookie ) ) {
-			// No `_ga` cookie available.
-			return $client_id;
+			return null;
 		}
 
 		$ga = explode( '.', $ga_cookie );
+
+		$client_id = null;
 
 		if ( isset( $ga[2] ) && self::is_uuid( $ga[2] ) ) {
 			// Use UUID from cookie.
@@ -376,11 +380,10 @@ class GoogleAnalyticsEcommerce {
 	/**
 	 * Payment redirect URL.
 	 *
-	 * @param string  $url     Redirect URL.
-	 * @param Payment $payment Payment.
+	 * @param string $url Redirect URL.
 	 * @return string
 	 */
-	public function payment_redirect_url( $url, Payment $payment ) {
+	public function payment_redirect_url( $url ) {
 		/**
 		 * Payment Gateway Referral Exclusions in Google Analytics.
 		 *

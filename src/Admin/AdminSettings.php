@@ -3,7 +3,7 @@
  * Admin Settings
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -50,22 +50,11 @@ class AdminSettings {
 		add_settings_section(
 			'pronamic_pay_general',
 			__( 'General', 'pronamic_ideal' ),
-			[ $this, 'settings_section' ],
+			function() {
+
+			},
 			'pronamic_pay'
 		);
-
-		/*
-		 add_settings_field(
-			'pronamic_pay_license_key',
-			__( 'Support License Key', 'pronamic_ideal' ),
-			[ $this, 'input_license_key' ],
-			'pronamic_pay',
-			'pronamic_pay_general',
-			[
-				'label_for' => 'pronamic_pay_license_key',
-				'classes'   => 'regular-text code',
-			]
-		); */
 
 		// Default Config.
 		add_settings_field(
@@ -119,7 +108,7 @@ class AdminSettings {
 			'type'        => 'checkbox',
 		];
 
-		if ( \PRONAMIC_PAY_DEBUG ) {
+		if ( defined( '\PRONAMIC_PAY_DEBUG' ) && \PRONAMIC_PAY_DEBUG ) {
 			$debug_mode_args['value']    = true;
 			$debug_mode_args['disabled'] = \disabled( \PRONAMIC_PAY_DEBUG, true, false );
 		}
@@ -149,37 +138,14 @@ class AdminSettings {
 			);
 		}
 
-		// Settings - Pages.
-		add_settings_section(
-			'pronamic_pay_pages',
-			__( 'Payment Status Pages', 'pronamic_ideal' ),
-			[ $this, 'settings_section' ],
-			'pronamic_pay'
-		);
-
-		$pages = $this->plugin->get_pages();
-
-		$pages['pronamic_pay_subscription_canceled_page_id'] = __( 'Subscription Canceled', 'pronamic_ideal' );
-
-		foreach ( $pages as $id => $label ) {
-			add_settings_field(
-				$id,
-				$label,
-				[ $this, 'input_page' ],
-				'pronamic_pay',
-				'pronamic_pay_pages',
-				[
-					'label_for' => $id,
-				]
-			);
-		}
-
 		if ( version_compare( $this->plugin->get_version(), '10', '>=' ) ) {
 			// Settings - Payment Methods.
 			\add_settings_section(
 				'pronamic_pay_payment_methods',
 				\__( 'Payment Methods', 'pronamic_ideal' ),
-				[ $this, 'settings_section' ],
+				function() {
+
+				},
 				'pronamic_pay'
 			);
 
@@ -197,44 +163,6 @@ class AdminSettings {
 					]
 				);
 			}
-		}
-	}
-
-	/**
-	 * Settings section.
-	 *
-	 * @param array $args Arguments.
-	 * @return void
-	 */
-	public function settings_section( $args ) {
-		switch ( $args['id'] ) {
-			case 'pronamic_pay_pages':
-				echo '<p>';
-				esc_html_e( 'The page an user will get redirected to after payment, based on the payment status.', 'pronamic_ideal' );
-				echo '</p>';
-
-				$pages = [ 'completed', 'cancel', 'expired', 'error', 'unknown' ];
-
-				foreach ( $pages as $status ) {
-					$option_name = sprintf( 'pronamic_pay_%s_page_id', $status );
-
-					$option = get_option( $option_name );
-
-					if ( ! empty( $option ) ) {
-						$hide_button = true;
-					}
-				}
-
-				if ( ! isset( $hide_button ) ) {
-					submit_button(
-						__( 'Set default pages', 'pronamic_ideal' ),
-						'',
-						'pronamic_pay_create_pages',
-						false
-					);
-				}
-
-				break;
 		}
 	}
 
@@ -321,27 +249,6 @@ class AdminSettings {
 	}
 
 	/**
-	 * Input license key.
-	 *
-	 * @param array $args Arguments.
-	 * @return void
-	 */
-	public function input_license_key( $args ) {
-		/**
-		 * Perform license check.
-		 */
-		do_action( 'pronamic_pay_license_check' );
-
-		$this->input_element( $args );
-
-		$status = get_option( 'pronamic_pay_license_status' );
-
-		$icon = 'valid' === $status ? 'yes' : 'no';
-
-		printf( '<span class="dashicons dashicons-%s" style="vertical-align: text-bottom;"></span>', esc_attr( $icon ) );
-	}
-
-	/**
 	 * Input page.
 	 *
 	 * @param array $args Arguments.
@@ -365,6 +272,12 @@ class AdminSettings {
 		) );
 	}
 
+	/**
+	 * Select payment method status.
+	 *
+	 * @param array $args Arguments.
+	 * @return void
+	 */
 	public function select_payment_method_status( $args ) {
 		$name = $args['label_for'];
 

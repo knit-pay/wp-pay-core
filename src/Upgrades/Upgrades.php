@@ -3,7 +3,7 @@
  * Upgrades
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Upgrades
  */
@@ -80,7 +80,7 @@ class Upgrades implements Countable, IteratorAggregate {
 	 *
 	 * @return Traversable
 	 */
-	public function getIterator() : Traversable {
+	public function getIterator(): Traversable {
 		return new ArrayIterator( $this->upgrades );
 	}
 
@@ -89,7 +89,7 @@ class Upgrades implements Countable, IteratorAggregate {
 	 *
 	 * @return int
 	 */
-	public function count() : int {
+	public function count(): int {
 		return count( $this->upgrades );
 	}
 }

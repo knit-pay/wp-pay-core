@@ -3,7 +3,7 @@
  * Payment lines
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Payments
  */
@@ -45,7 +45,7 @@ class PaymentLines implements Countable, IteratorAggregate {
 	 *
 	 * @return ArrayIterator<int, PaymentLine>
 	 */
-	public function getIterator() : Traversable {
+	public function getIterator(): Traversable {
 		return new ArrayIterator( $this->lines );
 	}
 
@@ -86,7 +86,7 @@ class PaymentLines implements Countable, IteratorAggregate {
 	 *
 	 * @return int
 	 */
-	public function count() : int {
+	public function count(): int {
 		return count( $this->lines );
 	}
 
@@ -132,6 +132,29 @@ class PaymentLines implements Countable, IteratorAggregate {
 			$currency,
 			$tax->get_value()
 		);
+	}
+
+	/**
+	 * Get first line with the specified ID.
+	 * 
+	 * @param string $id ID.
+	 * @return null|PaymentLine
+	 */
+	public function first( $id ) {
+		$lines = \array_filter(
+			$this->lines,
+			function( PaymentLine $line ) use ( $id ) {
+				return ( $id === $line->get_id() );
+			}
+		);
+
+		$line = \reset( $lines );
+
+		if ( false === $line ) {
+			return null;
+		}
+
+		return $line;
 	}
 
 	/**

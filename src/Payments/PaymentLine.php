@@ -3,7 +3,7 @@
  * Payment line
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Payments
  */
@@ -117,10 +117,19 @@ class PaymentLine {
 	private $payment;
 
 	/**
+	 * Meta.
+	 *
+	 * @var array
+	 */
+	public array $meta;
+
+	/**
 	 * Payment line constructor.
 	 */
 	public function __construct() {
 		$this->set_total_amount( new Money() );
+
+		$this->meta = [];
 	}
 
 	/**
@@ -393,6 +402,41 @@ class PaymentLine {
 	}
 
 	/**
+	 * Get the meta value of this specified meta key.
+	 *
+	 * @param string $key Meta key.
+	 * @return mixed
+	 */
+	public function get_meta( $key ) {
+		if ( \array_key_exists( $key, $this->meta ) ) {
+			return $this->meta[ $key ];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Set meta data.
+	 *
+	 * @param  string $key   A meta key.
+	 * @param  mixed  $value A meta value.
+	 * @return void
+	 */
+	public function set_meta( $key, $value ) {
+		$this->meta[ $key ] = $value;
+	}
+
+	/**
+	 * Delete meta data.
+	 *
+	 * @param string $key Meta key.
+	 * @return void
+	 */
+	public function delete_meta( $key ) {
+		unset( $this->meta[ $key ] );
+	}
+
+	/**
 	 * Create payment line from object.
 	 *
 	 * @param mixed $json JSON.
@@ -454,6 +498,10 @@ class PaymentLine {
 			$line->set_product_category( $json->product_category );
 		}
 
+		if ( property_exists( $json, 'meta' ) ) {
+			$line->meta = (array) $json->meta;
+		}
+
 		return $line;
 	}
 
@@ -476,6 +524,7 @@ class PaymentLine {
 			'product_url'      => $this->get_product_url(),
 			'image_url'        => $this->get_image_url(),
 			'product_category' => $this->get_product_category(),
+			'meta'             => $this->meta,
 		];
 
 		$properties = array_filter( $properties );

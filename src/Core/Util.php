@@ -3,7 +3,7 @@
  * Util
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Core
  */
@@ -17,7 +17,7 @@ use Pronamic\WordPress\Pay\Util as Pay_Util;
 /**
  * Title: WordPress utility class
  * Description:
- * Copyright: 2005-2022 Pronamic
+ * Copyright: 2005-2023 Pronamic
  * Company: Pronamic
  *
  * @author Remco Tolsma
@@ -25,98 +25,6 @@ use Pronamic\WordPress\Pay\Util as Pay_Util;
  * @since 1.0.0
  */
 class Util {
-	/**
-	 * Remote get body.
-	 *
-	 * @param string $url                    URL to request.
-	 * @param int    $required_response_code Required response code.
-	 * @param array  $args                   Remote request arguments.
-	 *
-	 * @return array|bool|string|\WP_Error
-	 */
-	public static function remote_get_body( $url, $required_response_code = 200, array $args = [] ) {
-		$result = wp_remote_request( $url, $args );
-
-		if ( $result instanceof \WP_Error ) {
-			return $result;
-		}
-
-		/*
-		 * The response code is cast to a integer since WordPress 4.1, therefore we can't use
-		 * strict comparison on the required response code.
-		 *
-		 * @link https://github.com/WordPress/WordPress/blob/4.1/wp-includes/class-http.php#L528-L529
-		 * @link https://github.com/WordPress/WordPress/blob/4.0/wp-includes/class-http.php#L527
-		 */
-		/* phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison */
-		if ( wp_remote_retrieve_response_code( $result ) == $required_response_code ) {
-			return wp_remote_retrieve_body( $result );
-		}
-
-		// Wrong response code.
-		return new \WP_Error(
-			'wrong_response_code',
-			sprintf(
-				/* translators: 1: received response code, 2: required response code */
-				__( 'The response code (<code>%1$s</code>) was incorrect, required response code <code>%2$s</code>.', 'pronamic_ideal' ),
-				wp_remote_retrieve_response_code( $result ),
-				$required_response_code
-			)
-		);
-	}
-
-	/**
-	 * SimpleXML load string.
-	 *
-	 * @link https://akrabat.com/throw-an-exception-when-simplexml_load_string-fails/
-	 * @link https://www.php.net/manual/en/class.invalidargumentexception.php
-	 * @link https://www.php.net/manual/en/class.libxmlerror.php
-	 *
-	 * @param string $string The XML string to convert to a SimpleXMLElement object.
-	 * @return \SimpleXMLElement
-	 * @throws \InvalidArgumentException If string could not be loaded in to a SimpleXMLElement object.
-	 */
-	public static function simplexml_load_string( $string ) {
-		// Suppress all XML errors.
-		$use_errors = libxml_use_internal_errors( true );
-
-		// Load.
-		$xml = simplexml_load_string( $string );
-
-		// Check result.
-		if ( false !== $xml ) {
-			// Set back to previous value.
-			libxml_use_internal_errors( $use_errors );
-
-			return $xml;
-		}
-
-		// Error message.
-		$messages = [
-			__( 'Could not load the XML string.', 'pronamic_ideal' ),
-		];
-
-		foreach ( libxml_get_errors() as $error ) {
-			$messages[] = sprintf(
-				'%s on line: %s, column: %s',
-				$error->message,
-				$error->line,
-				$error->column
-			);
-		}
-
-		// Clear errors.
-		libxml_clear_errors();
-
-		// Set back to previous value.
-		libxml_use_internal_errors( $use_errors );
-
-		// Throw exception.
-		$message = implode( PHP_EOL, $messages );
-
-		throw new \InvalidArgumentException( $message );
-	}
-
 	/**
 	 * No cache.
 	 *
@@ -261,69 +169,6 @@ class Util {
 	}
 
 	/**
-	 * Convert input fields array to HTML.
-	 *
-	 * @param array $fields Array with fields data to convert to HTML.
-	 *
-	 * @return string
-	 */
-	public static function input_fields_html( array $fields ) {
-		$html = '';
-
-		foreach ( $fields as $field ) {
-			if ( ! isset( $field['type'], $field['name'] ) ) {
-				continue;
-			}
-
-			$field = \wp_parse_args(
-				$field,
-				[
-					'id'       => $field['name'],
-					'type'     => 'text',
-					'value'    => ( \filter_has_var( INPUT_POST, $field['name'] ) ? \filter_input( INPUT_POST, $field['name'], FILTER_SANITIZE_STRING ) : null ),
-					'required' => false,
-					'max'      => null,
-				]
-			);
-
-			// Field label.
-			$html .= sprintf(
-				'<label for="%s">%s</label> ',
-				esc_attr( $field['id'] ),
-				$field['label']
-			);
-
-			switch ( $field['type'] ) {
-				case 'select':
-					$html .= sprintf(
-						'<select id="%s" name="%s" %s>%s</select>',
-						esc_attr( $field['id'] ),
-						esc_attr( $field['name'] ),
-						( $field['required'] ? 'required' : null ),
-						Pay_Util::select_options_grouped( $field['choices'] )
-					);
-
-					break;
-				default:
-					$attributes = [
-						'type'     => $field['type'],
-						'id'       => $field['id'],
-						'name'     => $field['name'],
-						'value'    => $field['value'],
-						'max'      => $field['max'],
-						'required' => $field['required'],
-					];
-
-					$html .= sprintf( '<input %s>', Pay_Util::array_to_html_attributes( $attributes ) );
-
-					break;
-			}
-		}
-
-		return $html;
-	}
-
-	/**
 	 * Method exists
 	 *
 	 * This helper function was created to fix an issue with `method_exists` calls
@@ -336,24 +181,6 @@ class Util {
 	 */
 	public static function class_method_exists( $class, $method ) {
 		return class_exists( $class ) && method_exists( $class, $method );
-	}
-
-	/**
-	 * Check if input type has vars.
-	 *
-	 * @param int   $type           One of INPUT_GET, INPUT_POST, INPUT_COOKIE, INPUT_SERVER, or INPUT_ENV.
-	 * @param array $variable_names Array of variable names to check in input type.
-	 *
-	 * @return bool
-	 */
-	public static function input_has_vars( $type, $variable_names ) {
-		foreach ( $variable_names as $variable_name ) {
-			if ( ! filter_has_var( $type, $variable_name ) ) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	/**

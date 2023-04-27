@@ -3,7 +3,7 @@
  * Payment methods collection
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Core
  */
@@ -13,9 +13,12 @@ namespace Pronamic\WordPress\Pay\Core;
 use ArrayIterator;
 use Countable;
 use IteratorAggregate;
+use Traversable;
 
 /**
  * Payment methods collection class
+ *
+ * @implements IteratorAggregate<string, PaymentMethod>
  */
 class PaymentMethodsCollection implements IteratorAggregate, Countable {
 	/**
@@ -105,8 +108,17 @@ class PaymentMethodsCollection implements IteratorAggregate, Countable {
 	 *
 	 * @return ArrayIterator<string, PaymentMethod>
 	 */
-	public function getIterator() {
+	public function getIterator(): Traversable {
 		return new ArrayIterator( $this->items );
+	}
+
+	/**
+	 * Get array.
+	 *
+	 * @return array<string, PaymentMethod>
+	 */
+	public function get_array() {
+		return $this->items;
 	}
 
 	/**
@@ -114,7 +126,7 @@ class PaymentMethodsCollection implements IteratorAggregate, Countable {
 	 *
 	 * @return int
 	 */
-	public function count() {
+	public function count(): int {
 		return count( $this->items );
 	}
 

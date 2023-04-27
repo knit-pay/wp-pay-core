@@ -3,7 +3,7 @@
  * Payment Post Type
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -499,7 +499,7 @@ class AdminPaymentPostType {
 
 				$refunded_amount = $payment->get_refunded_amount();
 
-				if ( null !== $refunded_amount ) {
+				if ( ! $refunded_amount->is_zero() ) {
 					$remaining_amount = $remaining_amount->subtract( $refunded_amount );
 
 					$tip[] = \sprintf(
@@ -587,10 +587,23 @@ class AdminPaymentPostType {
 			'high'
 		);
 
-		add_meta_box(
-			'pronamic_payment_subscription',
-			__( 'Subscription', 'pronamic_ideal' ),
-			[ $this, 'meta_box_subscription' ],
+		$modules = \apply_filters( 'pronamic_pay_modules', [] );
+
+		if ( \in_array( 'subscriptions', $modules, true ) ) {
+			\add_meta_box(
+				'pronamic_payment_subscription',
+				\__( 'Subscription', 'pronamic_ideal' ),
+				[ $this, 'meta_box_subscription' ],
+				$post_type,
+				'normal',
+				'high'
+			);
+		}
+
+		\add_meta_box(
+			'pronamic_payment_refunds',
+			\__( 'Refunds', 'pronamic_ideal' ),
+			[ $this, 'meta_box_refunds' ],
 			$post_type,
 			'normal',
 			'high'
@@ -651,6 +664,22 @@ class AdminPaymentPostType {
 		$lines = $payment->get_lines();
 
 		include __DIR__ . '/../../views/meta-box-payment-lines.php';
+	}
+
+	/**
+	 * Pronamic Pay payment refunds meta box.
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @return void
+	 */
+	public function meta_box_refunds( $post ) {
+		$payment = get_pronamic_payment( $post->ID );
+
+		if ( null === $payment ) {
+			return;
+		}
+
+		include __DIR__ . '/../../views/meta-box-payment-refunds.php';
 	}
 
 	/**

@@ -3,14 +3,15 @@
  * Page Settings
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
 
-if ( filter_has_var( INPUT_GET, 'message' ) ) {
-	$message_id = filter_input( INPUT_GET, 'message', FILTER_SANITIZE_STRING );
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$message_id = array_key_exists( 'message', $_GET ) ? \sanitize_text_field( \wp_unslash( $_GET['message'] ) ) : '';
 
+if ( ! empty( $message_id ) ) {
 	switch ( $message_id ) {
 		case 'pages-generated':
 			printf(

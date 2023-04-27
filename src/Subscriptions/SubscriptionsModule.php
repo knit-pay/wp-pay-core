@@ -3,7 +3,7 @@
  * Subscriptions Module
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Subscriptions
  */
@@ -22,7 +22,7 @@ use Pronamic\WordPress\Pay\Plugin;
 /**
  * Title: Subscriptions module
  * Description:
- * Copyright: 2005-2022 Pronamic
+ * Copyright: 2005-2023 Pronamic
  * Company: Pronamic
  *
  * @link https://woocommerce.com/2017/04/woocommerce-3-0-release/
@@ -248,20 +248,19 @@ class SubscriptionsModule {
 	 * @return void
 	 */
 	public function maybe_handle_subscription_action() {
-		if ( ! Util::input_has_vars( INPUT_GET, [ 'subscription', 'action', 'key' ] ) ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['subscription'] ) || ! isset( $_GET['action'] ) || ! isset( $_GET['key'] ) ) {
 			return;
 		}
 
 		Util::no_cache();
 
-		$subscription_id = filter_input( INPUT_GET, 'subscription', FILTER_SANITIZE_STRING );
-		$action          = filter_input( INPUT_GET, 'action', FILTER_SANITIZE_STRING );
-		$key             = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_STRING );
+		$subscription_id = filter_input( INPUT_GET, 'subscription', \FILTER_SANITIZE_NUMBER_INT );
 
 		$subscription = get_pronamic_subscription( $subscription_id );
 
 		// Check if subscription and key are valid.
-		if ( ! $subscription || $key !== $subscription->get_key() ) {
+		if ( ! $subscription || $_GET['key'] !== $subscription->get_key() ) {
 			wp_safe_redirect( home_url() );
 
 			exit;
@@ -271,7 +270,8 @@ class SubscriptionsModule {
 		Util::switch_to_user_locale();
 
 		// Handle action.
-		switch ( $action ) {
+		switch ( $_GET['action'] ) {
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 			case 'cancel':
 				$this->handle_subscription_cancel( $subscription );
 
@@ -358,6 +358,15 @@ class SubscriptionsModule {
 
 				$payment->order_id = $subscription->get_order_id();
 
+				/**
+				 * We set the payment method to `null` so that users get the 
+				 * chance to choose a payment method themselves if possible.
+				 * 
+				 * @link https://github.com/pronamic/wp-pronamic-pay-mollie/issues/23
+				 * @link https://github.com/pronamic/wp-pay-core/pull/99
+				 */
+				$payment->set_payment_method( null );
+
 				$payment->set_lines( $subscription->get_lines() );
 				$payment->set_total_amount( $current_phase->get_amount() );
 
@@ -426,10 +435,14 @@ class SubscriptionsModule {
 			exit;
 		}
 
-		$nonce = filter_input( \INPUT_POST, 'pronamic_pay_nonce', \FILTER_SANITIZE_STRING );
+		$nonce = array_key_exists( 'pronamic_pay_nonce', $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_nonce'] ) ) : '';
 
 		if ( \wp_verify_nonce( $nonce, 'pronamic_pay_update_subscription_mandate' ) ) {
-			$mandate_id = \filter_input( \INPUT_POST, 'pronamic_pay_subscription_mandate', \FILTER_SANITIZE_STRING );
+			$mandate_id = null;
+
+			if ( \array_key_exists( 'pronamic_pay_subscription_mandate', $_POST ) ) {
+				$mandate_id = \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_subscription_mandate'] ) );
+			}
 
 			if ( ! empty( $mandate_id ) ) {
 				try {
@@ -458,10 +471,12 @@ class SubscriptionsModule {
 				$payment->set_source_id( null );
 
 				// Set payment method.
-				$payment_method = \filter_input( \INPUT_POST, 'pronamic_pay_subscription_payment_method', \FILTER_SANITIZE_STRING );
+				if ( array_key_exists( 'pronamic_pay_subscription_payment_method', $_POST ) ) {
+					$payment_method = \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_subscription_payment_method'] ) );
 
-				if ( ! empty( $payment_method ) ) {
-					$payment->set_payment_method( $payment_method );
+					if ( ! empty( $payment_method ) ) {
+						$payment->set_payment_method( $payment_method );
+					}
 				}
 
 				/*
@@ -476,6 +491,12 @@ class SubscriptionsModule {
 						break;
 					case PaymentMethods::DIRECT_DEBIT_SOFORT:
 						$amount = 0.10;
+
+						break;
+					case PaymentMethods::APPLE_PAY:
+					case PaymentMethods::CREDIT_CARD:
+					case PaymentMethods::PAYPAL:
+						$amount = 0.00;
 
 						break;
 					default:
@@ -535,7 +556,7 @@ class SubscriptionsModule {
 
 		\wp_register_style(
 			'pronamic-pay-subscription-mandate',
-			plugins_url( 'css/card-slider.css', dirname( dirname( __FILE__ ) ) ),
+			plugins_url( 'css/card-slider.css', dirname( __DIR__ ) ),
 			[ 'pronamic-pay-redirect', 'pronamic-pay-card-slider-slick', 'pronamic-pay-card-slider-google-font' ],
 			$this->plugin->get_version()
 		);

@@ -3,7 +3,7 @@
  * Subscription
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Subscriptions
  */
@@ -660,8 +660,9 @@ class Subscription extends PaymentInfo implements \JsonSerializable {
 	 * JSON serialize.
 	 *
 	 * @link https://www.php.net/manual/en/jsonserializable.jsonserialize.php
-	 * @return object
+	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->get_json();
 	}

@@ -3,7 +3,7 @@
  * Admin Module
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -30,7 +30,6 @@ use Pronamic\WordPress\Pay\Plugin;
 use Pronamic\WordPress\Pay\Subscriptions\Subscription;
 use Pronamic\WordPress\Pay\Subscriptions\SubscriptionInterval;
 use Pronamic\WordPress\Pay\Subscriptions\SubscriptionPhase;
-use Pronamic\WordPress\Pay\Webhooks\WebhookManager;
 
 /**
  * WordPress Pay admin
@@ -137,9 +136,6 @@ class AdminModule {
 		if ( null !== $about_page_file ) {
 			$this->about_page = new AdminAboutPage( $plugin, $about_page_file );
 		}
-
-		// Webhook Manager.
-		new WebhookManager();
 	}
 
 	/**
@@ -153,18 +149,12 @@ class AdminModule {
 		$pronamic_ideal_errors = [];
 
 		// Maybe.
-		$this->maybe_create_pages();
 		$this->maybe_redirect();
 
 		// Post types.
 		new AdminGatewayPostType( $this->plugin );
 		new AdminPaymentPostType( $this->plugin );
 		new AdminSubscriptionPostType( $this->plugin );
-
-		// License check.
-		/* if ( ! wp_next_scheduled( 'pronamic_pay_license_check' ) ) {
-			wp_schedule_event( time(), 'daily', 'pronamic_pay_license_check' );
-		} */
 	}
 
 	/**
@@ -348,174 +338,6 @@ class AdminModule {
 	}
 
 	/**
-	 * Create pages.
-	 *
-	 * @param array    $pages   Page.
-	 * @param int|null $parent Parent post ID.
-	 * @return void
-	 * @throws \Exception When creating page fails.
-	 */
-	private function create_pages( $pages, $parent = null ) {
-		foreach ( $pages as $page ) {
-			$post = [
-				'post_title'     => $page['post_title'],
-				'post_name'      => $page['post_title'],
-				'post_content'   => $page['post_content'],
-				'post_status'    => 'publish',
-				'post_type'      => 'page',
-				'comment_status' => 'closed',
-			];
-
-			if ( isset( $parent ) ) {
-				$post['post_parent'] = $parent;
-			}
-
-			$result = wp_insert_post( $post, true );
-
-			if ( $result instanceof \WP_Error ) {
-				throw new \Exception( $result->get_error_message() );
-			}
-
-			if ( isset( $page['post_meta'] ) ) {
-				foreach ( $page['post_meta'] as $key => $value ) {
-					update_post_meta( $result, $key, $value );
-				}
-			}
-
-			if ( isset( $page['option_name'] ) ) {
-				update_option( $page['option_name'], $result );
-			}
-
-			if ( isset( $page['children'] ) ) {
-				$this->create_pages( $page['children'], $result );
-			}
-		}
-	}
-
-	/**
-	 * Maybe create pages.
-	 *
-	 * @return void
-	 */
-	public function maybe_create_pages() {
-		if ( ! filter_has_var( INPUT_POST, 'pronamic_pay_create_pages' ) ) {
-			return;
-		}
-
-		if ( ! check_admin_referer( 'pronamic_pay_settings', 'pronamic_pay_nonce' ) ) {
-			return;
-		}
-
-		$pages = [
-			[
-				'post_title'   => __( 'Payment Status', 'pronamic_ideal' ),
-				'post_name'    => __( 'payment', 'pronamic_ideal' ),
-				'post_content' => '',
-				'post_meta'    => [
-					'_yoast_wpseo_meta-robots-noindex' => true,
-				],
-				'children'     => [
-					'completed' => [
-						'post_title'   => __( 'Payment completed', 'pronamic_ideal' ),
-						'post_name'    => __( 'completed', 'pronamic_ideal' ),
-						'post_content' => sprintf(
-							'<p>%s</p>',
-							__( 'The payment has been successfully completed.', 'pronamic_ideal' )
-						),
-						'post_meta'    => [
-							'_yoast_wpseo_meta-robots-noindex' => true,
-						],
-						'option_name'  => 'pronamic_pay_completed_page_id',
-					],
-					'cancel'    => [
-						'post_title'   => __( 'Payment cancelled', 'pronamic_ideal' ),
-						'post_name'    => __( 'cancelled', 'pronamic_ideal' ),
-						'post_content' => sprintf(
-							'<p>%s</p>',
-							__( 'You have cancelled the payment.', 'pronamic_ideal' )
-						),
-						'post_meta'    => [
-							'_yoast_wpseo_meta-robots-noindex' => true,
-						],
-						'option_name'  => 'pronamic_pay_cancel_page_id',
-					],
-					'expired'   => [
-						'post_title'   => __( 'Payment expired', 'pronamic_ideal' ),
-						'post_name'    => __( 'expired', 'pronamic_ideal' ),
-						'post_content' => sprintf(
-							'<p>%s</p>',
-							__( 'Your payment session has expired.', 'pronamic_ideal' )
-						),
-						'post_meta'    => [
-							'_yoast_wpseo_meta-robots-noindex' => true,
-						],
-						'option_name'  => 'pronamic_pay_expired_page_id',
-					],
-					'error'     => [
-						'post_title'   => __( 'Payment error', 'pronamic_ideal' ),
-						'post_name'    => __( 'error', 'pronamic_ideal' ),
-						'post_content' => sprintf(
-							'<p>%s</p>',
-							__( 'An error has occurred during payment.', 'pronamic_ideal' )
-						),
-						'post_meta'    => [
-							'_yoast_wpseo_meta-robots-noindex' => true,
-						],
-						'option_name'  => 'pronamic_pay_error_page_id',
-					],
-					'unknown'   => [
-						'post_title'   => __( 'Payment status unknown', 'pronamic_ideal' ),
-						'post_name'    => __( 'unknown', 'pronamic_ideal' ),
-						'post_content' => sprintf(
-							'<p>%s</p>',
-							__( 'The payment status is unknown.', 'pronamic_ideal' )
-						),
-						'post_meta'    => [
-							'_yoast_wpseo_meta-robots-noindex' => true,
-						],
-						'option_name'  => 'pronamic_pay_unknown_page_id',
-					],
-				],
-			],
-			[
-				'post_title'   => __( 'Subscription Canceled', 'pronamic_ideal' ),
-				'post_name'    => __( 'subscription', 'pronamic_ideal' ),
-				'post_content' => sprintf(
-					'<p>%s</p>',
-					__( 'The subscription has been canceled.', 'pronamic_ideal' )
-				),
-				'post_meta'    => [
-					'_yoast_wpseo_meta-robots-noindex' => true,
-				],
-				'option_name'  => 'pronamic_pay_subscription_canceled_page_id',
-			],
-		];
-
-		$url_args = [
-			'page'    => 'pronamic_pay_settings',
-			'message' => 'pages-generated',
-		];
-
-		try {
-			$this->create_pages( $pages );
-		} catch ( \Exception $e ) {
-			$url_args = [
-				'page'    => 'pronamic_pay_settings',
-				'message' => 'pages-not-generated',
-			];
-		}
-
-		$url = add_query_arg(
-			$url_args,
-			admin_url( 'admin.php' )
-		);
-
-		wp_safe_redirect( $url );
-
-		exit;
-	}
-
-	/**
 	 * Check if scripts should be enqueued based on the hook and current screen.
 	 *
 	 * @link https://developer.wordpress.org/reference/functions/get_current_screen/
@@ -642,7 +464,7 @@ class AdminModule {
 			$currency_code = \sanitize_text_field( \wp_unslash( $_POST['test_currency_code'] ) );
 		}
 
-		$value = \filter_input( INPUT_POST, 'test_amount', \FILTER_SANITIZE_STRING );
+		$value = array_key_exists( 'test_amount', $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST['test_amount'] ) ) : '';
 
 		try {
 			$amount = Number::from_string( $value );
@@ -663,7 +485,11 @@ class AdminModule {
 
 		$payment->set_config_id( \filter_input( \INPUT_POST, 'post_ID', \FILTER_SANITIZE_NUMBER_INT ) );
 
-		$payment->set_payment_method( \filter_input( \INPUT_POST, 'pronamic_pay_test_payment_method', \FILTER_SANITIZE_STRING ) );
+		if ( \array_key_exists( 'pronamic_pay_test_payment_method', $_POST ) ) {
+			$payment_method = \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_test_payment_method'] ) );
+
+			$payment->set_payment_method( $payment_method );
+		}
 
 		// Description.
 		$description = \sprintf(
@@ -699,8 +525,6 @@ class AdminModule {
 		// Data.
 		$user = \wp_get_current_user();
 
-		$phone = \filter_input( \INPUT_POST, 'test_phone', \FILTER_SANITIZE_STRING );
-
 		// Name.
 		$name = ContactNameHelper::from_array(
 			[
@@ -714,7 +538,7 @@ class AdminModule {
 			[
 				'name'    => $name,
 				'email'   => $user->user_email,
-				'phone'   => $phone,
+				'phone'   => \array_key_exists( 'test_phone', $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST['test_phone'] ) ) : '',
 				'user_id' => $user->ID,
 			]
 		);
@@ -726,7 +550,7 @@ class AdminModule {
 			[
 				'name'         => $name,
 				'email'        => $user->user_email,
-				'phone'        => $phone,
+				'phone'        => null === $customer ? null : $customer->get_phone(),
 				'line_1'       => 'Billing Line 1',
 				'postal_code'  => '1234 AB',
 				'city'         => 'Billing City',
@@ -740,7 +564,7 @@ class AdminModule {
 			[
 				'name'         => $name,
 				'email'        => $user->user_email,
-				'phone'        => $phone,
+				'phone'        => null === $customer ? null : $customer->get_phone(),
 				'line_1'       => 'Shipping Line 1',
 				'postal_code'  => '5678 XY',
 				'city'         => 'Shipping City',
@@ -765,7 +589,7 @@ class AdminModule {
 		// Subscription.
 		$test_subscription = \filter_input( \INPUT_POST, 'pronamic_pay_test_subscription', \FILTER_VALIDATE_BOOLEAN );
 		$interval          = \filter_input( \INPUT_POST, 'pronamic_pay_test_repeat_interval', \FILTER_VALIDATE_INT );
-		$interval_period   = \filter_input( \INPUT_POST, 'pronamic_pay_test_repeat_frequency', \FILTER_SANITIZE_STRING );
+		$interval_period   = \array_key_exists( 'pronamic_pay_test_repeat_frequency', $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_test_repeat_frequency'] ) ) : '';
 
 		if ( ! empty( $test_subscription ) && ! empty( $interval ) && ! empty( $interval_period ) ) {
 			$subscription = new Subscription();
@@ -774,35 +598,35 @@ class AdminModule {
 			$subscription->set_lines( $payment->get_lines() );
 
 			// Ends on.
-			$ends_on = \filter_input( \INPUT_POST, 'pronamic_pay_ends_on', \FILTER_SANITIZE_STRING );
-
 			$total_periods = null;
 
-			switch ( $ends_on ) {
-				case 'count':
-					$count = \filter_input( \INPUT_POST, 'pronamic_pay_ends_on_count', \FILTER_VALIDATE_INT );
+			if ( \array_key_exists( 'pronamic_pay_ends_on', $_POST ) ) {
+				switch ( $_POST['pronamic_pay_ends_on'] ) {
+					case 'count':
+						$count = \filter_input( \INPUT_POST, 'pronamic_pay_ends_on_count', \FILTER_VALIDATE_INT );
 
-					if ( ! empty( $count ) ) {
-						$total_periods = $count;
-					}
+						if ( ! empty( $count ) ) {
+							$total_periods = $count;
+						}
 
-					break;
-				case 'date':
-					$end_date = \filter_input( \INPUT_POST, 'pronamic_pay_ends_on_date', \FILTER_SANITIZE_STRING );
+						break;
+					case 'date':
+						$end_date = \array_key_exists( 'pronamic_pay_ends_on_date', $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_ends_on_date'] ) ) : '';
 
-					if ( ! empty( $end_date ) ) {
-						$interval_spec = 'P' . $interval . Util::to_period( $interval_period );
+						if ( ! empty( $end_date ) ) {
+							$interval_spec = 'P' . $interval . Util::to_period( $interval_period );
 
-						$period = new \DatePeriod(
-							new \DateTime(),
-							new \DateInterval( $interval_spec ),
-							new \DateTime( $end_date )
-						);
+							$period = new \DatePeriod(
+								new \DateTime(),
+								new \DateInterval( $interval_spec ),
+								new \DateTime( $end_date )
+							);
 
-						$total_periods = iterator_count( $period );
-					}
+							$total_periods = iterator_count( $period );
+						}
 
-					break;
+						break;
+				}
 			}
 
 			// Phase.
@@ -987,53 +811,65 @@ class AdminModule {
 			}
 		}
 
+		$modules = \apply_filters( 'pronamic_pay_modules', [] );
+
 		/**
 		 * Submenu pages.
 		 */
-		$submenu_pages = [
-			[
-				'page_title' => __( 'Payments', 'pronamic_ideal' ),
-				'menu_title' => __( 'Payments', 'pronamic_ideal' ) . $badges['payments']['html'],
-				'capability' => 'edit_payments',
-				'menu_slug'  => 'edit.php?post_type=pronamic_payment',
-			],
-			[
+		$submenu_pages = [];
+
+		$submenu_pages[] = [
+			'page_title' => __( 'Payments', 'pronamic_ideal' ),
+			'menu_title' => __( 'Payments', 'pronamic_ideal' ) . $badges['payments']['html'],
+			'capability' => 'edit_payments',
+			'menu_slug'  => 'edit.php?post_type=pronamic_payment',
+		];
+
+		if ( \in_array( 'subscriptions', $modules, true ) ) {
+			$submenu_pages[] = [
 				'page_title' => __( 'Subscriptions', 'pronamic_ideal' ),
 				'menu_title' => __( 'Subscriptions', 'pronamic_ideal' ) . $badges['subscriptions']['html'],
 				'capability' => 'edit_payments',
 				'menu_slug'  => 'edit.php?post_type=pronamic_pay_subscr',
-			],
-			[
+			];
+		}
+
+		if ( \in_array( 'reports', $modules, true ) ) {
+			$submenu_pages[] = [
 				'page_title' => __( 'Reports', 'pronamic_ideal' ),
 				'menu_title' => __( 'Reports', 'pronamic_ideal' ),
 				'capability' => 'edit_payments',
 				'menu_slug'  => 'pronamic_pay_reports',
-				'function'   => function() {
+				'function'   => function () {
 					$this->reports->page_reports();
 				},
-			],
-			/*
-			[
+			];
+		}
+
+		if ( \in_array( 'forms', $modules, true ) ) {
+			$submenu_pages[] = [
 				'page_title' => __( 'Payment Forms', 'pronamic_ideal' ),
 				'menu_title' => __( 'Forms', 'pronamic_ideal' ),
 				'capability' => 'edit_forms',
 				'menu_slug'  => 'edit.php?post_type=pronamic_pay_form',
-			], */
-			[
-				'page_title' => __( 'Configurations', 'pronamic_ideal' ),
-				'menu_title' => __( 'Configurations', 'pronamic_ideal' ),
-				'capability' => 'manage_options',
-				'menu_slug'  => 'edit.php?post_type=pronamic_gateway',
-			],
-			[
-				'page_title' => __( 'Settings', 'pronamic_ideal' ),
-				'menu_title' => __( 'Settings', 'pronamic_ideal' ),
-				'capability' => 'manage_options',
-				'menu_slug'  => 'pronamic_pay_settings',
-				'function'   => function() {
-					$this->render_page( 'settings' );
-				},
-			],
+			];
+		}
+
+		$submenu_pages[] = [
+			'page_title' => __( 'Configurations', 'pronamic_ideal' ),
+			'menu_title' => __( 'Configurations', 'pronamic_ideal' ),
+			'capability' => 'manage_options',
+			'menu_slug'  => 'edit.php?post_type=pronamic_gateway',
+		];
+
+		$submenu_pages[] = [
+			'page_title' => __( 'Settings', 'pronamic_ideal' ),
+			'menu_title' => __( 'Settings', 'pronamic_ideal' ),
+			'capability' => 'manage_options',
+			'menu_slug'  => 'pronamic_pay_settings',
+			'function'   => function() {
+				$this->render_page( 'settings' );
+			},
 		];
 		
 		// Added by Knit Pay.

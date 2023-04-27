@@ -3,7 +3,7 @@
  * Form Post Type
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2022 Pronamic
+ * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Forms
  */
@@ -220,7 +220,7 @@ class FormPostType {
 					)
 				);
 
-				echo esc_html( number_format_i18n( $value ) );
+				echo esc_html( number_format_i18n( (int) $value ) );
 
 				break;
 			case 'pronamic_payment_form_earnings':
@@ -314,11 +314,11 @@ class FormPostType {
 	 */
 	public function save_post( $post_id ) {
 		// Check if our nonce is set.
-		if ( ! filter_has_var( INPUT_POST, 'pronamic_pay_nonce' ) ) {
+		if ( ! \array_key_exists( 'pronamic_pay_nonce', $_POST ) ) {
 			return;
 		}
 
-		$nonce = filter_input( INPUT_POST, 'pronamic_pay_nonce', FILTER_SANITIZE_STRING );
+		$nonce = \sanitize_text_field( \wp_unslash( $_POST['pronamic_pay_nonce'] ) );
 
 		// Verify that the nonce is valid.
 		if ( ! wp_verify_nonce( $nonce, 'pronamic_pay_save_form_options' ) ) {
@@ -334,9 +334,6 @@ class FormPostType {
 		$definition = [
 			// General.
 			'_pronamic_payment_form_config_id'      => FILTER_SANITIZE_NUMBER_INT,
-			'_pronamic_payment_form_button_text'    => FILTER_SANITIZE_STRING,
-			'_pronamic_payment_form_description'    => FILTER_SANITIZE_STRING,
-			'_pronamic_payment_form_amount_method'  => FILTER_SANITIZE_STRING,
 			'_pronamic_payment_form_amount_choices' => [
 				'flags' => FILTER_REQUIRE_ARRAY,
 			],
@@ -346,6 +343,18 @@ class FormPostType {
 
 		if ( ! \is_array( $data ) ) {
 			return;
+		}
+
+		if ( \array_key_exists( '_pronamic_payment_form_button_text', $_POST ) ) {
+			$data['_pronamic_payment_form_button_text'] = \sanitize_text_field( \wp_unslash( $_POST['_pronamic_payment_form_button_text'] ) );
+		}
+
+		if ( \array_key_exists( '_pronamic_payment_form_description', $_POST ) ) {
+			$data['_pronamic_payment_form_description'] = \sanitize_text_field( \wp_unslash( $_POST['_pronamic_payment_form_description'] ) );
+		}
+
+		if ( \array_key_exists( '_pronamic_payment_form_amount_method', $_POST ) ) {
+			$data['_pronamic_payment_form_amount_method'] = \sanitize_text_field( \wp_unslash( $_POST['_pronamic_payment_form_amount_method'] ) );
 		}
 
 		// Convert amount choices to cents.
