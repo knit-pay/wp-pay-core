@@ -254,7 +254,7 @@ class LicenseManager {
 		// Request.
 		$args = [
 			'license' => $license,
-			'name'    => 'Pronamic Pay',
+			'name'    => 'Knit Pay',
 			'url'     => home_url(),
 		];
 
@@ -302,7 +302,7 @@ class LicenseManager {
 	public function deactivate_license( $license ) {
 		$args = [
 			'license' => $license,
-			'name'    => 'Pronamic Pay',
+			'name'    => 'Knit Pay',
 			'url'     => home_url(),
 		];
 
@@ -326,7 +326,7 @@ class LicenseManager {
 		// Request.
 		$args = [
 			'license' => $license,
-			'name'    => 'Pronamic Pay',
+			'name'    => 'Knit Pay',
 			'url'     => home_url(),
 		];
 
@@ -405,7 +405,7 @@ class LicenseManager {
 		// Add debug information section.
 		if ( ! \array_key_exists( 'pronamic-pay', $debug_information ) ) {
 			$debug_information['pronamic-pay'] = [
-				'label'  => __( 'Pronamic Pay', 'pronamic_ideal' ),
+				'label'  => __( 'Knit Pay', 'pronamic_ideal' ),
 				'fields' => [],
 			];
 		}

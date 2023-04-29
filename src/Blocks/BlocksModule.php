@@ -63,7 +63,7 @@ class BlocksModule {
 	public function block_categories( $categories, $post ) {
 		$categories[] = [
 			'slug'  => 'pronamic-pay',
-			'title' => __( 'Pronamic Pay', 'pronamic-ideal' ),
+			'title' => __( 'Knit Pay', 'pronamic-ideal' ),
 			'icon'  => null,
 		];
 

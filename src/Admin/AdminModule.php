@@ -871,11 +871,6 @@ class AdminModule {
 				$this->render_page( 'settings' );
 			},
 		];
-		
-		// Added by Knit Pay.
-		if ( !defined( 'KNIT_PAY_RAZORPAY_SUBSCRIPTION' ) ) {
-		  unset($submenu_pages[1]);
-		}
 
 		if ( version_compare( get_bloginfo( 'version' ), '5.2', '<' ) ) {
 			$submenu_pages[] = [

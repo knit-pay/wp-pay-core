@@ -13,5 +13,5 @@
 
 <p>
 	<?php esc_html_e( 'These are the General settings for the Knit Pay plugin.', 'pronamic_ideal' ); ?>
-	<?php esc_html_e( 'Here you can enter your license key and configure some default settings.', 'pronamic_ideal' ); ?>
+	<!-- <?php esc_html_e( 'Here you can enter your license key and configure some default settings.', 'pronamic_ideal' ); ?>  -->
 </p>

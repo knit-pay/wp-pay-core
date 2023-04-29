@@ -97,7 +97,7 @@ class AdminNotices {
 		?>
 		<div class="error notice is-dismissible">
 			<p>
-				<strong><?php esc_html_e( 'Pronamic Pay', 'pronamic_ideal' ); ?></strong> —
+				<strong><?php esc_html_e( 'Knit Pay', 'pronamic_ideal' ); ?></strong> —
 				<?php echo \esc_html( $notification->get_message() ); ?>
 			</p>
 
