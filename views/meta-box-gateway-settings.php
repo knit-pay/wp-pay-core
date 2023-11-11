@@ -17,6 +17,10 @@ use Pronamic\WordPress\Pay\Admin\AdminGatewayPostType;
 use Pronamic\WordPress\Pay\Util;
 use Pronamic\WordPress\Pay\Webhooks\WebhookRequestInfo;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $integration = $plugin->gateway_integrations->get_integration( $gateway_id );
 
 if ( null === $integration ) {
@@ -44,8 +48,8 @@ $sections = [
 			[
 				'section'  => 'payment_methods',
 				'title'    => __( 'Supported Payment Methods', 'pronamic_ideal' ),
-				'type'     => 'html',
-				'callback' => function() use ( $gateway, $gateway_id ) {
+				'type'     => 'custom',
+				'callback' => function () use ( $gateway, $gateway_id ) {
 					AdminGatewayPostType::settings_payment_methods( $gateway, $gateway_id );
 				},
 			],
@@ -58,8 +62,8 @@ if ( $integration->supports( 'webhook' ) ) {
 	$fields[] = [
 		'section'  => 'feedback',
 		'title'    => __( 'Webhook Status', 'pronamic_ideal' ),
-		'type'     => 'description',
-		'callback' => function() use ( $gateway, $gateway_id, $config_id ) {
+		'type'     => 'custom',
+		'callback' => function () use ( $gateway, $gateway_id, $config_id ) {
 			AdminGatewayPostType::settings_webhook_log( $gateway, $gateway_id, $config_id );
 		},
 	];
@@ -89,16 +93,18 @@ if ( $integration->supports( 'webhook' ) && ! $integration->supports( 'webhook_n
 		);
 
 		$fields[] = [
-			'section' => 'general',
-			'title'   => __( 'Transaction feedback', 'pronamic_ideal' ),
-			'type'    => 'description',
-			'html'    => sprintf(
-				'⚠️ %s',
-				__(
-					'Processing gateway transaction feedback in the background requires additional configuration.',
-					'pronamic_ideal'
-				)
-			),
+			'section'  => 'general',
+			'title'    => __( 'Transaction feedback', 'pronamic_ideal' ),
+			'type'     => 'custom',
+			'callback' => function () {
+				printf(
+					'⚠️ %s',
+					esc_html__(
+						'Processing gateway transaction feedback in the background requires additional configuration.',
+						'pronamic_ideal'
+					)
+				);
+			},
 		];
 	}
 }
@@ -120,7 +126,7 @@ foreach ( $fields as $field_id => $field ) {
 
 $sections = array_filter(
 	$sections,
-	function( $section ) {
+	function ( $section ) {
 		return ! empty( $section->fields );
 	}
 );
@@ -132,21 +138,7 @@ $sections = array_filter(
 		<?php foreach ( $sections as $section ) : ?>
 
 			<li>
-				<?php
-
-				if ( isset( $section->icon ) ) {
-					printf(
-						'<span class="%s"></span>',
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						$section->icon
-					);
-
-					echo ' ';
-				}
-
-				echo esc_html( $section->title );
-
-				?>
+				<?php echo esc_html( $section->title ); ?>
 			</li>
 
 		<?php endforeach; ?>
@@ -158,19 +150,6 @@ $sections = array_filter(
 		<div class="pronamic-pay-tab">
 			<div class="pronamic-pay-tab-block gateway-config-section-header">
 				<h4 class="pronamic-pay-cloack"><?php echo esc_html( $section->title ); ?></h4>
-
-				<?php if ( isset( $section->description ) ) : ?>
-
-					<p>
-						<?php
-
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						echo $section->description;
-
-						?>
-					</p>
-
-				<?php endif; ?>
 			</div>
 
 			<table class="form-table">
@@ -201,15 +180,16 @@ $sections = array_filter(
 
 					?>
 					<tr class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
-
-						<?php if ( 'html' !== $field['type'] ) { ?>
-
 						<th scope="row">
-							<label for="<?php echo esc_attr( $field_id ); ?>">
-								<?php echo esc_html( $field['title'] ); ?>
-							</label>
-
 							<?php
+
+							if ( array_key_exists( 'title', $field ) ) {
+								printf(
+									'<label for="%s">%s</label>',
+									esc_attr( $field_id ),
+									esc_html( $field['title'] )
+								);
+							}
 
 							if ( isset( $field['tooltip'] ) && ! empty( $field['tooltip'] ) ) {
 								printf(
@@ -220,14 +200,7 @@ $sections = array_filter(
 
 							?>
 						</th>
-
-						<?php } ?>
-
-						<td
-						<?php
-						if ( 'html' === $field['type'] ) :
-							?>
-							colspan="2"<?php endif; ?>>
+						<td>
 							<?php
 
 							$field = (array) $field;
@@ -341,13 +314,13 @@ $sections = array_filter(
 										\esc_attr( $field_id )
 									);
 
-									printf(
-										'<input %s %s />',
-										// @codingStandardsIgnoreStart
-										Util::array_to_html_attributes( $attributes ),
-										// @codingStandardsIgnoreEnd
-										checked( $value, true, false )
-									);
+									if ( true === (bool) $value ) {
+										$attributes['checked'] = 'checked';
+									}
+
+									$element = new Element( 'input', $attributes );
+
+									$element->output();
 
 									printf( ' ' );
 
@@ -362,13 +335,11 @@ $sections = array_filter(
 									$attributes['rows'] = 4;
 									$attributes['cols'] = 65;
 
-									printf(
-										'<textarea %s>%s</textarea>',
-										// @codingStandardsIgnoreStart
-										Util::array_to_html_attributes( $attributes ),
-										// @codingStandardsIgnoreEnd
-										esc_textarea( $value )
-									);
+									$element = new Element( 'textarea', $attributes );
+
+									$element->children[] = $value;
+
+									$element->output();
 
 									break;
 								case 'file':
@@ -380,13 +351,21 @@ $sections = array_filter(
 
 									break;
 								case 'select':
-									printf(
-										'<select %s>%s</select>',
-										// @codingStandardsIgnoreStart
-										Util::array_to_html_attributes( $attributes ),
-										Util::select_options_grouped( $field['options'], $value )
-										// @codingStandardsIgnoreEnd
-									);
+									$element = new Element( 'select', $attributes );
+
+									foreach ( $field['options'] as $key => $label ) {
+										$option = new Element( 'option', [ 'value' => $key ] );
+
+										$option->children[] = $label;
+
+										if ( $value === $key ) {
+											$option->attributes['selected'] = 'selected';
+										}
+
+										$element->children[] = $option;
+									}
+
+									$element->output();
 
 									break;
 								case 'optgroup':
@@ -409,23 +388,20 @@ $sections = array_filter(
 									break;
 							}
 
-							if ( isset( $field['html'] ) ) {
-								if ( 'description' !== $field['type'] && isset( $field['title'] ) && ! empty( $field['title'] ) ) {
-									printf(
-										'<strong>%s</strong><br>',
-										esc_html( $field['title'] )
-									);
-								}
-
-								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-								echo $field['html'];
-							}
-
 							if ( isset( $field['description'] ) ) {
 								printf(
 									'<p class="pronamic-pay-description description">%s</p>',
-									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									$field['description']
+									\wp_kses(
+										$field['description'],
+										[
+											'a'    => [
+												'href'   => true,
+												'target' => true,
+											],
+											'br'   => [],
+											'code' => [],
+										]
+									)
 								);
 							}
 

@@ -99,7 +99,7 @@ class SubscriptionsCompletionController {
 
 		$posts = \array_filter(
 			$query->posts,
-			function( $post ) {
+			function ( $post ) {
 				return ( $post instanceof WP_Post );
 			}
 		);
@@ -200,8 +200,8 @@ class SubscriptionsCompletionController {
 		if ( null === $subscription ) {
 			throw new \Exception(
 				\sprintf(
-					'Unable to load subscription from post ID: %d.',
-					$subscription_id
+					'Unable to load subscription from post ID: %s.',
+					\esc_html( (string) $subscription_id )
 				)
 			);
 		}

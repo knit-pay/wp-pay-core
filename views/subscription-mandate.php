@@ -11,6 +11,10 @@
 use Pronamic\WordPress\Pay\Cards;
 use Pronamic\WordPress\Pay\Core\PaymentMethods;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! isset( $subscription ) ) {
 	return;
 }
@@ -42,6 +46,8 @@ $client = new \Pronamic\WordPress\Mollie\Client( $api_key );
  */
 $mollie_customer_mandates = [];
 
+// phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+
 try {
 	$response = $client->get_mandates( $mollie_customer_id );
 
@@ -61,6 +67,8 @@ try {
 	 * it should still be possible to add a new payment method to the subscription.
 	 */
 }
+
+// phpcs:enable Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 
 $subscription_mandate_id = $subscription->get_meta( 'mollie_mandate_id' );
 
@@ -236,6 +244,26 @@ if ( is_array( $current_mandate ) ) {
 										]
 									);
 
+									/*
+									 * Filter out payment methods with required fields,
+									 * as these are not supported for now.
+									 *
+									 * @link https://github.com/pronamic/wp-pronamic-pay/issues/361
+									 */
+									$payment_methods = array_filter(
+										$payment_methods->get_array(),
+										function ( $payment_method ) {
+											$required_fields = array_filter(
+												$payment_method->get_fields(),
+												function ( $field ) {
+													return $field->is_required();
+												}
+											);
+
+											return 0 === count( $required_fields );
+										}
+									);
+
 									foreach ( $payment_methods as $payment_method ) {
 										$payment_method_id = $payment_method->get_id();
 
@@ -265,31 +293,5 @@ if ( is_array( $current_mandate ) ) {
 		</div>
 
 		<?php wp_print_scripts( 'pronamic-pay-subscription-mandate' ); ?>
-
-		<script type="text/javascript">
-			jQuery( document ).ready( function () {
-				var $slider = jQuery( '.pp-card-slider' ).slick( {
-					dots: true,
-					arrows: false,
-					infinite: false,
-					slidesToShow: 1,
-					centerMode: true,
-				} );
-
-				$slider.find( '.slick-current input[type="radio"]' ).prop( 'checked', true );
-
-				$slider.find( '.slick-slide' ).on( 'click', function () {
-					var index = jQuery( this ).data( 'slick-index' );
-
-					$slider.slick( 'slickGoTo', index );
-				} );
-
-				$slider.on( 'afterChange', function ( event, slick, currentSlide ) {
-					$slider.find( 'input[type="radio"]' ).prop( 'checked', false );
-
-					$slider.find( '.slick-slide' ).eq( currentSlide ).find( 'input[type="radio"]' ).prop( 'checked', true );
-				} );
-			} );
-		</script>
 	</body>
 </html>

@@ -14,6 +14,10 @@
 use Pronamic\WordPress\Pay\Plugin;
 use Pronamic\WordPress\Pay\Webhooks\WebhookRequestInfo;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $integration = pronamic_pay_plugin()->gateway_integrations->get_integration( $gateway_id );
 
 if ( ! $integration || ! $integration->supports( 'webhook_log' ) ) {
@@ -37,9 +41,11 @@ $object = json_decode( $webhook_log_json_string );
 try {
 	$webhook_log_request_info = WebhookRequestInfo::from_json( $object );
 } catch ( InvalidArgumentException $e ) {
-	$webhook_error = new WP_Error( 'webhook_request_info_error', $e->getMessage() );
-
-	Plugin::render_errors( $webhook_error );
+	printf(
+		/* translators: %s: Exception message. */
+		esc_html__( 'The following error occurred when reading the webhook request information: "%s".', 'pronamic_ideal' ),
+		esc_html( $e->getMessage() )
+	);
 
 	return;
 }
@@ -49,23 +55,33 @@ $payment = $webhook_log_request_info->get_payment();
 $payment_id = ( null === $payment ) ? null : $payment->get_id();
 
 if ( null !== $payment_id ) {
-	printf(
-		/* translators: 1: formatted date, 2: payment edit url, 3: payment id */
-		__( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			'Last webhook request processed on %1$s for <a href="%2$s" title="Payment %3$s">payment #%3$s</a>.',
-			'pronamic_ideal'
+	echo wp_kses(
+		sprintf(
+			/* translators: 1: formatted date, 2: payment edit url, 3: payment id */
+			__(
+				'Last webhook request processed on %1$s for <a href="%2$s" title="Payment %3$s">payment #%3$s</a>.',
+				'pronamic_ideal'
+			),
+			$webhook_log_request_info->get_request_date()->format_i18n( _x( 'l j F Y \a\t H:i', 'full datetime format', 'pronamic_ideal' ) ),
+			esc_url( (string) get_edit_post_link( $payment_id ) ),
+			(string) $payment_id
 		),
-		esc_html( $webhook_log_request_info->get_request_date()->format_i18n( _x( 'l j F Y \a\t H:i', 'full datetime format', 'pronamic_ideal' ) ) ),
-		esc_url( (string) get_edit_post_link( $payment_id ) ),
-		esc_html( (string) $payment_id )
+		[
+			'a' => [
+				'href'  => true,
+				'title' => true,
+			],
+		]
 	);
 } else {
-	printf(
-		/* translators: 1: formatted date, 2: payment edit url, 3: payment id */
-		__( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			'Last webhook request processed on %1$s.',
-			'pronamic_ideal'
-		),
-		esc_html( $webhook_log_request_info->get_request_date()->format_i18n( _x( 'l j F Y \a\t H:i', 'full datetime format', 'pronamic_ideal' ) ) )
+	echo esc_html(
+		sprintf(
+			/* translators: %s: formatted date */
+			__(
+				'Last webhook request processed on %s.',
+				'pronamic_ideal'
+			),
+			$webhook_log_request_info->get_request_date()->format_i18n( _x( 'l j F Y \a\t H:i', 'full datetime format', 'pronamic_ideal' ) )
+		)
 	);
 }

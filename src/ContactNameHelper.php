@@ -11,7 +11,6 @@
 namespace Pronamic\WordPress\Pay;
 
 use DateTime;
-use Pronamic\WordPress\Pay\Core\Server;
 use Pronamic\WordPress\Pay\Core\Util as Core_Util;
 
 /**
@@ -88,15 +87,15 @@ class ContactNameHelper {
 	/**
 	 * Convert string to uppercase.
 	 *
-	 * @param string $string String.
+	 * @param string $value String.
 	 * @return string
 	 */
-	private static function string_to_uppercase( $string ) {
+	private static function string_to_uppercase( $value ) {
 		if ( \function_exists( 'mb_strtoupper' ) ) {
-			return \mb_strtoupper( $string );
+			return \mb_strtoupper( $value );
 		}
 
-		return \strtoupper( $string );
+		return \strtoupper( $value );
 	}
 
 	/**
@@ -121,7 +120,7 @@ class ContactNameHelper {
 	public static function from_array( $data ) {
 		$data = \array_filter(
 			$data,
-			function( $value ) {
+			function ( $value ) {
 				return ( null !== $value ) && ( '' !== $value );
 			}
 		);

@@ -175,13 +175,6 @@ class Plugin {
 	public $blocks_module;
 
 	/**
-	 * Forms module.
-	 *
-	 * @var Forms\FormsModule
-	 */
-	public $forms_module;
-
-	/**
 	 * Tracking module.
 	 *
 	 * @var TrackingModule
@@ -201,13 +194,6 @@ class Plugin {
 	 * @var Subscriptions\SubscriptionsModule
 	 */
 	public $subscriptions_module;
-
-	/**
-	 * Google analytics ecommerce.
-	 *
-	 * @var GoogleAnalyticsEcommerce
-	 */
-	public $google_analytics_ecommerce;
 
 	/**
 	 * Gateway integrations.
@@ -291,25 +277,7 @@ class Plugin {
 		// Integrations.
 		$this->integrations = [];
 
-		/*
-		 * Plugins loaded.
-		 *
-		 * Priority should be at least lower then 8 to support the "WP eCommerce" plugin.
-		 *
-		 * new WP_eCommerce()
-		 * add_action( 'plugins_loaded' , array( $this, 'init' ), 8 );
-		 * $this->load();
-		 * wpsc_core_load_gateways();
-		 *
-		 * @link https://github.com/wp-e-commerce/WP-e-Commerce/blob/branch-3.11.2/wp-shopping-cart.php#L342-L343
-		 * @link https://github.com/wp-e-commerce/WP-e-Commerce/blob/branch-3.11.2/wp-shopping-cart.php#L26-L35
-		 * @link https://github.com/wp-e-commerce/WP-e-Commerce/blob/branch-3.11.2/wp-shopping-cart.php#L54
-		 * @link https://github.com/wp-e-commerce/WP-e-Commerce/blob/branch-3.11.2/wp-shopping-cart.php#L296-L297
-		 */
 		add_action( 'plugins_loaded', [ $this, 'plugins_loaded' ], 0 );
-
-		// Plugin locale.
-		add_filter( 'plugin_locale', [ $this, 'plugin_locale' ], 10, 2 );
 
 		// Register styles.
 		add_action( 'init', [ $this, 'register_styles' ], 9 );
@@ -352,6 +320,7 @@ class Plugin {
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::BANCONTACT ) );
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::BANK_TRANSFER ) );
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::BELFIUS ) );
+		$this->payment_methods->add( new PaymentMethod( PaymentMethods::BILLIE ) );
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::BILLINK ) );
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::BITCOIN ) );
 		$this->payment_methods->add( new PaymentMethod( PaymentMethods::BLIK ) );
@@ -596,20 +565,7 @@ class Plugin {
 
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		// Don't cache.
 		Core_Util::no_cache();
-
-		// Switch to user locale.
-		Core_Util::switch_to_user_locale();
-
-		// Handle redirect message from payment meta.
-		$redirect_message = $payment->get_meta( 'payment_redirect_message' );
-
-		if ( ! empty( $redirect_message ) ) {
-			require self::$dirname . '/views/redirect-message.php';
-
-			exit;
-		}
 
 		$gateway = $payment->get_gateway();
 
@@ -656,13 +612,9 @@ class Plugin {
 	 * Plugins loaded.
 	 *
 	 * @link https://developer.wordpress.org/reference/hooks/plugins_loaded/
-	 * @link https://developer.wordpress.org/reference/functions/load_plugin_textdomain/
 	 * @return void
 	 */
 	public function plugins_loaded() {
-		// Load plugin textdomain.
-		self::load_plugin_textdomain();
-
 		// Settings.
 		$this->settings = new Settings( $this );
 
@@ -670,9 +622,6 @@ class Plugin {
 		$this->gateways_data_store      = new GatewaysDataStoreCPT();
 		$this->payments_data_store      = new PaymentsDataStoreCPT();
 		$this->subscriptions_data_store = new SubscriptionsDataStoreCPT();
-
-		$this->payments_data_store->setup();
-		$this->subscriptions_data_store->setup();
 
 		// Post Types.
 		$this->gateway_post_type      = new GatewayPostType();
@@ -687,7 +636,6 @@ class Plugin {
 		$this->webhook_logger->setup();
 
 		// Modules.
-		$this->forms_module         = new Forms\FormsModule();
 		$this->payments_module      = new Payments\PaymentsModule( $this );
 		$this->subscriptions_module = new Subscriptions\SubscriptionsModule( $this );
 		$this->tracking_module      = new TrackingModule();
@@ -698,9 +646,6 @@ class Plugin {
 			$this->blocks_module = new Blocks\BlocksModule();
 			$this->blocks_module->setup();
 		}*/
-
-		// Google Analytics Ecommerce.
-		$this->google_analytics_ecommerce = new GoogleAnalyticsEcommerce();
 
 		// Admin.
 		if ( is_admin() ) {
@@ -754,43 +699,6 @@ class Plugin {
 
 		// Actions.
 		\add_action( 'pronamic_pay_pre_create_payment', [ __CLASS__, 'complement_payment' ], 10, 1 );
-	}
-
-	/**
-	 * Load plugin text domain.
-	 *
-	 * @return void
-	 */
-	public static function load_plugin_textdomain() {
-		$rel_path = \dirname( \plugin_basename( self::$file ) );
-
-		\load_plugin_textdomain( 'pronamic_ideal', false, $rel_path . '/languages' );
-
-		\load_plugin_textdomain( 'pronamic-money', false, $rel_path . '/vendor/pronamic/wp-money/languages' );
-	}
-
-	/**
-	 * Filter plugin locale.
-	 *
-	 * @param string $locale A WordPress locale identifier.
-	 * @param string $domain A WordPress text domain identifier.
-	 *
-	 * @return string
-	 */
-	public function plugin_locale( $locale, $domain ) {
-		if ( 'pronamic_ideal' !== $domain ) {
-			return $locale;
-		}
-
-		if ( 'nl_NL_formal' === $locale ) {
-			return 'nl_NL';
-		}
-
-		if ( 'nl_BE' === $locale ) {
-			return 'nl_NL';
-		}
-
-		return $locale;
 	}
 
 	/**
@@ -875,29 +783,15 @@ class Plugin {
 	}
 
 	/**
-	 * Render errors.
-	 *
-	 * @param array|WP_Error $errors An array with errors to render.
-	 * @return void
-	 */
-	public static function render_errors( $errors = [] ) {
-		if ( ! is_array( $errors ) ) {
-			$errors = [ $errors ];
-		}
-
-		foreach ( $errors as $pay_error ) {
-			include self::$dirname . '/views/error.php';
-		}
-	}
-
-	/**
 	 * Render exception.
 	 *
 	 * @param \Exception $exception An exception.
 	 * @return void
 	 */
-	public static function render_exception( \Exception $exception ) {
-		include self::$dirname . '/views/exception.php';
+	public static function render_exception( // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Parameter is used in include.
+		\Exception $exception
+	) {
+		include __DIR__ . '/../views/exception.php';
 	}
 
 	/**
@@ -962,6 +856,12 @@ class Plugin {
 			$referer = \wp_get_referer();
 
 			if ( null === $origin_id && false !== $referer ) {
+				$referer_host = \wp_parse_url( $referer, \PHP_URL_HOST );
+
+				if ( null === $referer_host ) {
+					$referer = \home_url( $referer );
+				}
+
 				$post_id = \url_to_postid( $referer );
 
 				if ( $post_id > 0 ) {
@@ -971,17 +871,6 @@ class Plugin {
 
 			// Set origin ID.
 			$payment->set_origin_id( $origin_id );
-		}
-
-		// Google Analytics client ID.
-		$google_analytics_client_id = $payment->get_meta( 'google_analytics_client_id' );
-
-		if ( null === $google_analytics_client_id ) {
-			$google_analytics_client_id = GoogleAnalyticsEcommerce::get_cookie_client_id();
-
-			if ( null !== $google_analytics_client_id ) {
-				$payment->set_meta( 'google_analytics_client_id', $google_analytics_client_id );
-			}
 		}
 
 		// Customer.
@@ -1015,8 +904,7 @@ class Plugin {
 		}
 
 		// Post data.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		self::process_payment_input_data( $payment, $_POST );
+		self::process_payment_post_data( $payment );
 
 		// Gender.
 		if ( null !== $customer->get_gender() ) {
@@ -1084,10 +972,9 @@ class Plugin {
 	 * Process payment input data.
 	 *
 	 * @param Payment $payment Payment.
-	 * @param array   $data    Data.
 	 * @return void
 	 */
-	private static function process_payment_input_data( Payment $payment, $data ) {
+	private static function process_payment_post_data( Payment $payment ) {
 		$gateway = $payment->get_gateway();
 
 		if ( null === $gateway ) {
@@ -1109,10 +996,10 @@ class Plugin {
 		foreach ( $payment_method->get_fields() as $field ) {
 			$id = $field->get_id();
 
-			if ( \array_key_exists( $id, $data ) ) {
-				$value = $data[ $id ];
-
-				$value = \sanitize_text_field( \wp_unslash( $value ) );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( \array_key_exists( $id, $_POST ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$value = \sanitize_text_field( \wp_unslash( $_POST[ $id ] ) );
 
 				if ( '' !== $field->meta_key ) {
 					$payment->set_meta( $field->meta_key, $value );
@@ -1167,6 +1054,14 @@ class Plugin {
 			$payment->set_config_id( $config_id );
 		}
 
+		/**
+		 * Merge tags.
+		 * 
+		 * @link https://github.com/pronamic/wp-pronamic-pay/issues/358
+		 * @link https://github.com/pronamic/wp-pronamic-pay-woocommerce/issues/43
+		 */
+		$payment->set_description( $payment->format_string( (string) $payment->get_description() ) );
+
 		// Save payment.
 		$payment->save();
 
@@ -1195,7 +1090,7 @@ class Plugin {
 			$payment->add_note(
 				\sprintf(
 					/* translators: %d: Gateway configuration ID */
-					__( 'Payment failed because gateway configuration with ID `%d` does not exist.' ),
+					\__( 'Payment failed because gateway configuration with ID `%d` does not exist.', 'pronamic_ideal' ),
 					$config_id
 				)
 			);
@@ -1314,7 +1209,9 @@ class Plugin {
 		$gateway = $payment->get_gateway();
 
 		if ( null === $gateway ) {
-			throw new \Exception( __( 'Unable to process refund as gateway could not be found.', 'pronamic_ideal' ) );
+			throw new \Exception(
+				\esc_html__( 'Unable to process refund as gateway could not be found.', 'pronamic_ideal' )
+			);
 		}
 
 		try {

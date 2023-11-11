@@ -33,7 +33,9 @@
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<property name="text_domain" value="pronamic_ideal" />
+			<property name="text_domain" type="array">
+				<element value="pronamic_ideal" />
+			</property>
 		</properties>
 	</rule>
 
@@ -44,5 +46,13 @@
 	<rule ref="WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize">
 		<exclude-pattern>/src/Admin/AdminGatewayPostType.php</exclude-pattern>
 		<exclude-pattern>/src/Core/Gateway.php</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="edit_payments" />
+			</property>
+		</properties>
 	</rule>
 </ruleset>

@@ -100,6 +100,13 @@ class PaymentMethods {
 	const BELFIUS = 'belfius';
 
 	/**
+	 * Billie
+	 *
+	 * @var string
+	 */
+	const BILLIE = 'billie';
+
+	/**
 	 * Billink
 	 *
 	 * @since 2.0.9
@@ -431,6 +438,7 @@ class PaymentMethods {
 			self::BANCONTACT              => __( 'Bancontact', 'pronamic_ideal' ),
 			self::BANK_TRANSFER           => __( 'Bank Transfer', 'pronamic_ideal' ),
 			self::BELFIUS                 => __( 'Belfius Direct Net', 'pronamic_ideal' ),
+			self::BILLIE                  => __( 'Billie', 'pronamic_ideal' ),
 			self::BILLINK                 => __( 'Billink', 'pronamic_ideal' ),
 			self::BITCOIN                 => __( 'Bitcoin', 'pronamic_ideal' ),
 			self::BLIK                    => __( 'BLIK', 'pronamic_ideal' ),
@@ -490,23 +498,23 @@ class PaymentMethods {
 	 *
 	 * @since 1.3.0
 	 *
-	 * @param string|null $method  Method to get the name for.
-	 * @param string|null $default Default name to return if method was not found.
+	 * @param string|null $method   Method to get the name for.
+	 * @param string|null $fallback Default name to return if method was not found.
 	 *
 	 * @return string|null
 	 */
-	public static function get_name( $method = null, $default = null ) {
+	public static function get_name( $method = null, $fallback = null ) {
 		$payment_methods = self::get_payment_methods();
 
 		if ( null !== $method && array_key_exists( $method, $payment_methods ) ) {
 			return $payment_methods[ $method ];
 		}
 
-		if ( null === $default ) {
+		if ( null === $fallback ) {
 			return $method;
 		}
 
-		return $default;
+		return $fallback;
 	}
 
 	/**
@@ -536,7 +544,7 @@ class PaymentMethods {
 		}
 
 		return \sprintf(
-			'https://cdn.wp-pay.org/jsdelivr.net/npm/@wp-pay/logos@1.13.0/dist/methods/%1$s/method-%1$s-%2$s.svg',
+			'https://cdn.wp-pay.org/jsdelivr.net/npm/@wp-pay/logos@1.16.0/dist/methods/%1$s/method-%1$s-%2$s.svg',
 			\str_replace( '_', '-', $method ),
 			$size
 		);

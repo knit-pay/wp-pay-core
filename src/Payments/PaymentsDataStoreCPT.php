@@ -31,13 +31,6 @@ use Pronamic\WordPress\Pay\Subscriptions\SubscriptionPeriod;
  */
 class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 	/**
-	 * Payment.
-	 *
-	 * @var Payment|null
-	 */
-	private $payment;
-
-	/**
 	 * Payments.
 	 *
 	 * @var array
@@ -74,14 +67,34 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 	}
 
 	/**
-	 * Setup.
-	 *
-	 * @return void
+	 * Preserves the initial JSON post_content passed to save into the post.
+	 * 
+	 * This is needed to prevent KSES and other {@see 'content_save_pre'} filters
+	 * from corrupting JSON data.
+	 * 
+	 * @link https://github.com/pronamic/wp-pay-core/issues/160
+	 * @link https://developer.wordpress.org/reference/hooks/wp_insert_post_data/
+	 * @param array $data                An array of slashed and processed post data.
+	 * @param array $postarr             An array of sanitized (and slashed) but otherwise unmodified post data.
+	 * @param array $unsanitized_postarr An array of slashed yet *unsanitized* and unprocessed post data as originally passed to wp_insert_post().
+	 * @return array Filtered post data.
 	 */
-	public function setup() {
-		add_filter( 'wp_insert_post_data', [ $this, 'insert_payment_post_data' ], 10, 2 );
+	public function preserve_post_content( $data, $postarr, $unsanitized_postarr ) {
+		if ( ! \array_key_exists( 'post_type', $data ) ) {
+			return $data;
+		}
 
-		add_action( 'save_post_pronamic_payment', [ $this, 'save_post_meta' ], 100, 3 );
+		if ( 'pronamic_payment' !== $data['post_type'] ) {
+			return $data;
+		}
+
+		if ( ! \array_key_exists( 'post_content', $unsanitized_postarr ) ) {
+			return $data;
+		}
+
+		$data['post_content'] = $unsanitized_postarr['post_content'];
+
+		return $data;
 	}
 
 	/**
@@ -91,27 +104,29 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 	 * @return Payment|null
 	 */
 	public function get_payment( $id ) {
-		if ( ! isset( $this->payments[ $id ] ) ) {
-			if ( empty( $id ) ) {
-				return null;
-			}
-
-			$id = (int) $id;
-
-			$post_type = get_post_type( $id );
-
-			if ( 'pronamic_payment' !== $post_type ) {
-				return null;
-			}
-
-			$payment = new Payment();
-
-			$payment->set_id( $id );
-
-			$this->payments[ $id ] = $payment;
-
-			$this->read( $payment );
+		if ( \array_key_exists( $id, $this->payments ) ) {
+			return $this->payments[ $id ];
 		}
+
+		if ( empty( $id ) ) {
+			return null;
+		}
+
+		$id = (int) $id;
+
+		$post_type = \get_post_type( $id );
+
+		if ( 'pronamic_payment' !== $post_type ) {
+			return null;
+		}
+
+		$payment = new Payment();
+
+		$payment->set_id( $id );
+
+		$this->payments[ $id ] = $payment;
+
+		$this->read( $payment );
 
 		return $this->payments[ $id ];
 	}
@@ -135,119 +150,31 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 	}
 
 	/**
-	 * Get meta status from post status.
-	 *
-	 * @param string $post_status Post status.
-	 * @return string|null
-	 */
-	private function get_meta_status_from_post_status( $post_status ) {
-		$key = array_search( $post_status, $this->status_map, true );
-
-		if ( false !== $key ) {
-			return \strval( $key );
-		}
-
-		return null;
-	}
-
-	/**
-	 * Complement payment post data.
-	 *
-	 * @link https://github.com/WordPress/WordPress/blob/5.0.3/wp-includes/post.php#L3515-L3523
-	 * @link https://developer.wordpress.org/reference/functions/wp_json_encode/
-	 *
-	 * @param array $data    An array of slashed post data.
-	 * @param array $postarr An array of sanitized, but otherwise unmodified post data.
+	 * Get post data.
+	 * 
+	 * @param Payment $payment Payment.
+	 * @param array   $data    Post data.
 	 * @return array
-	 * @throws \Exception When inserting payment post data JSON string fails.
+	 * @throws \Exception Throws an exception if an error occurs while encoding the payment to JSON.
 	 */
-	public function insert_payment_post_data( $data, $postarr ) {
-		$this->payment = null;
+	private function get_post_data( Payment $payment, $data ) {
+		$json_string = \wp_json_encode( $payment->get_json() );
 
-		if ( isset( $postarr['pronamic_payment'] ) ) {
-			$this->payment = $postarr['pronamic_payment'];
-		} elseif ( isset( $postarr['ID'] ) ) {
-			$post_id = $postarr['ID'];
-
-			$this->payment = $this->get_payment( $post_id );
+		if ( false === $json_string ) {
+			throw new \Exception( 'Error occurred while encoding the payment to JSON.' );
 		}
 
-		if ( $this->payment instanceof Payment ) {
-			$payment = $this->payment;
+		$data['post_content']   = \wp_slash( $json_string );
+		$data['post_mime_type'] = 'application/json';
+		$data['post_name']      = $payment->get_slug();
 
-			// Update subscription from post array.
-			$this->update_payment_form_post_array( $payment, $postarr );
+		$status = $this->get_post_status_from_meta_status( $payment->get_status() );
 
-			if ( ! isset( $data['post_status'] ) || 'trash' !== $data['post_status'] ) {
-				$data['post_status'] = $this->get_post_status_from_meta_status( $payment->get_status() );
-			}
-
-			// Data.
-			$json_string = wp_json_encode( $payment->get_json() );
-
-			if ( false === $json_string ) {
-				throw new \Exception( 'Error inserting payment post data as JSON.' );
-			}
-
-			$data['post_content']   = wp_slash( $json_string );
-			$data['post_mime_type'] = 'application/json';
+		if ( null !== $status ) {
+			$data['post_status'] = $status;
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Update payment from post array.
-	 *
-	 * @param Payment $payment Payment.
-	 * @param array   $postarr Post data array.
-	 * @return void
-	 */
-	private function update_payment_form_post_array( $payment, $postarr ) {
-		if ( ! isset( $postarr['pronamic_payment_post_status'] ) ) {
-			return;
-		}
-
-		$post_status = sanitize_text_field( stripslashes( $postarr['pronamic_payment_post_status'] ) );
-		$meta_status = $this->get_meta_status_from_post_status( $post_status );
-
-		if ( null === $meta_status ) {
-			return;
-		}
-
-		$payment->set_status( $meta_status );
-	}
-
-	/**
-	 * Save post meta.
-	 *
-	 * @link https://github.com/WordPress/WordPress/blob/5.0.3/wp-includes/post.php#L3724-L3736
-	 *
-	 * @param int      $post_id Post ID.
-	 * @param \WP_Post $post    Post object.
-	 * @param bool     $update  Whether this is an existing post being updated or not.
-	 * @return void
-	 */
-	public function save_post_meta( $post_id, $post, $update ) {
-		if ( $this->payment instanceof Payment ) {
-			$payment = $this->payment;
-
-			if ( ! $update && null === $payment->get_id() ) {
-				$payment->set_id( $post_id );
-				$payment->post = $post;
-			}
-
-			$this->update_post_meta( $payment );
-
-			/**
-			 * Payment updated.
-			 *
-			 * @param Payment $payment Payment.
-			 */
-			do_action( 'pronamic_pay_update_payment', $payment );
-		}
-
-		$this->payment = null;
 	}
 
 	/**
@@ -271,29 +198,30 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 
 		$customer_user_id = null === $customer ? 0 : $customer->get_user_id();
 
-		$result = wp_insert_post(
-			/**
-			 * The 'pronamic_payment' key is not an official argument for the
-			 * WordPress `wp_insert_post` function.
-			 *
-			 * @todo Simplify storing payments.
-			 */
-			[
-				'post_type'        => 'pronamic_payment',
-				'post_date_gmt'    => $this->get_mysql_utc_date( $payment->date ),
-				'post_title'       => \sprintf(
-					'Payment %s',
-					$payment->get_key()
-				),
-				'post_author'      => null === $customer_user_id ? 0 : $customer_user_id,
-				'pronamic_payment' => $payment,
-			],
+		$result = \wp_insert_post(
+			$this->get_post_data(
+				$payment,
+				[
+					'post_type'     => 'pronamic_payment',
+					'post_date_gmt' => $this->get_mysql_utc_date( $payment->date ),
+					'post_title'    => \sprintf(
+						'Payment %s',
+						$payment->get_key()
+					),
+					'post_author'   => null === $customer_user_id ? 0 : $customer_user_id,
+				]
+			),
 			true
 		);
 
-		if ( is_wp_error( $result ) ) {
+		if ( \is_wp_error( $result ) ) {
 			throw new \Exception( 'Could not create payment' );
 		}
+
+		$payment->set_id( $result );
+		$payment->post = \get_post( $result );
+
+		$this->payments[ $result ] = $payment;
 
 		/**
 		 * New payment created.
@@ -322,16 +250,23 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 			return false;
 		}
 
-		$data = [
-			'ID'               => $id,
-			'pronamic_payment' => $payment,
-		];
-
-		$result = wp_update_post( $data, true );
+		$result = \wp_update_post(
+			$this->get_post_data(
+				$payment,
+				[
+					'ID' => $id,
+				]
+			),
+			true
+		);
 
 		if ( is_wp_error( $result ) ) {
 			throw new \Exception( 'Could not update payment' );
 		}
+
+		$payment->post = \get_post( $result );
+
+		$this->payments[ $result ] = $payment;
 
 		return true;
 	}
@@ -347,7 +282,20 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 	public function save( $payment ) {
 		$id = $payment->get_id();
 
+		\add_filter( 'wp_insert_post_data', [ $this, 'preserve_post_content' ], 5, 3 );
+
 		$result = empty( $id ) ? $this->create( $payment ) : $this->update( $payment );
+
+		\remove_filter( 'wp_insert_post_data', [ $this, 'preserve_post_content' ], 5 );
+
+		$this->update_post_meta( $payment );
+
+		/**
+		 * Payment updated.
+		 *
+		 * @param Payment $payment Payment.
+		 */
+		do_action( 'pronamic_pay_update_payment', $payment );
 
 		return $result;
 	}
@@ -386,6 +334,8 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 		if ( is_object( $json ) ) {
 			Payment::from_json( $json, $payment );
 		}
+
+		$payment->set_slug( get_post_field( 'post_name', $id, 'raw' ) );
 
 		// Set user ID from `post_author` field if not set from payment JSON.
 		$customer = $payment->get_customer();
@@ -671,14 +621,6 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 		);
 
 		$this->register_meta_key(
-			'analytics_client_id',
-			[
-				'label'           => __( 'Analytics Client ID', 'pronamic_ideal' ),
-				'privacy_erasure' => 'erase',
-			]
-		);
-
-		$this->register_meta_key(
 			'subscription_id',
 			[
 				'label'          => __( 'Subscription ID', 'pronamic_ideal' ),
@@ -796,8 +738,7 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 
 		// Meta.
 		$keys = [
-			'_pronamic_payment_issuer'              => 'issuer',
-			'_pronamic_payment_analytics_client_id' => 'google_analytics_client_id',
+			'_pronamic_payment_issuer' => 'issuer',
 		];
 
 		foreach ( $keys as $post_meta_key => $payment_meta_key ) {
@@ -868,12 +809,12 @@ class PaymentsDataStoreCPT extends LegacyPaymentsDataStoreCPT {
 		// Subscriptions.
 		$meta_key = $this->get_meta_key( 'subscription_id' );
 
-		$subscriptions_ids = \get_post_meta( $id, 'subscription_id' );
+		$subscriptions_ids = \get_post_meta( $id, $meta_key );
 
 		foreach ( $payment->get_subscriptions() as $subscription ) {
 			$subscription_id = $subscription->get_id();
 
-			if ( ! in_array( $subscription_id, $subscriptions_ids ) ) {
+			if ( ! in_array( $subscription_id, $subscriptions_ids, true ) ) {
 				\add_post_meta( $id, $meta_key, $subscription_id, false );
 			}
 		}

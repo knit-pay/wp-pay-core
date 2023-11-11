@@ -135,6 +135,14 @@ class Payment extends PaymentInfo {
 	public $refunds = [];
 
 	/**
+	 * Slug.
+	 * 
+	 * @link https://github.com/pronamic/wp-pay-core/issues/146
+	 * @var string
+	 */
+	private $slug = '';
+
+	/**
 	 * Construct and initialize payment object.
 	 *
 	 * @param integer $post_id A payment post ID or null.
@@ -180,7 +188,7 @@ class Payment extends PaymentInfo {
 			throw new \Exception(
 				\sprintf(
 					'Could not add note "%s" to payment without ID.',
-					$note
+					\esc_html( $note )
 				)
 			);
 		}
@@ -203,10 +211,10 @@ class Payment extends PaymentInfo {
 			 */
 			throw new \Exception(
 				\sprintf(
-					'Could not add note "%s" to payment with ID "%d", last database error: "%s".',
-					$note,
-					$this->id,
-					$wpdb->last_error
+					'Could not add note "%s" to payment with ID "%s", last database error: "%s".',
+					\esc_html( $note ),
+					\esc_html( (string) $this->id ),
+					\esc_html( $wpdb->last_error )
 				)
 			);
 		}
@@ -657,35 +665,13 @@ class Payment extends PaymentInfo {
 	 *
 	 * @link https://github.com/woocommerce/woocommerce/blob/v2.2.3/includes/abstracts/abstract-wc-email.php#L187-L195
 	 *
-	 * @param string $string The string to format.
+	 * @param string $value The string to format.
 	 * @return string
 	 */
-	public function format_string( $string ) {
-		$id = $this->get_id();
+	public function format_string( $value ) {
+		$merge_tags_controller = new PaymentMergeTagsController( $this );
 
-		// Replacements definition.
-		$replacements = [
-			'{order_id}'   => $this->get_order_id(),
-			'{payment_id}' => $id,
-		];
-
-		// Find and replace.
-		$count = 0;
-
-		$string = str_replace(
-			array_keys( $replacements ),
-			array_values( $replacements ),
-			$string,
-			$count
-		);
-
-		// Make sure there is an dynamic part in the order ID.
-		// @link https://secure.ogone.com/ncol/param_cookbook.asp.
-		if ( 0 === $count && null !== $id ) {
-			$string .= $id;
-		}
-
-		return $string;
+		return $merge_tags_controller->format_string( $value );
 	}
 
 	/**
@@ -725,6 +711,25 @@ class Payment extends PaymentInfo {
 	}
 
 	/**
+	 * Get slug.
+	 * 
+	 * @return string
+	 */
+	public function get_slug() {
+		return $this->slug;
+	}
+
+	/**
+	 * Set slug.
+	 * 
+	 * @param string $slug Slug.
+	 * @return void
+	 */
+	public function set_slug( $slug ) {
+		$this->slug = $slug;
+	}
+
+	/**
 	 * Create payment from object.
 	 *
 	 * @param mixed        $json    JSON.
@@ -742,6 +747,10 @@ class Payment extends PaymentInfo {
 		}
 
 		PaymentInfoHelper::from_json( $json, $payment );
+
+		if ( isset( $json->slug ) ) {
+			$payment->set_slug( $json->slug );
+		}
 
 		if ( isset( $json->action_url ) ) {
 			$payment->set_action_url( $json->action_url );
@@ -820,6 +829,8 @@ class Payment extends PaymentInfo {
 		$object = PaymentInfoHelper::to_json( $this );
 
 		$properties = (array) $object;
+
+		$properties['slug'] = $this->slug;
 
 		// Action URL.
 		if ( null !== $this->action_url ) {

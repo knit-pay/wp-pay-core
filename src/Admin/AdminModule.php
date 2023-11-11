@@ -23,7 +23,6 @@ use Pronamic\WordPress\Pay\Core\Util;
 use Pronamic\WordPress\Pay\CreditCard;
 use Pronamic\WordPress\Pay\Customer;
 use Pronamic\WordPress\Pay\CustomerHelper;
-use Pronamic\WordPress\Pay\Forms\FormPostType;
 use Pronamic\WordPress\Pay\Payments\Payment;
 use Pronamic\WordPress\Pay\Payments\PaymentLines;
 use Pronamic\WordPress\Pay\Plugin;
@@ -75,13 +74,6 @@ class AdminModule {
 	public $health;
 
 	/**
-	 * Admin notices page.
-	 *
-	 * @var AdminNotices
-	 */
-	public $notices;
-
-	/**
 	 * Admin reports page.
 	 *
 	 * @var AdminReports
@@ -126,7 +118,6 @@ class AdminModule {
 		$this->settings  = new AdminSettings( $plugin );
 		$this->dashboard = new AdminDashboard();
 		$this->health    = new AdminHealth( $plugin );
-		$this->notices   = new AdminNotices();
 		$this->reports   = new AdminReports( $plugin );
 		$this->tour      = new AdminTour( $plugin );
 
@@ -144,17 +135,19 @@ class AdminModule {
 	 * @return void
 	 */
 	public function admin_init() {
-		global $pronamic_ideal_errors;
-
-		$pronamic_ideal_errors = [];
-
 		// Maybe.
 		$this->maybe_redirect();
 
 		// Post types.
 		new AdminGatewayPostType( $this->plugin );
-		new AdminPaymentPostType( $this->plugin );
-		new AdminSubscriptionPostType( $this->plugin );
+
+		$admin_payment_post_type = new AdminPaymentPostType( $this->plugin );
+
+		$admin_payment_post_type->admin_init();
+
+		$admin_subscription_post_type = new AdminSubscriptionPostType( $this->plugin );
+
+		$admin_subscription_post_type->admin_init();
 	}
 
 	/**
@@ -208,54 +201,6 @@ class AdminModule {
 		wp_safe_redirect( $redirect );
 
 		exit;
-	}
-
-	/**
-	 * Input checkbox.
-	 *
-	 * @param array $args Arguments.
-	 * @return void
-	 */
-	public static function input_checkbox( $args ) {
-		$defaults = [
-			'label_for' => '',
-			'type'      => 'text',
-			'label'     => '',
-		];
-
-		$args = wp_parse_args( $args, $defaults );
-
-		$id    = $args['label_for'];
-		$value = get_option( $id );
-
-		$legend = sprintf(
-			'<legend class="screen-reader-text"><span>%s</span></legend>',
-			esc_html( $args['label'] )
-		);
-
-		$input = sprintf(
-			'<input name="%s" id="%s" type="%s" value="%s" %s />',
-			esc_attr( $id ),
-			esc_attr( $id ),
-			esc_attr( 'checkbox' ),
-			esc_attr( '1' ),
-			checked( $value, true, false )
-		);
-
-		$label = sprintf(
-			'<label for="%s">%s %s</label>',
-			esc_attr( $id ),
-			$input,
-			esc_html( $args['label'] )
-		);
-
-		printf(
-			/* phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped */
-			'<fieldset>%s %s</fieldset>',
-			$legend,
-			$label
-			/* phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped */
-		);
 	}
 
 	/**
@@ -680,7 +625,6 @@ class AdminModule {
 		}
 
 		switch ( $screen->id ) {
-			case FormPostType::POST_TYPE:
 			case AdminGatewayPostType::POST_TYPE:
 			case AdminPaymentPostType::POST_TYPE:
 			case AdminSubscriptionPostType::POST_TYPE:
@@ -718,7 +662,7 @@ class AdminModule {
 			throw new \Exception(
 				\sprintf(
 					'Could not read WordPress admin menu icon from file: %s.',
-					$file
+					\esc_html( $file )
 				)
 			);
 		}
@@ -729,7 +673,7 @@ class AdminModule {
 			throw new \Exception(
 				\sprintf(
 					'Could not read WordPress admin menu icon from file: %s.',
-					$file
+					\esc_html( $file )
 				)
 			);
 		}
@@ -846,15 +790,6 @@ class AdminModule {
 			];
 		}
 
-		if ( \in_array( 'forms', $modules, true ) ) {
-			$submenu_pages[] = [
-				'page_title' => __( 'Payment Forms', 'pronamic_ideal' ),
-				'menu_title' => __( 'Forms', 'pronamic_ideal' ),
-				'capability' => 'edit_forms',
-				'menu_slug'  => 'edit.php?post_type=pronamic_pay_form',
-			];
-		}
-
 		$submenu_pages[] = [
 			'page_title' => __( 'Configurations', 'pronamic_ideal' ),
 			'menu_title' => __( 'Configurations', 'pronamic_ideal' ),
@@ -867,22 +802,10 @@ class AdminModule {
 			'menu_title' => __( 'Settings', 'pronamic_ideal' ),
 			'capability' => 'manage_options',
 			'menu_slug'  => 'pronamic_pay_settings',
-			'function'   => function() {
+			'function'   => function () {
 				$this->render_page( 'settings' );
 			},
 		];
-
-		if ( version_compare( get_bloginfo( 'version' ), '5.2', '<' ) ) {
-			$submenu_pages[] = [
-				'page_title' => __( 'Tools', 'pronamic_ideal' ),
-				'menu_title' => __( 'Tools', 'pronamic_ideal' ),
-				'capability' => 'manage_options',
-				'menu_slug'  => 'pronamic_pay_tools',
-				'function'   => function() {
-					$this->render_page( 'tools' );
-				},
-			];
-		}
 
 		$minimum_capability = $this->get_minimum_capability( $submenu_pages );
 
@@ -915,7 +838,7 @@ class AdminModule {
 			__( 'Knit Pay', 'pronamic_ideal' ) . $pay_badge,
 			$minimum_capability,
 			'pronamic_ideal',
-			function() {
+			function () {
 				$this->render_page( 'dashboard' );
 			},
 			$menu_icon_url

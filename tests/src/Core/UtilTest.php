@@ -28,12 +28,12 @@ class UtilTest extends TestCase {
 	 *
 	 * @dataProvider status_matrix_provider
 	 *
-	 * @param string $class    Class name to check.
-	 * @param string $method   Method name to check.
+	 * @param string $class_name    Class name to check.
+	 * @param string $method_name   Method name to check.
 	 * @param bool   $expected Expected result.
 	 */
-	public function test_class_method_exists( $class, $method, $expected ) {
-		$exists = Util::class_method_exists( $class, $method );
+	public function test_class_method_exists( $class_name, $method_name, $expected ) {
+		$exists = Util::class_method_exists( $class_name, $method_name );
 
 		$this->assertEquals( $expected, $exists );
 	}
@@ -46,7 +46,6 @@ class UtilTest extends TestCase {
 	public function status_matrix_provider() {
 		return [
 			[ __NAMESPACE__ . '\Util', 'class_method_exists', true ],
-			[ __NAMESPACE__ . '\Server', 'get', true ],
 			[ 'ClassDoesNotExist', 'method_does_not_exist', false ],
 			[ '', '', false ],
 			[ null, null, false ],

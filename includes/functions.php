@@ -27,7 +27,15 @@ function pronamic_pay_plugin() {
  * @return Payment|null
  */
 function get_pronamic_payment( $post_id ) {
-	return pronamic_pay_plugin()->payments_data_store->get_payment( $post_id );
+	if ( \is_bool( $post_id ) ) {
+		return null;
+	}
+
+	if ( \is_null( $post_id ) ) {
+		return null;
+	}
+
+	return pronamic_pay_plugin()->payments_data_store->get_payment( (int) $post_id );
 }
 
 /**
@@ -301,30 +309,6 @@ function get_pronamic_subscriptions_by_source( $source, $source_id = null ) {
 	];
 
 	return get_pronamic_subscriptions_by_meta( null, null, $args );
-}
-
-/**
- * Bind the global providers and gateways together.
- */
-function bind_providers_and_gateways() {
-	global $pronamic_pay_providers;
-
-	$integrations = pronamic_pay_plugin()->gateway_integrations;
-
-	foreach ( $integrations as $integration ) {
-		$provider = $integration->provider;
-
-		if ( ! isset( $pronamic_pay_providers[ $provider ] ) ) {
-			$pronamic_pay_providers[ $provider ] = [
-				'integrations' => [],
-			];
-		}
-
-		$pronamic_pay_providers[ $provider ]['integrations'][] = $integration;
-	}
-
-	// Sort by provider.
-	ksort( $pronamic_pay_providers );
 }
 
 /**

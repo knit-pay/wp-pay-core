@@ -155,34 +155,6 @@ class AdminPaymentPostType {
 				'message' => __( 'Payment status updated.', 'pronamic_ideal' ),
 			];
 		}
-
-		// Send to Google Analytics action.
-		if ( filter_has_var( INPUT_GET, 'pronamic_pay_ga_track' ) && check_admin_referer( 'pronamic_payment_ga_track_' . $post_id ) ) {
-			$ga_ecommerce = pronamic_pay_plugin()->google_analytics_ecommerce;
-
-			if ( ! $ga_ecommerce->valid_payment( $payment ) ) {
-				$notice = [
-					'type'    => 'error',
-					'message' => __( 'Payment details or an invalid tracking ID prevent payment from being tracked by Google Analytics.', 'pronamic_ideal' ),
-				];
-			} else {
-				pronamic_pay_plugin()->google_analytics_ecommerce->send_transaction( $payment );
-
-				if ( true === $payment->get_meta( 'google_analytics_tracked' ) ) {
-					$notice = [
-						'type'    => 'info',
-						'message' => __( 'Payment sent to Google Analytics.', 'pronamic_ideal' ),
-					];
-				} else {
-					$notice = [
-						'type'    => 'error',
-						'message' => __( 'Payment could not be sent to Google Analytics.', 'pronamic_ideal' ),
-					];
-				}
-			}
-
-			$this->admin_notices[] = $notice;
-		}
 	}
 
 	/**
@@ -529,7 +501,7 @@ class AdminPaymentPostType {
 				}
 
 				// Show original amount and remaining amount.
-				echo \sprintf(
+				\printf(
 					'<del class="pronamic-pay-tip" data-toggle="tooltip" data-placement="top" title="%3$s">%1$s</del> %2$s',
 					esc_html( $total_amount->format_i18n() ),
 					\esc_html( $remaining_amount->format_i18n() ),
@@ -717,18 +689,6 @@ class AdminPaymentPostType {
 	}
 
 	/**
-	 * Pronamic Pay gateway update meta box.
-	 *
-	 * @param WP_Post $post The object for the current post/page.
-	 * @return void
-	 */
-	public function meta_box_update( $post ) {
-		wp_nonce_field( 'pronamic_payment_update', 'pronamic_payment_update_nonce' );
-
-		include __DIR__ . '/../../views/meta-box-payment-update.php';
-	}
-
-	/**
 	 * Post row actions.
 	 *
 	 * @param array   $actions Actions array.
@@ -786,5 +746,74 @@ class AdminPaymentPostType {
 		];
 
 		return $messages;
+	}
+
+	/**
+	 * Pronamic Pay payment update meta box.
+	 *
+	 * @param WP_Post $post The object for the current post/page.
+	 * @return void
+	 */
+	public function meta_box_update( // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Parameter is used in include.
+		$post
+	) {
+		wp_nonce_field( 'pronamic_payment_update', 'pronamic_payment_update_nonce' );
+
+		include __DIR__ . '/../../views/meta-box-payment-update.php';
+	}
+
+	/**
+	 * Admin init.
+	 * 
+	 * @return void
+	 */
+	public function admin_init() {
+		$this->maybe_update_payment();
+	}
+
+	/**
+	 * Maybe update payment status.
+	 * 
+	 * @return void
+	 */
+	private function maybe_update_payment() {
+		if ( ! \array_key_exists( 'pronamic_payment_update', $_POST ) ) {
+			return;
+		}
+
+		if ( ! \array_key_exists( 'pronamic_payment_id', $_POST ) ) {
+			return;
+		}
+
+		if ( ! \array_key_exists( 'pronamic_payment_status', $_POST ) ) {
+			return;
+		}
+
+		if ( ! \array_key_exists( 'pronamic_payment_update_nonce', $_POST ) ) {
+			return;
+		}
+
+		$nonce = \sanitize_text_field( \wp_unslash( $_POST['pronamic_payment_update_nonce'] ) );
+
+		if ( ! \wp_verify_nonce( $nonce, 'pronamic_payment_update' ) ) {
+			\wp_die( \esc_html__( 'Action failed. Please refresh the page and retry.', 'pronamic_ideal' ) );
+		}
+
+		$payment_id = \sanitize_text_field( \wp_unslash( $_POST['pronamic_payment_id'] ) );
+
+		$payment = \get_pronamic_payment( $payment_id );
+
+		if ( null === $payment ) {
+			return;
+		}
+
+		$status = \sanitize_text_field( \wp_unslash( $_POST['pronamic_payment_status'] ) );
+
+		if ( '' === $status ) {
+			return;
+		}
+
+		$payment->set_status( $status );
+		$payment->save();
 	}
 }

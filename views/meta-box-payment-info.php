@@ -16,6 +16,10 @@ use Pronamic\WordPress\Pay\Payments\PaymentStatus;
 use Pronamic\WordPress\Pay\Plugin;
 use Pronamic\WordPress\Pay\VatNumbers\VatNumberValidationService;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 ?>
 <table class="form-table">
 	<tr>
@@ -720,45 +724,19 @@ use Pronamic\WordPress\Pay\VatNumbers\VatNumberValidationService;
 		<td>
 			<?php
 
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $payment->get_source_text();
+			echo wp_kses(
+				$payment->get_source_text(),
+				[
+					'a'  => [
+						'href' => true,
+					],
+					'br' => [],
+				]
+			);
 
 			?>
 		</td>
 	</tr>
-
-	<?php
-
-	$analytics_tracked = $payment->get_meta( 'google_analytics_tracked' );
-
-	$ga_property_id = get_option( 'pronamic_pay_google_analytics_property' );
-
-	?>
-
-	<?php if ( true === $analytics_tracked || ! empty( $ga_property_id ) ) : ?>
-
-		<tr>
-			<th scope="row">
-				<?php esc_html_e( 'Google Analytics', 'pronamic_ideal' ); ?>
-			</th>
-			<td>
-				<?php
-
-				if ( true === $analytics_tracked ) :
-
-					esc_html_e( 'Ecommerce conversion tracked', 'pronamic_ideal' );
-
-				else :
-
-					esc_html_e( 'Ecommerce conversion not tracked', 'pronamic_ideal' );
-
-				endif;
-
-				?>
-			</td>
-		</tr>
-
-	<?php endif; ?>
 
 	<?php if ( 'membership' === $payment->get_source() ) : ?>
 

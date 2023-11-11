@@ -78,10 +78,9 @@ class PagesController {
 	/**
 	 * Settings section.
 	 *
-	 * @param array $args Arguments.
 	 * @return void
 	 */
-	public function settings_section( $args ) {
+	public function settings_section() {
 		echo '<p>';
 		\esc_html_e( 'The page an user will get redirected to after payment, based on the payment status.', 'pronamic_ideal' );
 		echo '</p>';
@@ -89,7 +88,7 @@ class PagesController {
 		$pages = $this->get_pages();
 
 		$statuses = \array_map(
-			function( $page ) {
+			function ( $page ) {
 				$option_name = $page['option_name'];
 
 				$page_id = \get_option( $option_name );
@@ -203,7 +202,7 @@ class PagesController {
 			$result = \wp_insert_post( $post, true );
 
 			if ( $result instanceof \WP_Error ) {
-				throw new \Exception( $result->get_error_message() );
+				throw new \Exception( \esc_html( $result->get_error_message() ) );
 			}
 
 			\update_post_meta( $result, '_yoast_wpseo_meta-robots-noindex', true );

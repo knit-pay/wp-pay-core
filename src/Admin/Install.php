@@ -11,7 +11,6 @@
 namespace Pronamic\WordPress\Pay\Admin;
 
 use Pronamic\WordPress\Pay\AbstractIntegration;
-use Pronamic\WordPress\Pay\Forms\FormPostType;
 use Pronamic\WordPress\Pay\Payments\PaymentPostType;
 use Pronamic\WordPress\Pay\Plugin;
 use Pronamic\WordPress\Pay\Upgrades\Upgrade620;
@@ -178,13 +177,6 @@ class Install {
 		foreach ( $payment_capabilities as $capability ) {
 			$roles->add_cap( 'administrator', $capability );
 		}
-
-		// Forms.
-		$form_capabilities = FormPostType::get_capabilities();
-
-		foreach ( $form_capabilities as $capability ) {
-			$roles->add_cap( 'administrator', $capability );
-		}
 	}
 
 	/**
@@ -203,7 +195,7 @@ class Install {
 			 * @param AbstractIntegration $integration Integration object.
 			 * @return bool True if integration has version option name, false otherwise.
 			 */
-			function( $integration ) {
+			function ( $integration ) {
 				if ( ! $integration->is_active() ) {
 					return false;
 				}

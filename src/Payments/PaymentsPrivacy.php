@@ -68,11 +68,9 @@ class PaymentsPrivacy {
 	 * Payments exporter.
 	 *
 	 * @param string $email_address Email address.
-	 * @param int    $page          Page.
-	 *
 	 * @return array
 	 */
-	public function payments_export( $email_address, $page = 1 ) {
+	public function payments_export( $email_address ) {
 		// Payments data store.
 		$data_store = pronamic_pay_plugin()->payments_data_store;
 
@@ -142,11 +140,9 @@ class PaymentsPrivacy {
 	 * Payments anonymizer.
 	 *
 	 * @param string $email_address Email address.
-	 * @param int    $page          Page.
-	 *
 	 * @return array
 	 */
-	public function payments_anonymizer( $email_address, $page = 1 ) {
+	public function payments_anonymizer( $email_address ) {
 		// Payments data store.
 		$data_store = pronamic_pay_plugin()->payments_data_store;
 
@@ -242,5 +238,4 @@ class PaymentsPrivacy {
 			'done'           => true,
 		];
 	}
-
 }

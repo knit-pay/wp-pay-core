@@ -10,6 +10,7 @@
 
 namespace Pronamic\WordPress\Pay\Core;
 
+use Pronamic\WordPress\Html\Element;
 use Pronamic\WordPress\Pay\Core\Util as Core_Util;
 use Pronamic\WordPress\Pay\Fields\Field;
 use Pronamic\WordPress\Pay\Payments\Payment;
@@ -239,12 +240,14 @@ abstract class Gateway {
 
 	/**
 	 * Create refund.
-	 * 
+	 *
 	 * @param Refund $refund Reund.
 	 * @return void
 	 * @throws \Exception Throws an exception if the refund could not be processed.
 	 */
-	public function create_refund( Refund $refund ) {
+	public function create_refund( // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Parameter is required for function signature.
+		Refund $refund
+	) {
 		throw new \Exception( 'Gateway does not support refunds.' );
 	}
 
@@ -256,9 +259,6 @@ abstract class Gateway {
 	 * @throws \Exception Throws exception when action URL for HTTP redirect is empty.
 	 */
 	public function redirect( Payment $payment ) {
-		// Switch to user locale.
-		Util::switch_to_user_locale();
-
 		switch ( $this->method ) {
 			case self::METHOD_HTTP_REDIRECT:
 				$this->redirect_via_http( $payment );
@@ -306,50 +306,27 @@ abstract class Gateway {
 	 */
 	public function redirect_via_html( Payment $payment ) {
 		if ( headers_sent() ) {
-			/* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */
-			echo $this->get_form_html( $payment, true );
+			$this->output_form( $payment );
 		} else {
 			Core_Util::no_cache();
 
-			include Plugin::$dirname . '/views/redirect-via-html.php';
+			include __DIR__ . '/../../views/redirect-via-html.php';
 		}
 
 		exit;
 	}
 
 	/**
-	 * Get form HTML.
-	 *
-	 * @param Payment $payment     Payment to get form HTML for.
-	 * @param bool    $auto_submit Flag to auto submit.
-	 * @return string
+	 * Output form.
+	 * 
+	 * @param Payment $payment Payment.
+	 * @return void
 	 * @throws \Exception When payment action URL is empty.
 	 */
-	public function get_form_html( Payment $payment, $auto_submit = false ) {
-		$form_inner = $this->get_output_html( $payment );
-
-		$form_inner .= sprintf(
-			'<input class="pronamic-pay-btn" type="submit" name="pay" value="%s" />',
-			__( 'Pay', 'pronamic_ideal' )
-		);
-
-		$action_url = $payment->get_action_url();
-
-		if ( empty( $action_url ) ) {
-			throw new \Exception( 'Action URL is empty, can not get form HTML.' );
-		}
-
-		$html = sprintf(
-			'<form id="pronamic_ideal_form" name="pronamic_ideal_form" method="post" action="%s">%s</form>',
-			esc_attr( $action_url ),
-			$form_inner
-		);
-
-		if ( $auto_submit ) {
-			$html .= '<script type="text/javascript">document.pronamic_ideal_form.submit();</script>';
-		}
-
-		return $html;
+	public function output_form( // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Parameter is used in include.
+		Payment $payment
+	) {
+		include __DIR__ . '/../../views/form.php';
 	}
 
 	/**
@@ -360,21 +337,10 @@ abstract class Gateway {
 	 * @return array
 	 * @since 1.2.0
 	 */
-	public function get_output_fields( Payment $payment ) {
+	public function get_output_fields( // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Parameter is required for function signature.
+		Payment $payment
+	) {
 		return [];
-	}
-
-	/**
-	 * Get the output HTML
-	 *
-	 * @param Payment $payment Payment.
-	 *
-	 * @return string
-	 */
-	public function get_output_html( Payment $payment ) {
-		$fields = $this->get_output_fields( $payment );
-
-		return PayUtil::html_hidden_fields( $fields );
 	}
 
 	/**

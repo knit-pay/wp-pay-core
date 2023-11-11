@@ -174,27 +174,12 @@ class Util {
 	 * This helper function was created to fix an issue with `method_exists` calls
 	 * and non existing classes.
 	 *
-	 * @param string $class  Class name to check for the specified method.
-	 * @param string $method Method name to check for existence.
+	 * @param string $class_name  Class name to check for the specified method.
+	 * @param string $method_name Method name to check for existence.
 	 *
 	 * @return boolean
 	 */
-	public static function class_method_exists( $class, $method ) {
-		return class_exists( $class ) && method_exists( $class, $method );
-	}
-
-	/**
-	 * Switch to user locale.
-	 *
-	 * @return void
-	 */
-	public static function switch_to_user_locale() {
-		\switch_to_locale( \get_user_locale() );
-
-		\add_filter( 'determine_locale', 'get_user_locale' );
-
-		Plugin::load_plugin_textdomain();
-
-		\remove_filter( 'determine_locale', 'get_user_locale' );
+	public static function class_method_exists( $class_name, $method_name ) {
+		return class_exists( $class_name ) && method_exists( $class_name, $method_name );
 	}
 }

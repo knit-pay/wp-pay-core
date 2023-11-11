@@ -59,6 +59,23 @@ class PaymentLines implements Countable, IteratorAggregate {
 	}
 
 	/**
+	 * Get name.
+	 * 
+	 * @link https://github.com/pronamic/wp-pronamic-pay-woocommerce/issues/43
+	 * @return string
+	 */
+	public function get_name() {
+		$names = \array_map(
+			function ( PaymentLine $line ) {
+				return (string) $line->get_name();
+			},
+			$this->get_array()
+		);
+
+		return \implode( ', ', $names );
+	}
+
+	/**
 	 * Add line.
 	 *
 	 * @param PaymentLine $line The line to add.
@@ -136,14 +153,14 @@ class PaymentLines implements Countable, IteratorAggregate {
 
 	/**
 	 * Get first line with the specified ID.
-	 * 
+	 *
 	 * @param string $id ID.
 	 * @return null|PaymentLine
 	 */
 	public function first( $id ) {
 		$lines = \array_filter(
 			$this->lines,
-			function( PaymentLine $line ) use ( $id ) {
+			function ( PaymentLine $line ) use ( $id ) {
 				return ( $id === $line->get_id() );
 			}
 		);
@@ -170,7 +187,7 @@ class PaymentLines implements Countable, IteratorAggregate {
 			 * @param PaymentLine $line Payment line.
 			 * @return object
 			 */
-			function( PaymentLine $line ) {
+			function ( PaymentLine $line ) {
 				return $line->get_json();
 			},
 			$this->lines
@@ -199,11 +216,11 @@ class PaymentLines implements Countable, IteratorAggregate {
 			/**
 			 * Get payment line from object.
 			 *
-			 * @param object $object Object.
+			 * @param object $value Object.
 			 * @return PaymentLine
 			 */
-			function( $object ) {
-				return PaymentLine::from_json( $object );
+			function ( $value ) {
+				return PaymentLine::from_json( $value );
 			},
 			$json
 		);

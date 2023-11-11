@@ -1,292 +1,68 @@
 <?php
 /**
- * Forms template.
+ * Form
  *
  * @author    Pronamic <info@pronamic.eu>
  * @copyright 2005-2023 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
+ * @var       \Pronamic\WordPress\Pay\Payments\Payment $payment Payment.
+ * @var       \Pronamic\WordPress\Pay\Core\Gateway     $this    Gateway.
  */
 
-global $pronamic_pay_errors;
-
-use Pronamic\WordPress\Money\Currency;
-use Pronamic\WordPress\Money\Money;
-use Pronamic\WordPress\Pay\Core\PaymentMethods;
-use Pronamic\WordPress\Pay\Core\SelectField;
-use Pronamic\WordPress\Pay\Forms\FormPostType;
-use Pronamic\WordPress\Pay\Forms\FormsSource;
-use Pronamic\WordPress\Pay\Plugin;
+use Pronamic\WordPress\Html\Element;
 use Pronamic\WordPress\Pay\Util;
 
-if ( ! isset( $settings ) ) {
-	return;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-$methods_with_choices = [
-	FormPostType::AMOUNT_METHOD_CHOICES_ONLY,
-	FormPostType::AMOUNT_METHOD_CHOICES_AND_INPUT,
-];
+$action_url = $payment->get_action_url();
 
-$gateway = Plugin::get_gateway( $settings['config_id'] );
+if ( empty( $action_url ) ) {
+	esc_html_e( 'It is currently not possible to pay, please contact us for more information (error: no action URL found).', 'pronamic_ideal' );
 
-// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-$amount_value = array_key_exists( 'amount', $_GET ) ? \sanitize_text_field( \wp_unslash( $_GET['amount'] ) ) : '';
-
-if ( null === $gateway ) {
 	return;
 }
-
-$currency = Currency::get_instance( 'INR' );
-
-// First payment method.
-$payment_methods = $gateway->get_payment_methods(
-	[ 
-		'status' => [
-			'',
-			'active',
-		],
-	]
-)->get_array();
-
-$payment_methods = array_filter(
-	$payment_methods,
-	function( $payment_method ) {
-		return ! in_array(
-			$payment_method->get_id(),
-			[
-				PaymentMethods::AFTERPAY,
-				PaymentMethods::AFTERPAY_NL,
-				PaymentMethods::AFTERPAY_COM,
-				PaymentMethods::APPLE_PAY,
-				PaymentMethods::IN3,
-				PaymentMethods::DIRECT_DEBIT_BANCONTACT,
-				PaymentMethods::DIRECT_DEBIT_IDEAL,
-				PaymentMethods::DIRECT_DEBIT_SOFORT,
-				PaymentMethods::KLARNA_PAY_LATER,
-				PaymentMethods::KLARNA_PAY_OVER_TIME,
-				PaymentMethods::RIVERTY,
-				PaymentMethods::SPRAYPAY,
-			],
-			true
-		);
-	}
-);
-
-$payment_method_default = \reset( $payment_methods );
 
 ?>
-<div class="pronamic-pay-form-wrap">
+<form id="pronamic_ideal_form" name="pronamic_ideal_form" method="post" action="<?php echo esc_url( $action_url ); ?>">
+	<?php
 
-	<?php if ( ! is_singular( 'pronamic_pay_form' ) && ! empty( $settings['title'] ) ) : ?>
+	$data = $this->get_output_fields( $payment );
 
-		<h2 class="pronamic-pay-form-title"><?php echo esc_html( $settings['title'] ); ?></h2>
+	$data = Util::array_square_bracket( $data );
 
-	<?php endif; ?>
+	foreach ( $data as $name => $value ) {
+		printf(
+			'<input type="hidden" name="%s" value="%s" />',
+			esc_attr( $name ),
+			esc_attr( $value )
+		);
+	}
 
-	<form id="<?php echo esc_attr( $settings['html_id'] ); ?>" class="pronamic-pay-form" method="post">
-		<?php if ( in_array( $settings['amount_method'], $methods_with_choices, true ) ) : ?>
+	?>
 
-		<fieldset>
-			<legend><?php esc_html_e( 'Amount', 'pronamic_ideal' ); ?></legend>
+	<input class="pronamic-pay-btn" type="submit" name="pay" value="<?php esc_attr_e( 'Pay', 'pronamic_ideal' ); ?>" />
+</form>
 
-		<?php endif; ?>
+<?php
 
-			<div class="pronamic-pay-amount pronamic-pay-form-row-wide">
-				<?php if ( in_array( $settings['amount_method'], $methods_with_choices, true ) ) : ?>
+$auto_submit = true;
 
-						<?php foreach ( $settings['amounts'] as $amount ) : ?>
+if ( defined( '\PRONAMIC_PAY_DEBUG' ) && \PRONAMIC_PAY_DEBUG ) {
+	$auto_submit = false;
+}
 
-							<?php
+if ( $auto_submit ) {
+	$element = new Element(
+		'script',
+		[
+			'type' => 'text/javascript',
+		]
+	);
 
-							$input_id = 'pronamic-pay-amount-' . esc_attr( $amount );
+	$element->children[] = 'document.pronamic_ideal_form.submit();';
 
-							$money = new Money( $amount, $currency );
-
-							?>
-
-							<div>
-								<input class="pronamic-pay-amount-input pronamic-pay-input" id="<?php echo esc_attr( $input_id ); ?>" name="pronamic_pay_amount" type="radio" required="required" value="<?php echo esc_attr( (string) $amount ); ?>" />
-
-								<label for="<?php echo esc_attr( $input_id ); ?>">
-									<span class="pronamic-pay-amount-value"><?php echo esc_html( $money->format_i18n() ); ?></span>
-								</label>
-							</div>
-
-						<?php endforeach; ?>
-
-						<?php if ( FormPostType::AMOUNT_METHOD_CHOICES_AND_INPUT === $settings['amount_method'] ) : ?>
-
-							<div>
-								<input class="pronamic-pay-amount-input pronamic-pay-input" id="pronamic-pay-amount-other" name="pronamic_pay_amount" type="radio" required="required" value="other" />
-
-								<label for="pronamic-pay-amount-other">
-									<span class="pronamic-pay-currency-symbol pronamic-pay-currency-position-before">₹</span>
-									<input class="pronamic-pay-amount-input pronamic-pay-input" id="pronamic-pay-amount" name="pronamic_pay_amount_other" type="number" step="any" autocomplete="off" value="<?php echo esc_attr( $amount_value ); ?>" />
-								</label>
-							</div>
-
-						<?php endif; ?>
-
-				<?php endif; ?>
-
-				<?php if ( FormPostType::AMOUNT_METHOD_INPUT_ONLY === $settings['amount_method'] ) : ?>
-
-					<span class="pronamic-pay-currency-symbol pronamic-pay-currency-position-before">₹</span>
-					<input class="pronamic-pay-amount-input pronamic-pay-input" id="pronamic-pay-amount" name="pronamic_pay_amount" type="number" step="any" autocomplete="off" value="<?php echo esc_attr( $amount_value ); ?>" />
-
-				<?php endif; ?>
-			</div>
-
-		<?php if ( in_array( $settings['amount_method'], $methods_with_choices, true ) ) : ?>
-
-		</fieldset>
-
-		<?php endif; ?>
-
-		<fieldset>
-			<legend><?php esc_html_e( 'Personal Info', 'pronamic_ideal' ); ?></legend>
-
-			<p class="pronamic-pay-form-row pronamic-pay-form-row-first">
-				<label class="pronamic-pay-label" for="pronamic-pay-first-name">
-					<?php esc_html_e( 'First Name', 'pronamic_ideal' ); ?> <span class="pronamic-pay-required-indicator">*</span>
-				</label>
-
-				<input class="pronamic-pay-input pronamic-pay-required" type="text" name="pronamic_pay_first_name" placeholder="<?php esc_attr_e( 'First Name', 'pronamic_ideal' ); ?>" id="pronamic-pay-first-name" required="required" value="" />
-			</p>
-
-			<p class="pronamic-pay-form-row pronamic-pay-form-row-last">
-				<label class="pronamic-pay-label" for="pronamic-pay-last-name">
-					<?php esc_html_e( 'Last Name', 'pronamic_ideal' ); ?>
-				</label>
-
-				<input class="pronamic-pay-input" type="text" name="pronamic_pay_last_name" id="pronamic-pay-last-name" placeholder="<?php esc_attr_e( 'Last Name', 'pronamic_ideal' ); ?>" value="" />
-			</p>
-
-			<p class="pronamic-pay-form-row pronamic-pay-form-row-wide">
-				<label class="pronamic-pay-label" for="pronamic-pay-email">
-					<?php esc_html_e( 'Email Address', 'pronamic_ideal' ); ?>
-					<span class="pronamic-pay-required-indicator">*</span>
-				</label>
-
-				<input class="pronamic-pay-input required" type="email" name="pronamic_pay_email" placeholder="<?php esc_attr_e( 'Email Address', 'pronamic_ideal' ); ?>" id="pronamic-pay-email" required="required" value="" />
-			</p>
-		</fieldset>
-
-		<fieldset>
-			<legend><?php esc_html_e( 'Payment Info', 'pronamic_ideal' ); ?></legend>
-
-			<ul class="pronamic-pay-payment-method-list">
-
-				<?php foreach ( $payment_methods as $payment_method ) : ?>
-
-					<li>
-						<?php
-
-						$html_id = 'pronamic-pay-payment-method-' . $payment_method->get_id();
-
-						printf(
-							'<input id="%s" type="radio" name="payment_method" value="%s" %s />',
-							\esc_attr( $html_id ),
-							\esc_attr( $payment_method->get_id() ),
-							checked( $payment_method === $payment_method_default, true, false )
-						);
-
-						echo ' ';
-
-						printf(
-							'<label for="%s">%s</label>',
-							\esc_attr( $html_id ),
-							\esc_html( $payment_method->get_name() )
-						);
-
-						?>
-						<div class="pronamic-pay-payment-method-fields">
-
-							<?php foreach ( $payment_method->get_fields() as $field ) : ?>
-
-								<p class="pronamic-pay-form-row pronamic-pay-form-row-wide">
-									<label class="pronamic-pay-label" for="<?php echo esc_attr( $field->get_id() ); ?>">
-										<?php echo esc_html( $field->get_label() ); ?>
-
-										<?php if ( $field->is_required() ) : ?>
-											<span class="pronamic-pay-required-indicator">*</span>
-										<?php endif; ?>
-									</label>
-
-									<?php
-
-									try {
-										$field->output();
-									} catch ( \Exception $exception ) {
-										echo '<em>';
-
-										printf(
-											/* translators: %s: Exception message. */
-											esc_html__( 'This field could not be displayed due to the following error message: "%s".', 'pronamic_ideal' ),
-											esc_html( $exception->getMessage() )
-										);
-
-										echo '</em>';
-									}
-
-									?>
-								</p>
-
-							<?php endforeach; ?>
-
-						</div>
-					</li>
-
-				<?php endforeach; ?>
-
-			</ul>
-
-		</fieldset>
-
-		<?php if ( ! empty( $pronamic_pay_errors ) ) : ?>
-
-			<div class="pronamic-pay-errors">
-
-				<?php foreach ( $pronamic_pay_errors as $e ) : ?>
-
-					<p class="pronamic-pay-error">
-						<strong><?php esc_html_e( 'Error', 'pronamic_ideal' ); ?></strong>: <?php echo esc_html( $e ); ?>
-					</p>
-
-				<?php endforeach; ?>
-
-			</div>
-
-		<?php endif; ?>
-
-		<div class="pronamic-pay-submit-button-wrap pronamic-pay-clearfix">
-			<?php wp_nonce_field( 'pronamic_pay', 'pronamic_pay_nonce' ); ?>
-
-			<?php
-
-			$fields = [
-				'pronamic_pay_source'    => $settings['source'],
-				'pronamic_pay_source_id' => $settings['source_id'],
-			];
-
-			// Add config ID when needed.
-			if ( FormsSource::PAYMENT_FORM !== $settings['source'] ) {
-				$fields['pronamic_pay_config_id'] = $settings['config_id'];
-			}
-
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo Util::html_hidden_fields( $fields );
-
-			?>
-
-			<?php if ( FormPostType::AMOUNT_METHOD_INPUT_FIXED === $settings['amount_method'] ) : ?>
-
-				<input type="hidden" name="pronamic_pay_amount" value="<?php echo esc_attr( array_shift( $settings['amounts'] ) ); ?>" />
-
-			<?php endif; ?>
-
-			<input type="submit" class="pronamic-pay-submit pronamic-pay-btn" id="pronamic-pay-purchase-button" name="pronamic_pay" value="<?php echo esc_attr( $settings['button_text'] ); ?>" />
-		</div>
-	</form>
-</div>
+	$element->output();
+}

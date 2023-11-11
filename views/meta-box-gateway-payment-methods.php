@@ -13,6 +13,10 @@
 
 use Pronamic\WordPress\Pay\Core\PaymentMethods;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $show_recurring_column = false;
 
 foreach ( $payment_methods as $payment_method ) {

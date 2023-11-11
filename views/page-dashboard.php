@@ -8,6 +8,10 @@
  * @package   Pronamic\WordPress\Pay
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $container_index = 1;
 
 ?>
@@ -59,7 +63,7 @@ $container_index = 1;
 
 								$payment_posts = \array_filter(
 									$query->posts,
-									function( $post ) {
+									function ( $post ) {
 										return ( $post instanceof WP_Post );
 									}
 								);
@@ -192,7 +196,7 @@ $container_index = 1;
 
 					$subscriptions_posts = \array_filter(
 						$query->posts,
-						function( $post ) {
+						function ( $post ) {
 							return ( $post instanceof WP_Post );
 						}
 					);
@@ -318,7 +322,7 @@ $container_index = 1;
 					<?php endif; ?>
 				</div>
 
-				<?php $container_index++; ?>
+				<?php ++$container_index; ?>
 
 			<?php endif; ?>
 
@@ -345,7 +349,7 @@ $container_index = 1;
 											add_query_arg(
 												[
 													'page' => 'pronamic_ideal',
-													'pronamic_pay_ignore_tour' => '0',
+													'pronamic_pay_ignore_tour' => 'false',
 												]
 											),
 											'pronamic_pay_ignore_tour',

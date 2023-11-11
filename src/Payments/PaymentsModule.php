@@ -75,7 +75,7 @@ class PaymentsModule {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::add_command(
 				'pay payment status',
-				function ( $args, $assoc_args ) {
+				function ( $args ) {
 					foreach ( $args as $id ) {
 						$payment = get_pronamic_payment( $id );
 
@@ -239,7 +239,7 @@ class PaymentsModule {
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'rest_api_payment' ],
-				'permission_callback' => function() {
+				'permission_callback' => function () {
 					return \current_user_can( 'edit_payments' );
 				},
 				'args'                => [

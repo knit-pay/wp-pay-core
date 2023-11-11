@@ -167,98 +167,37 @@ class AdminHealth {
 	 * @return array
 	 */
 	public function status_tests( $status_tests ) {
-		// Test valid license.
-		// $status_tests['direct']['pronamic_pay_valid_license'] = [
-		//	'label' => __( 'Knit Pay support license key test' ),
-		//	'test'  => [ $this, 'test_valid_license' ],
-		// ];
-
 		// Test minimum required WordPress version.
 		$status_tests['direct']['pronamic_pay_wordpress_version'] = [
-			'label' => __( 'Knit Pay WordPress version test' ),
+			'label' => __( 'Knit Pay WordPress version test', 'pronamic_ideal' ),
 			'test'  => [ $this, 'test_wordpress_version' ],
 		];
 
 		// Test memory limit.
 		$status_tests['direct']['pronamic_pay_memory_limit'] = [
-			'label' => __( 'Knit Pay memory limit test' ),
+			'label' => __( 'Knit Pay memory limit test', 'pronamic_ideal' ),
 			'test'  => [ $this, 'test_memory_limit' ],
 		];
 
 		// Test character set.
 		$status_tests['direct']['pronamic_pay_character_set'] = [
-			'label' => __( 'Knit Pay UTF-8 character set test' ),
+			'label' => __( 'Knit Pay UTF-8 character set test', 'pronamic_ideal' ),
 			'test'  => [ $this, 'test_character_set' ],
 		];
 
 		// Test hashing algorithms.
 		$status_tests['direct']['pronamic_pay_hashing_algorithms'] = [
-			'label' => __( 'Knit Pay hashing algorithms test' ),
+			'label' => __( 'Knit Pay hashing algorithms test', 'pronamic_ideal' ),
 			'test'  => [ $this, 'test_hashing_algorithms' ],
 		];
 
 		// Test supported extensions.
 		$status_tests['direct']['pronamic_pay_extensions_support'] = [
-			'label' => __( 'Knit Pay extensions support test' ),
+			'label' => __( 'Knit Pay extensions support test', 'pronamic_ideal' ),
 			'test'  => [ $this, 'test_extensions_support' ],
 		];
 
 		return $status_tests;
-	}
-
-	/**
-	 * Test if configuration exists.
-	 *
-	 * @return array<string, array<string,string>|string>
-	 */
-	public function test_valid_license() {
-		// Good.
-		$result = [
-			'test'        => 'pronamic_pay_valid_license',
-			'label'       => __( 'Knit Pay license key is valid', 'pronamic_ideal' ),
-			'description' => sprintf(
-				'<p>%s</p>',
-				__( 'A valid license is required for technical support and continued plugin updates.', 'pronamic_ideal' )
-			),
-			'badge'       => [
-				'label' => __( 'Security' ),
-				'color' => 'blue',
-			],
-			'status'      => 'good',
-			'actions'     => '',
-		];
-
-		// Recommendation.
-		if ( 'valid' !== get_option( 'pronamic_pay_license_status' ) ) {
-			$result['status'] = 'recommended';
-			$result['label']  = __( 'No valid license key for Knit Pay', 'pronamic_ideal' );
-
-			$result['actions'] = '<p>';
-
-			if ( '' === get_option( 'pronamic_pay_license_key' ) ) {
-				$result['actions'] .= sprintf(
-					'<a href="%s">%s</a> - ',
-					esc_url( 'https://www.pronamic.eu/plugins/pronamic-ideal/' ),
-					\__( 'Purchase license', 'pronamic_ideal' )
-				);
-			}
-
-			$result['actions'] .= sprintf(
-				'<a href="%s">%s</a> - ',
-				add_query_arg( 'page', 'pronamic_pay_settings', get_admin_url( null, 'admin.php' ) ),
-				\__( 'License settings', 'pronamic_ideal' )
-			);
-
-			$result['actions'] .= sprintf(
-				'<a href="%s">%s</a>',
-				esc_url( 'https://www.pronamic.eu/account/' ),
-				\__( 'Check existing license', 'pronamic_ideal' )
-			);
-
-			$result['actions'] .= '</p>';
-		}
-
-		return $result;
 	}
 
 	/**

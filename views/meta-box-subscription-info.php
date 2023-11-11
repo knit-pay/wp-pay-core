@@ -15,6 +15,10 @@ use Pronamic\WordPress\Pay\Core\PaymentMethods;
 use Pronamic\WordPress\Pay\Subscriptions\SubscriptionStatus;
 use Pronamic\WordPress\Pay\Util;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $subscription_id = $subscription->get_id();
 
 $customer = $subscription->get_customer();
@@ -241,8 +245,15 @@ $phase = $subscription->get_display_phase();
 		<td>
 			<?php
 
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $subscription->get_source_text();
+			echo wp_kses(
+				$subscription->get_source_text(),
+				[
+					'a'  => [
+						'href' => true,
+					],
+					'br' => [],
+				]
+			);
 
 			?>
 		</td>

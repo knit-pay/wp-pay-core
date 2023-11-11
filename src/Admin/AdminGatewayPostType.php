@@ -283,7 +283,10 @@ class AdminGatewayPostType {
 	 *
 	 * @return void
 	 */
-	public static function settings_payment_methods( $gateway, $gateway_id ) {
+	public static function settings_payment_methods( // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter -- Parameters are used in include.
+		$gateway,
+		$gateway_id
+	) {
 		if ( null === $gateway ) {
 			return;
 		}
@@ -291,7 +294,7 @@ class AdminGatewayPostType {
 		$payment_methods = $gateway->get_payment_methods()->getIterator();
 
 		$payment_methods->uasort(
-			function( $a, $b ) {
+			function ( $a, $b ) {
 				return strnatcasecmp( $a->get_name(), $b->get_name() );
 			}
 		);
@@ -308,7 +311,11 @@ class AdminGatewayPostType {
 	 *
 	 * @return void
 	 */
-	public static function settings_webhook_log( $gateway, $gateway_id, $config_id ) {
+	public static function settings_webhook_log( // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter -- Parameters are used in include.
+		$gateway,
+		$gateway_id,
+		$config_id
+	) {
 		if ( null === $gateway ) {
 			return;
 		}
@@ -322,7 +329,19 @@ class AdminGatewayPostType {
 	 * @param WP_Post $post The object for the current post/page.
 	 * @return void
 	 */
-	public function meta_box_test( $post ) {
+	public function meta_box_test( // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- Parameter is used in include.
+		$post
+	) {
+		\wp_register_script(
+			'pronamic-pay-gateway-test',
+			plugins_url( 'js/dist/admin-test.min.js', dirname( __DIR__ ) ),
+			[
+				'jquery',
+			],
+			$this->plugin->get_version(),
+			false
+		);
+
 		include __DIR__ . '/../../views/meta-box-gateway-test.php';
 	}
 
@@ -385,37 +404,67 @@ class AdminGatewayPostType {
 
 		foreach ( $fields as $field ) {
 			// Check presence of required field settings.
-			if ( ! isset( $field['meta_key'] ) ) {
+			if ( ! \array_key_exists( 'meta_key', $field ) ) {
 				continue;
 			}
 
 			$name = $field['meta_key'];
 
-			// Check field in input.
-			if ( ! \filter_has_var( INPUT_POST, $name ) ) {
+			if ( ! \array_key_exists( $name, $_POST ) ) {
 				continue;
 			}
 
-			$value = array_key_exists( $name, $_POST ) ? \sanitize_text_field( \wp_unslash( $_POST[ $name ] ) ) : '';
-
-			// Filter input.
-			if ( isset( $field['filter'] ) ) {
-				$filter = $field['filter'];
-
-				$options = [];
-
-				// Make sure filter is not an array.
-				if ( \is_array( $filter ) ) {
-					if ( isset( $filter['flags'] ) ) {
-						$options['flags'] = $filter['flags'];
-					}
-
-					if ( isset( $filter['filter'] ) ) {
-						$filter = $filter['filter'];
-					}
+			$callback = static function ( $name ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				if ( ! \array_key_exists( $name, $_POST ) ) {
+					return '';
 				}
 
-				$value = \filter_input( INPUT_POST, $name, $filter, $options );
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				return \sanitize_text_field( \wp_unslash( $_POST[ $name ] ) );
+			};
+
+			if ( \array_key_exists( 'type', $field ) ) {
+				$type = $field['type'];
+
+				switch ( $type ) {
+					case 'textarea':
+						$callback = static function ( $name ) {
+							// phpcs:ignore WordPress.Security.NonceVerification.Missing
+							if ( ! \array_key_exists( $name, $_POST ) ) {
+								return '';
+							}
+
+							// phpcs:ignore WordPress.Security.NonceVerification.Missing
+							return \sanitize_textarea_field( \wp_unslash( $_POST[ $name ] ) );
+						};
+
+						break;
+					case 'checkbox':
+						$callback = static function ( $name ) {
+							// phpcs:ignore WordPress.Security.NonceVerification.Missing
+							if ( ! \array_key_exists( $name, $_POST ) ) {
+								return '';
+							}
+
+							// phpcs:ignore WordPress.Security.NonceVerification.Missing
+							return '1' === \sanitize_text_field( \wp_unslash( $_POST[ $name ] ) );
+						};
+
+						break;
+				}
+			}
+
+			if ( \array_key_exists( 'input', $field ) ) {
+				$callback = $field['input'];
+			}
+
+			$value = \call_user_func( $callback, $name );
+
+			if ( array_key_exists( 'filter', $field ) ) {
+				$filter = $field['filter'];
+
+				$value = \filter_var( $value, $filter );
 			}
 
 			// Update post meta.

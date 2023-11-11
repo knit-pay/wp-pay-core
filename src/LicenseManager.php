@@ -12,6 +12,7 @@ namespace Pronamic\WordPress\Pay;
 
 use Pronamic\WordPress\DateTime\DateTime;
 use Pronamic\WordPress\DateTime\DateTimeZone;
+use Pronamic\WordPress\Html\Element;
 use WP_Error;
 
 /**
@@ -56,6 +57,25 @@ class LicenseManager {
 		// Filters.
 		\add_filter( sprintf( 'pre_update_option_%s', 'pronamic_pay_license_key' ), [ $this, 'pre_update_option_license_key' ], 10, 2 );
 		\add_filter( 'debug_information', [ $this, 'debug_information' ], 15 );
+		\add_filter( 'site_status_tests', [ $this, 'site_status_tests' ] );
+	}
+
+	/**
+	 * Get home URL.
+	 *
+	 * @return string
+	 */
+	private function get_home_url() {
+		/**
+		 * We use the `get_option( 'home' )` here and not `home_url()` to
+		 * bypass the `home_url` filter. The WPML plugin hooks into the
+		 * `home_url` filter and this causes the notice to be displayed
+		 * unnecessarily. That's why we decided to compare on the
+		 * unfiltered home URL directly from the options.
+		 *
+		 * @link https://github.com/pronamic/wp-pay-core/issues/136
+		 */
+		return \get_option( 'home' );
 	}
 
 	/**
@@ -105,20 +125,18 @@ class LicenseManager {
 
 		$name = $args['label_for'];
 
-		$atts = [
-			'name'  => $name,
-			'id'    => $name,
-			'type'  => $args['type'],
-			'class' => $args['classes'],
-			'value' => \get_option( $name ),
-		];
-
-		printf(
-			'<input %s />',
-			// @codingStandardsIgnoreStart
-			Util::array_to_html_attributes( $atts )
-			// @codingStandardsIgnoreEnd
+		$element = new Element(
+			'input',
+			[
+				'name'  => $name,
+				'id'    => $name,
+				'type'  => $args['type'],
+				'class' => $args['classes'],
+				'value' => \get_option( $name ),
+			]
 		);
+
+		$element->output();
 
 		$status = \get_option( 'pronamic_pay_license_status' );
 
@@ -158,17 +176,17 @@ class LicenseManager {
 			if ( '' === $license ) {
 				$notice = sprintf(
 				/* translators: 1: Pronamic Pay settings page URL, 2: Pronamic.eu plugin page URL */
-					__( '<strong>Pronamic Pay</strong> — You have not entered a valid <a href="%1$s">support license key</a>, please <a href="%2$s" target="_blank">get your key at pronamic.eu</a>.', 'pronamic_ideal' ),
+					__( '<strong>Pronamic Pay</strong> — You have not entered a valid <a href="%1$s">support license key</a>, please <a href="%2$s" target="_blank">get your key at pronamicpay.com</a>.', 'pronamic_ideal' ),
 					add_query_arg( 'page', 'pronamic_pay_settings', get_admin_url( null, 'admin.php' ) ),
-					'https://www.pronamic.eu/plugins/pronamic-ideal/'
+					'https://www.pronamicpay.com/'
 				);
 			} else {
 				$notice = sprintf(
 				/* translators: 1: Pronamic Pay settings page URL, 2: Pronamic.eu plugin page URL, 3: Pronamic.eu account page URL */
-					__( '<strong>Pronamic Pay</strong> — You have not entered a valid <a href="%1$s">support license key</a>. Please <a href="%2$s" target="_blank">get your key at pronamic.eu</a> or login to <a href="%3$s" target="_blank">check your license status</a>.', 'pronamic_ideal' ),
+					__( '<strong>Pronamic Pay</strong> — You have not entered a valid <a href="%1$s">support license key</a>. Please <a href="%2$s" target="_blank">get your key at pronamicpay.com</a> or login to <a href="%3$s" target="_blank">check your license status</a>.', 'pronamic_ideal' ),
 					add_query_arg( 'page', 'pronamic_pay_settings', get_admin_url( null, 'admin.php' ) ),
-					'https://www.pronamic.eu/plugins/pronamic-ideal/',
-					'https://www.pronamic.eu/account/'
+					'https://www.pronamicpay.com/',
+					'https://www.pronamic.shop/'
 				);
 			}
 
@@ -255,7 +273,7 @@ class LicenseManager {
 		$args = [
 			'license' => $license,
 			'name'    => 'Knit Pay',
-			'url'     => home_url(),
+			'url'     => $this->get_home_url(),
 		];
 
 		$args = urlencode_deep( $args );
@@ -303,7 +321,7 @@ class LicenseManager {
 		$args = [
 			'license' => $license,
 			'name'    => 'Knit Pay',
-			'url'     => home_url(),
+			'url'     => $this->get_home_url(),
 		];
 
 		$args = urlencode_deep( $args );
@@ -327,7 +345,7 @@ class LicenseManager {
 		$args = [
 			'license' => $license,
 			'name'    => 'Knit Pay',
-			'url'     => home_url(),
+			'url'     => $this->get_home_url(),
 		];
 
 		$args = urlencode_deep( $args );
@@ -438,5 +456,78 @@ class LicenseManager {
 		$debug_information['pronamic-pay']['fields'] = $fields;
 
 		return $debug_information;
+	}
+
+
+	/**
+	 * Site status tests.
+	 *
+	 * @link https://developer.wordpress.org/reference/hooks/site_status_tests/
+	 * @param array $status_tests Status tests.
+	 * @return array
+	 */
+	public function site_status_tests( $status_tests ) {
+		// Test valid license.
+		$status_tests['direct']['pronamic_pay_valid_license'] = [
+			'label' => \__( 'Pronamic Pay support license key test', 'pronamic_ideal' ),
+			'test'  => [ $this, 'test_valid_license' ],
+		];
+
+		return $status_tests;
+	}
+
+	/**
+	 * Test if configuration exists.
+	 *
+	 * @return array<string, array<string,string>|string>
+	 */
+	public function test_valid_license() {
+		// Good.
+		$result = [
+			'test'        => 'pronamic_pay_valid_license',
+			'label'       => \__( 'Pronamic Pay license key is valid', 'pronamic_ideal' ),
+			'description' => \sprintf(
+				'<p>%s</p>',
+				\__( 'A valid license is required for technical support and continued plugin updates.', 'pronamic_ideal' )
+			),
+			'badge'       => [
+				'label' => \__( 'Security', 'pronamic_ideal' ),
+				'color' => 'blue',
+			],
+			'status'      => 'good',
+			'actions'     => '',
+		];
+
+		// Recommendation.
+		if ( 'valid' !== \get_option( 'pronamic_pay_license_status' ) ) {
+			$result['status'] = 'recommended';
+			$result['label']  = \__( 'No valid license key for Pronamic Pay', 'pronamic_ideal' );
+
+			$result['actions'] = '<p>';
+
+			if ( '' === \get_option( 'pronamic_pay_license_key' ) ) {
+				$result['actions'] .= \sprintf(
+					'<a href="%s">%s</a> - ',
+					\esc_url( 'https://www.pronamic.eu/plugins/pronamic-ideal/' ),
+					\__( 'Purchase license', 'pronamic_ideal' )
+				);
+			}
+
+			$result['actions'] .= \sprintf(
+				'<a href="%s">%s</a> - ',
+				\add_query_arg( 'page', 'pronamic_pay_settings', \get_admin_url( null, 'admin.php' ) ),
+				\__( 'License settings', 'pronamic_ideal' )
+			);
+
+			$result['actions'] .= \sprintf(
+				'<a href="%s">%s</a>',
+				\esc_url( 'https://www.pronamic.eu/account/' ),
+				\__( 'Check existing license', 'pronamic_ideal' )
+			);
+
+			$result['actions'] .= '</p>';
+		}
+
+		return $result;
 	}
 }

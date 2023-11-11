@@ -44,23 +44,14 @@ class WebhookRequestInfo implements JsonSerializable {
 	private $payment;
 
 	/**
-	 * Post data.
-	 *
-	 * @var string|null
-	 */
-	private $post_data;
-
-	/**
 	 * Construct webhook request info object.
 	 *
-	 * @param DateTime    $request_date Request date.
-	 * @param string      $request_url  Request URL.
-	 * @param string|null $post_data    Post data.
+	 * @param DateTime $request_date Request date.
+	 * @param string   $request_url  Request URL.
 	 */
-	public function __construct( DateTime $request_date, $request_url, $post_data ) {
+	public function __construct( DateTime $request_date, $request_url ) {
 		$this->request_date = $request_date;
 		$this->request_url  = $request_url;
-		$this->post_data    = $post_data;
 	}
 
 	/**
@@ -109,7 +100,6 @@ class WebhookRequestInfo implements JsonSerializable {
 		$properties = [
 			'request_date' => $this->request_date->format( DATE_ATOM ),
 			'request_url'  => $this->request_url,
-			'post_data'    => $this->post_data,
 		];
 
 		if ( null !== $this->payment ) {
@@ -140,7 +130,6 @@ class WebhookRequestInfo implements JsonSerializable {
 	 * @return WebhookRequestInfo
 	 *
 	 * @throws \InvalidArgumentException Throws invalid argument exception when JSON is not an object.
-	 * @throws \InvalidArgumentException Throws invalid argument exception when JSON does not contain `post_data` property.
 	 * @throws \InvalidArgumentException Throws invalid argument exception when JSON does not contain `request_date` property.
 	 * @throws \InvalidArgumentException Throws invalid argument exception when JSON does not contain `request_url` property.
 	 */
@@ -150,17 +139,7 @@ class WebhookRequestInfo implements JsonSerializable {
 				sprintf(
 					'JSON value must be an object (%s).',
 					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-					var_export( $json, true )
-				)
-			);
-		}
-
-		if ( ! property_exists( $json, 'post_data' ) ) {
-			throw new \InvalidArgumentException(
-				sprintf(
-					'JSON must contain `post_data` property (%s).',
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-					var_export( $json, true )
+					\esc_html( \var_export( $json, true ) )
 				)
 			);
 		}
@@ -170,7 +149,7 @@ class WebhookRequestInfo implements JsonSerializable {
 				sprintf(
 					'JSON must contain `request_date` property (%s).',
 					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-					var_export( $json, true )
+					\esc_html( \var_export( $json, true ) )
 				)
 			);
 		}
@@ -180,14 +159,14 @@ class WebhookRequestInfo implements JsonSerializable {
 				sprintf(
 					'JSON must contain `request_url` property (%s).',
 					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-					var_export( $json, true )
+					\esc_html( \var_export( $json, true ) )
 				)
 			);
 		}
 
 		$request_date = new DateTime( $json->request_date );
 
-		$webhook_request_info = new WebhookRequestInfo( $request_date, $json->request_url, $json->post_data );
+		$webhook_request_info = new WebhookRequestInfo( $request_date, $json->request_url );
 
 		if ( isset( $json->payment_id ) ) {
 			$payment = get_pronamic_payment( $json->payment_id );

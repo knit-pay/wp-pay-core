@@ -6,6 +6,214 @@ This projects adheres to [Semantic Versioning](http://semver.org/) and [Keep a C
 
 ## [Unreleased][unreleased]
 
+## [4.14.2] - 2023-11-09
+
+### Changed
+
+- Changed return value for non-existing meta in payment info from empty string to `null`. ([163](https://github.com/pronamic/wp-pay-core/issues/163))
+
+### Commits
+
+- Check array type (#163). ([b058268](https://github.com/pronamic/wp-pay-core/commit/b058268e1f2408704daf970fd4920ae9d4be205a))
+- Return `null` from `PaymentInfo::get_meta()` if meta does not exist (fixes #163). ([649ec6a](https://github.com/pronamic/wp-pay-core/commit/649ec6aff28464abd8ce9905431fcf6d84ed8f0e))
+
+Full set of changes: [`4.14.1...4.14.2`][4.14.2]
+
+[4.14.2]: https://github.com/pronamic/wp-pay-core/compare/v4.14.1...v4.14.2
+
+## [4.14.1] - 2023-11-06
+
+### Fixed
+
+- Fixed storage of JSON in custom post type. ([160](https://github.com/pronamic/wp-pay-core/issues/160))
+- Fixed "Fatal error: Uncaught Error: Call to a member function getMessage() on null". ([8e373a4](https://github.com/pronamic/wp-pay-core/commit/8e373a419c2a4f0c6d4b30fd25df71861485b693))
+
+### Removed
+
+- Removed `global $pronamic_ideal_errors`, no longer used. ([f260bc3](https://github.com/pronamic/wp-pay-core/commit/f260bc3b6cf38737260e075d7098ce679e3a3f20))
+
+### Changed
+
+- Removed `Updater` class, use https://github.com/pronamic/pronamic-wp-updater instead. ([d0d66c8](https://github.com/pronamic/wp-pay-core/commit/d0d66c8be210329cb9f08380933e7f46e6196844))
+
+Full set of changes: [`4.14.0...4.14.1`][4.14.1]
+
+[4.14.1]: https://github.com/pronamic/wp-pay-core/compare/v4.14.0...v4.14.1
+
+## [4.14.0] - 2023-10-30
+
+### Changed
+
+- Improved escaping for `Util::array_to_html_attributes` usage.
+- Added cards images so they no longer load via `cdn.wp-pay.org`.
+- Simplified custom post type data store for payments and subscriptions.
+
+Full set of changes: [`4.13.2...4.14.0`][4.14.0]
+
+[4.14.0]: https://github.com/pronamic/wp-pay-core/compare/v4.13.2...v4.14.0
+
+## [4.13.2] - 2023-10-19
+
+### Changed
+
+- Make sure new created payments are directly stored in memory. This prevents payments with an ID from having different instances in memory. ([b7f5769](https://github.com/pronamic/wp-pay-core/commit/b7f57699808f451980da5c4048293bdb1cbf96a2))
+
+Full set of changes: [`4.13.1...4.13.2`][4.13.2]
+
+[4.13.2]: https://github.com/pronamic/wp-pay-core/compare/v4.13.1...v4.13.2
+
+## [4.13.1] - 2023-10-16
+
+### Commits
+
+- Use `get_file_data()` to retrieve about page version. ([cfad1af](https://github.com/pronamic/wp-pay-core/commit/cfad1af133b47a81f79d18d1091a567c945844d8))
+
+Full set of changes: [`4.13.0...4.13.1`][4.13.1]
+
+[4.13.1]: https://github.com/pronamic/wp-pay-core/compare/v4.13.0...v4.13.1
+
+## [4.13.0] - 2023-10-13
+
+### Added
+
+- Added templates from the Pronamic Pay plugin that are required by this library.
+- Added merge tags controller.
+- Added support for `{payment_lines_name}` merge tag.
+- Added support for a custom payment slug.
+
+### Changed
+
+- No longer use the PHP filter_* functions for sanitizing. ([72caa31](https://github.com/pronamic/wp-pay-core/commit/72caa3110df7522c059f750a21112a25e02100a1))
+- Improve fields API and escaping. ([519532b](https://github.com/pronamic/wp-pay-core/commit/519532b7d65fb68a5374341ea1c1934885b28e5c))
+- Simplified exception handling. ([5d2e271](https://github.com/pronamic/wp-pay-core/commit/5d2e271cad6e7a41626b86f83e57236e82c3307f))
+- Other form output setup to avoid escaping. ([27f55ad](https://github.com/pronamic/wp-pay-core/commit/27f55adaab009370ae67d13c70843e108ea6cb26))
+- Escape payment gateway integration settings field description. ([ffca40b](https://github.com/pronamic/wp-pay-core/commit/ffca40bfda9bd72aa1002e46c37abe1b14075b16))
+- Updated to `pronamic/wp-coding-standards` version `2`. ([db9027c](https://github.com/pronamic/wp-pay-core/commit/db9027c4ba58701e74e2ddab4d64fa5291211957))
+- Move license check from AdminHealth class to LicenseManager class. ([aa80870](https://github.com/pronamic/wp-pay-core/commit/aa80870edb0f8cf727299d92940d9abd97ac25b1))
+
+### Fixed
+
+- Fixed "Mismatched text domain. Expected 'pronamic_ideal' but got ...". ([8fe39eb](https://github.com/pronamic/wp-pay-core/commit/8fe39eb241b17369fdda54cdc822ad8bee20b1a9))
+
+### Removed
+
+- No longer log entire raw post data in webhook logger. ([3696a29](https://github.com/pronamic/wp-pay-core/commit/3696a29a2227a7f429e968dc689e9007b89c65be))
+- Removed `Pronamic\WordPress\Pay\Core\Server` class, no longer used, had some sanitizing challenges. ([eab3b2e](https://github.com/pronamic/wp-pay-core/commit/eab3b2e30ad135c35afab8859ea3000a4db6f5a0))
+- Removed old `WP-e-Commerce` related comment. ([2378651](https://github.com/pronamic/wp-pay-core/commit/2378651684d1ec1b4086356b494ef5abcf083b13))
+- Removed te old `WP_Error` render function, no longer used. ([478accc](https://github.com/pronamic/wp-pay-core/commit/478acccef2e4b5ff2aac82c1bac8b65d45cc3efc))
+- Removed "Handle redirect message from payment meta" feature, no longer used. ([b51bc18](https://github.com/pronamic/wp-pay-core/commit/b51bc1886d44bdac45285cc4fe34c18c798f10d7))
+- Removed section description support, no longer used. ([93f4411](https://github.com/pronamic/wp-pay-core/commit/93f441187ef98521e51a6f0a4bb6806349dce78f))
+- Removed 'html' and 'description' field type. ([b99751a](https://github.com/pronamic/wp-pay-core/commit/b99751abcada30da899c7500d9a24154595a6db3))
+- Removed admin gateway settings section icon support, no longer in use. ([8382cc0](https://github.com/pronamic/wp-pay-core/commit/8382cc083a42cf8ff5987c9a54bb8b483398b9fa))
+
+### Composer
+
+- Changed `pronamic/wp-html` from `^2.1` to `v2.2.0`.
+	Release notes: https://github.com/pronamic/wp-html/releases/tag/v2.2.0
+- Changed `woocommerce/action-scheduler` from `^3.4` to `3.6.4`.
+	Release notes: https://github.com/woocommerce/action-scheduler/releases/tag/3.6.4
+
+Full set of changes: [`4.12.0...4.13.0`][4.13.0]
+
+[4.13.0]: https://github.com/pronamic/wp-pay-core/compare/v4.12.0...v4.13.0
+
+## [4.12.0] - 2023-09-11
+
+### Commits
+
+- Only payment methods without required fields can be used on subscription payment method update (fixes pronamic/wp-pronamic-pay#361). ([f245c00](https://github.com/pronamic/wp-pay-core/commit/f245c00682adf3b59888705fd66b13d6b33feef2))
+- Added support for payment slug. ([90626d2](https://github.com/pronamic/wp-pay-core/commit/90626d2557419a6c92581a5317e4e595ee9f8305))
+
+Full set of changes: [`4.11.0...4.12.0`][4.12.0]
+
+[4.12.0]: https://github.com/pronamic/wp-pay-core/compare/v4.11.0...v4.12.0
+
+## [4.11.0] - 2023-08-23
+
+### Changed
+
+- Improved including JS and/or CSS after review from the WordPress.org plugin review team.
+- Improved calling files remotely after review from the WordPress.org plugin review team.
+  - The Slick carousel library from Ken Wheeler will no longer load from the Cloudflare CDN.
+- Improved sanitizing and escaping.
+  - Escaping is also applied to exception messages, following the advice of the WordPress Coding Standards library version 3.
+- No longer use reserved keywords like "try", "parent", "class", "object" and "default" in variable names.
+
+Full set of changes: [`4.10.1...4.11.0`][4.11.0]
+
+[4.11.0]: https://github.com/pronamic/wp-pay-core/compare/v4.10.1...v4.11.0
+
+## [4.10.1] - 2023-07-19
+
+### Commits
+
+- Moved references of forms to pronamic/wp-pronamic-pay-forms library. ([a466897](https://github.com/pronamic/wp-pay-core/commit/a466897162b141d7e27e4fd59178a07300887f22))
+
+Full set of changes: [`4.10.0...4.10.1`][4.10.1]
+
+[4.10.1]: https://github.com/pronamic/wp-pay-core/compare/v4.10.0...v4.10.1
+
+## [4.10.0] - 2023-07-18
+
+### Removed
+
+- Removed forms module, moved to https://github.com/pronamic/wp-pronamic-pay-forms.
+
+Full set of changes: [`4.9.4...4.10.0`][4.10.0]
+
+[4.10.0]: https://github.com/pronamic/wp-pay-core/compare/v4.9.4...v4.10.0
+
+## [4.9.4] - 2023-07-12
+
+### Added
+
+- Register Billie payment method. ([6308ab6](https://github.com/pronamic/wp-pay-core/commit/6308ab6efc6af243fe882a07e5cf4193249984f9))
+
+### Changed
+
+- Use unfiltered home URL in license manager.
+- Updated logos library to version 1.16.0. ([feacc4b](https://github.com/pronamic/wp-pay-core/commit/feacc4b6092c42b70fde7a3c8508f60b74b31e1a))
+- Changes links in license notice. ([19088b1](https://github.com/pronamic/wp-pay-core/commit/19088b1746901c973627bfbc1a081b961d8d6b8c))
+
+### Fixed
+
+- Fixed duplicate `_pronamic_payment_subscription_id` meta due to unprefixed meta key. ([8da8177](https://github.com/pronamic/wp-pay-core/commit/8da8177599fee97fe26061210fa84c7d67da624a))
+- Prevent duplicate subscription status update. ([6368536](https://github.com/pronamic/wp-pay-core/commit/63685363ab043a0d759495b8c4c6ba84d066296d))
+- Show payments without periods in subscription payments meta box. ([872eab3](https://github.com/pronamic/wp-pay-core/commit/872eab3bb4bc69cd1e42000451a31e5e3fc588ff))
+- Reflect home URL change from bdc3e6c6 in admin notice. ([30a59e9](https://github.com/pronamic/wp-pay-core/commit/30a59e9c1d5f7dc39ca0fd6a235076ffa5c96f15))
+- Fixed payment lines not displayed in meta box for subscriptions. ([be14ef9](https://github.com/pronamic/wp-pay-core/commit/be14ef946d39ab956ce34a758f00c87b7402e752))
+
+### Removed
+
+- Removed payment ID fallback from formatted payment string (pronamic/wp-pronamic-pay-adyen#23). ([2e0c0a6](https://github.com/pronamic/wp-pay-core/commit/2e0c0a6015b39ad628659a11801f3403bb05c6c2))
+- Removed Google Analytics integration, closes #127. ([7199613](https://github.com/pronamic/wp-pay-core/commit/71996137587ffbd4b5110dbf3a67cb5bff478d75))
+- Removed admin notices feature for removed extensions, no longer used. ([76cdf8a](https://github.com/pronamic/wp-pay-core/commit/76cdf8aa10c9b16b20755da41e070abc4a4c6b5f))
+- Removed `switch_to_user_locale`. ([b9c0cb1](https://github.com/pronamic/wp-pay-core/commit/b9c0cb17feb9f7a6737d04fcc891f6d97ccff384))
+- Removed `load_plugin_textdomain` functions. ([966f230](https://github.com/pronamic/wp-pay-core/commit/966f2304068c51468fd3d843ac326a5d29d4a46f))
+- Removed `plugin_locale` filter for `nl_NL_formal` and `nl_BE`. ([5a0064d](https://github.com/pronamic/wp-pay-core/commit/5a0064d60669e8b302f1fb4326095a669a57d6d7))
+
+Full set of changes: [`4.9.3...4.9.4`][4.9.4]
+
+[4.9.4]: https://github.com/pronamic/wp-pay-core/compare/v4.9.3...v4.9.4
+
+## [4.9.3] - 2023-06-01
+
+### Commits
+
+- Switch from `pronamic/wp-deployer` to `pronamic/pronamic-cli`. ([71550af](https://github.com/pronamic/wp-pay-core/commit/71550afef3bf8a067d54938ccab96a71aea9e311))
+- Fixed WPML conflict. ([bdc3e6c](https://github.com/pronamic/wp-pay-core/commit/bdc3e6c60febff84d7f86cb959fd6b7a8610d1a3))
+- Updated HomeUrlController.php ([470fa98](https://github.com/pronamic/wp-pay-core/commit/470fa98a17a61f2214baee036c4400b883525e64))
+- Added support for setting origin ID with Charitable. ([3eccc8b](https://github.com/pronamic/wp-pay-core/commit/3eccc8b8add83159f35862f53c91a3bd6b748450))
+- Removed unused function. ([eca49ab](https://github.com/pronamic/wp-pay-core/commit/eca49abeb2df431a1f706bd25d2f1908ed9bd787))
+- Removed Pronamic socials. ([0e7684a](https://github.com/pronamic/wp-pay-core/commit/0e7684a8e78c98de9a29712ddc495994fb109ed4))
+- Removed legacy 'Tools' page. ([f68dec5](https://github.com/pronamic/wp-pay-core/commit/f68dec541d29981a48dde00734b18c22f5e03929))
+- Fixed loading bundled WordPress money translations. ([2b04615](https://github.com/pronamic/wp-pay-core/commit/2b04615a2e80626c92a881e950b8e3b20bb15df8))
+- Added missing text domain. ([f99733d](https://github.com/pronamic/wp-pay-core/commit/f99733d92507b1689fc04d6f3cf979ebf8863d2c))
+
+Full set of changes: [`4.9.2...4.9.3`][4.9.3]
+
+[4.9.3]: https://github.com/pronamic/wp-pay-core/compare/v4.9.2...v4.9.3
+
 ## [4.9.2] - 2023-03-31
 
 ### Commits

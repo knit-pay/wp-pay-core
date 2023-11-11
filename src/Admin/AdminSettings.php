@@ -10,6 +10,7 @@
 
 namespace Pronamic\WordPress\Pay\Admin;
 
+use Pronamic\WordPress\Html\Element;
 use Pronamic\WordPress\Pay\Plugin;
 use Pronamic\WordPress\Pay\Util;
 
@@ -50,8 +51,7 @@ class AdminSettings {
 		add_settings_section(
 			'pronamic_pay_general',
 			__( 'General', 'pronamic_ideal' ),
-			function() {
-
+			function () {
 			},
 			'pronamic_pay'
 		);
@@ -67,20 +67,6 @@ class AdminSettings {
 				'post_type'        => 'pronamic_gateway',
 				'show_option_none' => __( '— Select a gateway —', 'pronamic_ideal' ),
 				'label_for'        => 'pronamic_pay_config_id',
-			]
-		);
-
-		// Google Analytics property UA code.
-		add_settings_field(
-			'pronamic_pay_google_analytics_property',
-			__( 'Google Analytics tracking ID', 'pronamic_ideal' ),
-			[ $this, 'input_element' ],
-			'pronamic_pay',
-			'pronamic_pay_general',
-			[
-				'description' => __( 'Set a Google Analytics tracking UA code to track ecommerce revenue.', 'pronamic_ideal' ),
-				'label_for'   => 'pronamic_pay_google_analytics_property',
-				'classes'     => 'regular-text code',
 			]
 		);
 
@@ -143,8 +129,7 @@ class AdminSettings {
 			\add_settings_section(
 				'pronamic_pay_payment_methods',
 				\__( 'Payment Methods', 'pronamic_ideal' ),
-				function() {
-
+				function () {
 				},
 				'pronamic_pay'
 			);
@@ -184,20 +169,18 @@ class AdminSettings {
 		$name  = $args['label_for'];
 		$value = get_option( $name );
 
-		$atts = [
-			'name'  => $name,
-			'id'    => $name,
-			'type'  => $args['type'],
-			'class' => $args['classes'],
-			'value' => $value,
-		];
-
-		printf(
-			'<input %s />',
-			// @codingStandardsIgnoreStart
-			Util::array_to_html_attributes( $atts )
-			// @codingStandardsIgnoreEn
+		$element = new Element(
+			'input',
+			[
+				'name'  => $name,
+				'id'    => $name,
+				'type'  => $args['type'],
+				'class' => $args['classes'],
+				'value' => $value,
+			]
 		);
+
+		$element->output();
 
 		if ( ! empty( $args['description'] ) ) {
 			printf(
@@ -233,13 +216,24 @@ class AdminSettings {
 			esc_attr( $id )
 		);
 
-		printf(
-			'<input name="%s" id="%s" type="checkbox" value="1" %s %s/>',
-			esc_attr( $name ),
-			esc_attr( $id ),
-			checked( $value, 1, false ),
-			\array_key_exists( 'disabled', $args ) ? $args['disabled'] : ''
-		);
+		$attributes = [
+			'name'  => $name,
+			'id'    => $id,
+			'type'  => 'checkbox',
+			'value' => '1',
+		];
+
+		if ( $value ) {
+			$attributes['checked'] = 'checked';
+		}
+
+		if ( \array_key_exists( 'disabled', $args ) && $args['disabled'] ) {
+			$attributes['disabled'] = 'disabled';
+		}
+
+		$element = new Element( 'input', $attributes );
+
+		$element->output();
 
 		echo esc_html( $args['description'] );
 
@@ -263,13 +257,15 @@ class AdminSettings {
 			$selected = '';
 		}
 
-		wp_dropdown_pages( array(
-			'name'             => esc_attr( $name ),
-			'post_type'        => esc_attr( isset( $args['post_type'] ) ? $args['post_type'] : 'page' ),
-			'selected'         => esc_attr( $selected ),
-			'show_option_none' => esc_attr( isset( $args['show_option_none'] ) ? $args['show_option_none'] : __( '— Select a page —', 'pronamic_ideal' ) ),
-			'class'            => 'regular-text',
-		) );
+		wp_dropdown_pages(
+			[
+				'name'             => esc_attr( $name ),
+				'post_type'        => esc_attr( isset( $args['post_type'] ) ? $args['post_type'] : 'page' ),
+				'selected'         => esc_attr( $selected ),
+				'show_option_none' => esc_attr( isset( $args['show_option_none'] ) ? $args['show_option_none'] : __( '— Select a page —', 'pronamic_ideal' ) ),
+				'class'            => 'regular-text',
+			]
+		);
 	}
 
 	/**

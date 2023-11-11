@@ -10,6 +10,10 @@
 
 namespace Pronamic\WordPress\Pay;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( empty( $payment->refunds ) ) : ?>
 
 	<p>

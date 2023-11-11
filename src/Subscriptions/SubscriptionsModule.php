@@ -13,7 +13,6 @@ namespace Pronamic\WordPress\Pay\Subscriptions;
 use Pronamic\WordPress\DateTime\DateTimeImmutable;
 use Pronamic\WordPress\Money\Money;
 use Pronamic\WordPress\Pay\Core\PaymentMethods;
-use Pronamic\WordPress\Pay\Core\Server;
 use Pronamic\WordPress\Pay\Core\Util;
 use Pronamic\WordPress\Pay\Payments\Payment;
 use Pronamic\WordPress\Pay\Payments\PaymentStatus;
@@ -185,10 +184,12 @@ class SubscriptionsModule {
 
 			if ( $is_renewal || ! in_array( $status_before, [ SubscriptionStatus::CANCELLED, SubscriptionStatus::COMPLETED, SubscriptionStatus::ON_HOLD ], true ) ) {
 				$subscription->set_status( $status_update );
-			}
 
-			// Update.
-			$subscription->save();
+				// Update.
+				if ( $status_before !== $status_update ) {
+					$subscription->save();
+				}
+			}
 		}
 	}
 
@@ -266,9 +267,6 @@ class SubscriptionsModule {
 			exit;
 		}
 
-		// Switch to user locale.
-		Util::switch_to_user_locale();
-
 		// Handle action.
 		switch ( $_GET['action'] ) {
 			// phpcs:enable WordPress.Security.NonceVerification.Recommended
@@ -294,35 +292,73 @@ class SubscriptionsModule {
 	 * @return void
 	 */
 	private function handle_subscription_cancel( Subscription $subscription ) {
-		if (
-			'POST' === Server::get( 'REQUEST_METHOD' )
-				&&
-			SubscriptionStatus::CANCELLED !== $subscription->get_status()
-		) {
-			$subscription->set_status( SubscriptionStatus::CANCELLED );
-
-			$subscription->save();
-
-			$url = \home_url();
-
-			$page_id = \pronamic_pay_get_page_id( 'subscription_canceled' );
-
-			if ( $page_id > 0 ) {
-				$page_url = \get_permalink( $page_id );
-
-				if ( false !== $page_url ) {
-					$url = $page_url;
-				}
-			}
-
-			\wp_safe_redirect( $url );
-
-			exit;
-		}
+		$this->maybe_cancel_subscription( $subscription );
 
 		require __DIR__ . '/../../views/subscription-cancel.php';
 
 		exit;
+	}
+
+	/**
+	 * Maybe cancel subscription.
+	 * 
+	 * @param Subscription $subscription Subscription.
+	 * @return void
+	 */
+	private function maybe_cancel_subscription( Subscription $subscription ) {
+		if ( SubscriptionStatus::CANCELLED === $subscription->get_status() ) {
+			return;
+		}
+
+		if ( ! \array_key_exists( 'pronamic_pay_cancel_subscription_nonce', $_POST ) ) {
+			return;
+		}
+
+		$nonce = \sanitize_key( $_POST['pronamic_pay_cancel_subscription_nonce'] );
+
+		if ( ! wp_verify_nonce( $nonce, 'pronamic_pay_cancel_subscription_' . $subscription->get_id() ) ) {
+			return;
+		}
+
+		$subscription->set_status( SubscriptionStatus::CANCELLED );
+
+		$subscription->save();
+
+		$url = \home_url();
+
+		$page_id = \pronamic_pay_get_page_id( 'subscription_canceled' );
+
+		if ( $page_id > 0 ) {
+			$page_url = \get_permalink( $page_id );
+
+			if ( false !== $page_url ) {
+				$url = $page_url;
+			}
+		}
+
+		\wp_safe_redirect( $url );
+
+		exit;
+	}
+
+	/**
+	 * Check if subscription should be renewed.
+	 * 
+	 * @param Subscription $subscription Subscription.
+	 * @return bool
+	 */
+	private function should_renew( Subscription $subscription ) {
+		if ( ! \array_key_exists( 'pronamic_pay_renew_subscription_nonce', $_POST ) ) {
+			return false;
+		}
+
+		$nonce = \sanitize_key( $_POST['pronamic_pay_renew_subscription_nonce'] );
+
+		if ( ! wp_verify_nonce( $nonce, 'pronamic_pay_renew_subscription_' . $subscription->get_id() ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -336,7 +372,7 @@ class SubscriptionsModule {
 		// Check gateway.
 		$gateway = $subscription->get_gateway();
 
-		if ( null == $gateway ) {
+		if ( null === $gateway ) {
 			require __DIR__ . '/../../views/subscription-renew-failed.php';
 
 			exit;
@@ -351,7 +387,7 @@ class SubscriptionsModule {
 			exit;
 		}
 
-		if ( 'POST' === Server::get( 'REQUEST_METHOD' ) ) {
+		if ( $this->should_renew( $subscription ) ) {
 			try {
 				// Create payment.
 				$payment = $subscription->new_payment();
@@ -359,9 +395,9 @@ class SubscriptionsModule {
 				$payment->order_id = $subscription->get_order_id();
 
 				/**
-				 * We set the payment method to `null` so that users get the 
+				 * We set the payment method to `null` so that users get the
 				 * chance to choose a payment method themselves if possible.
-				 * 
+				 *
 				 * @link https://github.com/pronamic/wp-pronamic-pay-mollie/issues/23
 				 * @link https://github.com/pronamic/wp-pay-core/pull/99
 				 */
@@ -533,31 +569,50 @@ class SubscriptionsModule {
 		}
 
 		\wp_register_script(
+			'pronamic-pay-slick-carousel-script',
+			plugins_url( 'assets/slick-carousel/slick.min.js', dirname( __DIR__ ) ),
+			[
+				'jquery',
+			],
+			'1.8.1',
+			false
+		);
+
+		\wp_register_script(
 			'pronamic-pay-subscription-mandate',
-			'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js',
-			[ 'jquery' ],
+			plugins_url( 'js/dist/subscription-mandate.min.js', dirname( __DIR__ ) ),
+			[
+				'jquery',
+				'pronamic-pay-slick-carousel-script',
+			],
 			$this->plugin->get_version(),
 			false
 		);
 
 		\wp_register_style(
-			'pronamic-pay-card-slider-slick',
-			'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css',
+			'pronamic-pay-slick-carousel-style',
+			plugins_url( 'assets/slick-carousel/slick.min.css', dirname( __DIR__ ) ),
 			[],
-			$this->plugin->get_version()
+			'1.8.1'
 		);
 
+		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- No version for Google Fonts.
 		\wp_register_style(
-			'pronamic-pay-card-slider-google-font',
+			'pronamic-pay-google-font-roboto-mono',
 			'https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap',
 			[],
-			$this->plugin->get_version()
+			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No version for Google Fonts.
+			null
 		);
 
 		\wp_register_style(
 			'pronamic-pay-subscription-mandate',
 			plugins_url( 'css/card-slider.css', dirname( __DIR__ ) ),
-			[ 'pronamic-pay-redirect', 'pronamic-pay-card-slider-slick', 'pronamic-pay-card-slider-google-font' ],
+			[
+				'pronamic-pay-redirect',
+				'pronamic-pay-slick-carousel-style',
+				'pronamic-pay-google-font-roboto-mono',
+			],
 			$this->plugin->get_version()
 		);
 
@@ -632,7 +687,7 @@ class SubscriptionsModule {
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'rest_api_subscription' ],
-				'permission_callback' => function() {
+				'permission_callback' => function () {
 					return \current_user_can( 'edit_payments' );
 				},
 				'args'                => [
@@ -650,7 +705,7 @@ class SubscriptionsModule {
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'rest_api_subscription_phase' ],
-				'permission_callback' => function() {
+				'permission_callback' => function () {
 					return \current_user_can( 'edit_payments' );
 				},
 				'args'                => [
@@ -742,7 +797,9 @@ class SubscriptionsModule {
 	 * @return string
 	 */
 	public function source_text_subscription_payment_method_change( $text ) {
-		return __( 'Subscription payment method change', 'pronamic_ideal' );
+		$text = \__( 'Subscription payment method change', 'pronamic_ideal' );
+
+		return $text;
 	}
 
 	/**
@@ -752,6 +809,8 @@ class SubscriptionsModule {
 	 * @return string
 	 */
 	public function source_description_subscription_payment_method_change( $text ) {
-		return __( 'subscription payment method change', 'pronamic_ideal' );
+		$text = \__( 'subscription payment method change', 'pronamic_ideal' );
+
+		return $text;
 	}
 }
