@@ -536,7 +536,7 @@ class SubscriptionPhase implements \JsonSerializable {
 				'$ref' => \rest_url(
 					\sprintf(
 						'/%s/%s/%d',
-						'pronamic-pay/v1',
+						pronamic_pay_plugin()::$rest_base . '/v1',
 						'subscriptions',
 						$this->subscription->get_id()
 					)

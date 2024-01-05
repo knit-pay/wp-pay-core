@@ -682,7 +682,7 @@ class SubscriptionsModule {
 	 */
 	public function rest_api_init() {
 		\register_rest_route(
-			'pronamic-pay/v1',
+			pronamic_pay_plugin()::$rest_base . '/v1',
 			'/subscriptions/(?P<subscription_id>\d+)',
 			[
 				'methods'             => 'GET',
@@ -700,7 +700,7 @@ class SubscriptionsModule {
 		);
 
 		\register_rest_route(
-			'pronamic-pay/v1',
+			pronamic_pay_plugin()::$rest_base . '/v1',
 			'/subscriptions/(?P<subscription_id>\d+)/phases/(?P<sequence_number>\d+)',
 			[
 				'methods'             => 'GET',

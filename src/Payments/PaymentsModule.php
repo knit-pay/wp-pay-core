@@ -10,6 +10,7 @@
 
 namespace Pronamic\WordPress\Pay\Payments;
 
+use Pronamic\WordPress\Http\Facades\Http;
 use Pronamic\WordPress\Pay\Core\Util;
 use Pronamic\WordPress\Pay\Plugin;
 use WP_CLI;
@@ -63,7 +64,7 @@ class PaymentsModule {
 		add_filter( 'pronamic_payment_redirect_url', [ $this, 'payment_redirect_url' ], 5, 2 );
 
 		// Listen to payment status changes so we can log these in a note.
-		add_action( 'pronamic_payment_status_update', [ $this, 'log_payment_status_update' ], 10, 4 );
+		add_action( 'pronamic_payment_status_update', [ $this, 'payment_status_update' ], 10, 4 );
 
 		// REST API.
 		add_action( 'rest_api_init', [ $this, 'rest_api_init' ] );
@@ -178,6 +179,11 @@ class PaymentsModule {
 			}
 		}
 
+		// Set Redirect URL if defined in REST API.
+		if ( $payment->get_meta( 'redirect_url' ) ) {
+			$url = $payment->get_meta( 'redirect_url' );
+		}
+
 		return $url;
 	}
 
@@ -218,10 +224,21 @@ class PaymentsModule {
 	 *
 	 * @return void
 	 */
-	public function log_payment_status_update( $payment, $can_redirect, $old_status, $new_status ) {
+	public function payment_status_update( $payment, $can_redirect, $old_status, $new_status ) {
 		$note = $this->get_payment_status_update_note( $old_status, $new_status );
 
 		$payment->add_note( $note );
+
+		// Trigger webhook.
+		if ( $payment->get_meta( 'notify_url' ) ) {
+			$notify_url = $payment->get_meta( 'notify_url' );
+			$response   = Http::post(
+				$notify_url,
+				[
+					'body' => wp_json_encode( $payment->get_json() ),
+				]
+			);
+		}
 	}
 
 	/**
@@ -233,48 +250,8 @@ class PaymentsModule {
 	 * @return void
 	 */
 	public function rest_api_init() {
-		\register_rest_route(
-			'pronamic-pay/v1',
-			'/payments/(?P<payment_id>\d+)',
-			[
-				'methods'             => 'GET',
-				'callback'            => [ $this, 'rest_api_payment' ],
-				'permission_callback' => function () {
-					return \current_user_can( 'edit_payments' );
-				},
-				'args'                => [
-					'payment_id' => [
-						'description' => __( 'Payment ID.', 'pronamic_ideal' ),
-						'type'        => 'integer',
-					],
-				],
-			]
-		);
-	}
-
-	/**
-	 * REST API payment.
-	 *
-	 * @param \WP_REST_Request $request Request.
-	 * @return object
-	 */
-	public function rest_api_payment( \WP_REST_Request $request ) {
-		$payment_id = $request->get_param( 'payment_id' );
-
-		$payment = \get_pronamic_payment( $payment_id );
-
-		if ( null === $payment ) {
-			return new \WP_Error(
-				'pronamic-pay-payment-not-found',
-				\sprintf(
-					/* translators: %s: payment ID */
-					\__( 'Could not find payment with ID `%s`.', 'pronamic_ideal' ),
-					$payment_id
-				),
-				$payment_id
-			);
-		}
-
-		return $payment->get_json();
+		// @link https://developer.wordpress.org/rest-api/extending-the-rest-api/controller-classes/#controllers
+		$payment_rest_controller = new PaymentRestController();
+		$payment_rest_controller->register_routes();
 	}
 }

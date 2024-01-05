@@ -938,7 +938,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				 *
 				 * @link https://developer.wordpress.org/rest-api/using-the-rest-api/authentication/#cookie-authentication
 				 */
-				$rest_api_url = rest_url( 'pronamic-pay/v1/payments/' . $payment->get_id() );
+				$rest_api_url = rest_url( pronamic_pay_plugin()::$rest_base . '/v1/payments/' . $payment->get_id() );
 
 				$rest_api_nonce_url = wp_nonce_url( $rest_api_url, 'wp_rest' );
 

@@ -269,7 +269,7 @@ class AdminGatewayPostType {
 			'pronamic-pay-admin',
 			'pronamicPayGatewayAdmin',
 			[
-				'rest_url' => \rest_url( 'pronamic-pay/v1/gateways/' . $post->ID . '/admin' ),
+				'rest_url' => \rest_url( pronamic_pay_plugin()::$rest_base . '/v1/gateways/' . $post->ID . '/admin' ),
 				'nonce'    => \wp_create_nonce( 'wp_rest' ),
 			]
 		);
