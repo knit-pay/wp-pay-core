@@ -15,7 +15,7 @@ class PaymentRestController extends WP_REST_Controller {
 
 	// Here initialize our namespace and resource name.
 	public function __construct() {
-		$this->namespace     = '/' . pronamic_pay_plugin()::$rest_base . '/v1';
+        $this->namespace     = '/' . pronamic_pay_plugin()->rest_base . '/v1';
 		$this->resource_name = 'payments';
 		$this->post_type     = 'pronamic_payment';
 	}

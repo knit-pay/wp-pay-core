@@ -152,7 +152,7 @@ class PaymentInfoHelper {
 				'$ref'       => \rest_url(
 					\sprintf(
 						'/%s/%s/%d',
-						pronamic_pay_plugin()::$rest_base . '/v1',
+					    pronamic_pay_plugin()->rest_base . '/v1',
 						'gateways',
 						$config_id
 					)

@@ -227,7 +227,7 @@ class SubscriptionPeriod {
 				'$ref'            => \rest_url(
 					\sprintf(
 						'/%s/%s/%d/phases/%d',
-						pronamic_pay_plugin()::$rest_base . '/v1',
+					    pronamic_pay_plugin()->rest_base . '/v1',
 						'subscriptions',
 						$this->phase->get_subscription()->get_id(),
 						$this->phase->get_sequence_number()
@@ -237,7 +237,7 @@ class SubscriptionPeriod {
 					'$ref' => \rest_url(
 						\sprintf(
 							'/%s/%s/%d',
-							pronamic_pay_plugin()::$rest_base . '/v1',
+						    pronamic_pay_plugin()->rest_base . '/v1',
 							'subscriptions',
 							$this->phase->get_subscription()->get_id()
 						)

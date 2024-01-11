@@ -296,7 +296,7 @@ class RefundLine implements JsonSerializable {
 				$properties['payment_line'] = [
 					'$ref' => \rest_url(
 						\sprintf(
-							'/' . pronamic_pay_plugin()::$rest_base . '/v1/payments/%d/lines/%d',
+						    '/' . pronamic_pay_plugin()->rest_base . '/v1/payments/%d/lines/%d',
 							$payment->get_id(),
 							$this->payment_line->get_id()
 						)

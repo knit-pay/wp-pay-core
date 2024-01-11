@@ -66,7 +66,7 @@ class Plugin {
 	 *
 	 * @var string
 	 */
-	public static $rest_base;
+    public $rest_base;
 
 	/**
 	 * The timezone
@@ -279,7 +279,7 @@ class Plugin {
 		self::$dirname = dirname( self::$file );
 
 		// Rest API base.
-		self::$rest_base = array_key_exists( 'rest_base', $args ) ? $args['rest_base'] : 'pronamic-pay';
+        $this->rest_base = array_key_exists('rest_base', $args)?$args['rest_base']:'pronamic-pay';
 
 		// Options.
 		$this->options = $args['options'];

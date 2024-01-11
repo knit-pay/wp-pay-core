@@ -161,7 +161,7 @@ class GatewayPostType {
 	 */
 	public function rest_api_init() {
 		\register_rest_route(
-			pronamic_pay_plugin()::$rest_base . '/v1',
+		    pronamic_pay_plugin()->rest_base . '/v1',
 			'/gateways/(?P<config_id>\d+)',
 			[
 				'methods'             => 'GET',
@@ -179,7 +179,7 @@ class GatewayPostType {
 		);
 
 		register_rest_route(
-			pronamic_pay_plugin()::$rest_base . '/v1',
+		    pronamic_pay_plugin()->rest_base . '/v1',
 			'/gateways/(?P<config_id>\d+)/admin',
 			[
 				'methods'             => 'GET',
