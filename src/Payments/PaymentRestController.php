@@ -15,7 +15,7 @@ class PaymentRestController extends WP_REST_Controller {
 
 	// Here initialize our namespace and resource name.
 	public function __construct() {
-        $this->namespace     = '/' . pronamic_pay_plugin()->rest_base . '/v1';
+		$this->namespace     = '/' . pronamic_pay_plugin()->rest_base . '/v1';
 		$this->resource_name = 'payments';
 		$this->post_type     = 'pronamic_payment';
 	}
@@ -117,7 +117,7 @@ class PaymentRestController extends WP_REST_Controller {
 		}
 		
 		try {
-			$json_param = $request->get_json_params();
+			$json_param = $request->get_params();
 			$req_object = json_decode( wp_json_encode( $json_param ) );
 			
 			$payment = new Payment();
@@ -187,7 +187,7 @@ class PaymentRestController extends WP_REST_Controller {
 		$fields = $this->get_fields_for_response( $request );
 
 		foreach ( $fields as  $field ) {
-			if ( rest_is_field_included( $field, $fields ) ) {
+			if ( rest_is_field_included( $field, $fields ) && property_exists( $payment_json, $field ) ) {
 				$post_data[ $field ] = $payment_json->$field;
 			}
 		}
@@ -224,6 +224,7 @@ class PaymentRestController extends WP_REST_Controller {
 				],
 				'total_amount'     => [
 					'type'       => 'object',
+					'required'   => true,
 					'properties' => [
 						'value'    => [
 							'description'      => esc_html__( 'Amount Value', 'my-textdomain' ),
