@@ -353,12 +353,12 @@ class Payment extends PaymentInfo {
 	 */
 	public function get_pay_redirect_url() {
 		$url = add_query_arg(
-			[
-				'payment_redirect' => $this->id,
-				'key'              => $this->key,
-			],
-			home_url( '/' )
+		    'key',
+		    $this->key,
+		    \rest_url( "/" . pronamic_pay_plugin()->rest_base . "/v1/payments/" .$this->id . "/redirect" )
 		);
+
+		$url = \rest_url( "/" . pronamic_pay_plugin()->rest_base . "/v1/payments/" .$this->id . "/redirect/" . $this->key);
 
 		return $url;
 	}
