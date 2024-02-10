@@ -62,6 +62,13 @@ class Plugin {
 	public static $dirname;
 
 	/**
+     * Rest Base for Rest APIs.
+     *
+     * @var string
+     */
+    public $rest_base;
+    
+    /**
 	 * The timezone
 	 *
 	 * @var string
@@ -257,6 +264,9 @@ class Plugin {
 		self::$file    = $args['file'];
 		self::$dirname = dirname( self::$file );
 
+        // Rest API base.
+        $this->rest_base = array_key_exists('rest_base', $args)?$args['rest_base']:'pronamic-pay';
+        
 		// Options.
 		$this->options = $args['options'];
 
@@ -293,6 +303,10 @@ class Plugin {
 
 		require_once $args['action_scheduler'];
 
+        // Notifications controller.
+        $payment_redirect_controller = new PaymentRedirectController($this);
+        $payment_redirect_controller->setup();
+        
 		/**
 		 * Payment methods.
 		 */
