@@ -124,7 +124,7 @@ class RefundLines implements Countable, IteratorAggregate, JsonSerializable {
 
 		// Currency.
 		if ( null === $currency ) {
-			$currency = 'EUR';
+			$currency = 'INR';
 		}
 
 		// Return payment lines amount.
