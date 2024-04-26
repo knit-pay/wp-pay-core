@@ -6,6 +6,55 @@ This projects adheres to [Semantic Versioning](http://semver.org/) and [Keep a C
 
 ## [Unreleased][unreleased]
 
+## [4.16.0] - 2024-03-26
+
+### Changed
+
+- Improved home URL check. [52e5d37](https://github.com/pronamic/wp-pay-core/commit/52e5d375e57e79930118d5120fa6c36ed4eb20c9)
+- Improved error messages in home URL change detector. [#175](https://github.com/pronamic/wp-pay-core/issues/175) [b1c50c2](https://github.com/pronamic/wp-pay-core/commit/b1c50c2c74947c200650d7b0538b18c8963cb4bb)
+- Marked `name` property in `PaymentMethod` as public. [e45f5c7](https://github.com/pronamic/wp-pay-core/commit/e45f5c74b6578e66fa43d20d6277b1cfb369536a)
+- Improved view of redirection and subscription pages on mobile. [#169](https://github.com/pronamic/wp-pay-core/pull/169)
+
+### Added
+
+- Added support for `descriptions` in `PaymentMethod` class.
+- Added support for `images` in `PaymentMethod` class.
+- Register new more general card payment method. [3b28a44](https://github.com/pronamic/wp-pay-core/commit/3b28a44c7e6b28e83e983537f8d8429ee686eb97) [5e684b6](https://github.com/pronamic/wp-pay-core/commit/5e684b6c7605e269c3f4b92e1cb6e8fb089ca0ba) [1c142b6](https://github.com/pronamic/wp-pay-core/commit/1c142b671ab61e705e74827a7e45affddc1dd88f)
+
+Full set of changes: [`4.15.1...4.16.0`][4.16.0]
+
+[4.16.0]: https://github.com/pronamic/wp-pay-core/compare/v4.15.1...v4.16.0
+
+## [4.15.1] - 2024-02-13
+
+### Changed
+
+- Variables and options must be escaped when echo'd. [#172](https://github.com/pronamic/wp-pay-core/issues/172)
+
+Full set of changes: [`4.15.0...4.15.1`][4.15.1]
+
+[4.15.1]: https://github.com/pronamic/wp-pay-core/compare/v4.15.0...v4.15.1
+
+## [4.15.0] - 2024-02-07
+
+### Added
+
+- Added Action Scheduler controller to keep track of AS tasks via `PRONAMIC_ACTION_SCHEDULER_CONTEXT` define. [b1c28b0](https://github.com/pronamic/wp-pay-core/commit/b1c28b0d2f7e4772ce4e600ff6215e613cc87996) [pronamic/wp-pay-core#170](https://github.com/pronamic/wp-pay-core/issues/170)
+
+Full set of changes: [`4.14.3...4.15.0`][4.15.0]
+
+[4.15.0]: https://github.com/pronamic/wp-pay-core/compare/v4.14.3...v4.15.0
+
+## [4.14.3] - 2023-12-18
+
+### Commits
+
+- Fixed string type comparison of select fields in gateway settings (fixes #164). ([8d349ce](https://github.com/pronamic/wp-pay-core/commit/8d349ce1e61e7960aa6d384248b7a165bdb41f11))
+
+Full set of changes: [`4.14.2...4.14.3`][4.14.3]
+
+[4.14.3]: https://github.com/pronamic/wp-pay-core/compare/v4.14.2...v4.14.3
+
 ## [4.14.2] - 2023-11-09
 
 ### Changed

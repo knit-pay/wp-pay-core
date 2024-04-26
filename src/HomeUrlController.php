@@ -36,7 +36,7 @@ class HomeUrlController {
 		$option = \get_option( 'pronamic_pay_home_url', null );
 
 		if ( null === $option ) {
-			\update_option( 'pronamic_pay_home_url', \home_url() );
+			\update_option( 'pronamic_pay_home_url', \get_option( 'home' ) );
 		}
 
 		\register_setting(
@@ -54,7 +54,7 @@ class HomeUrlController {
 				'type'              => 'string',
 				'description'       => \__( 'Home URL setting to detect changes in the WordPress home URL.', 'pronamic_ideal' ),
 				'sanitize_callback' => 'sanitize_url',
-				'default'           => \home_url(),
+				'default'           => \get_option( 'home' ),
 			]
 		);
 	}
@@ -74,7 +74,10 @@ class HomeUrlController {
 		 *
 		 * @link https://github.com/pronamic/wp-pay-core/issues/121
 		 */
-		if ( \get_option( 'home' ) === \get_option( 'pronamic_pay_home_url' ) ) {
+		$home_url_a = \get_option( 'home' );
+		$home_url_b = \get_option( 'pronamic_pay_home_url' );
+
+		if ( $home_url_a === $home_url_b ) {
 			return;
 		}
 
@@ -91,8 +94,8 @@ class HomeUrlController {
 					\sprintf(
 						/* translators: 1: Pronamic Pay home URL option, 2: home URL */
 						__( 'We noticed the WordPress home URL has changed from "%1$s" to "%2$s". Please verify the payment gateway settings. For example, you might want to switch between live and test mode or need to update an URL at the gateway to continue receiving payment status updates. Also keep an eye on pending payments to discover possible configuration issues.', 'pronamic_ideal' ),
-						\get_option( 'pronamic_pay_home_url' ),
-						\get_option( 'home' )
+						$home_url_b,
+						$home_url_a
 					)
 				);
 
@@ -141,17 +144,17 @@ class HomeUrlController {
 		$nonce = \sanitize_text_field( \wp_unslash( $_GET['pronamic_pay_dismiss_home_url_change_nonce'] ) );
 
 		if ( ! \wp_verify_nonce( $nonce, 'pronamic_pay_dismiss_home_url_change' ) ) {
-			\wp_die( \esc_html__( 'Action failed. Please refresh the page and retry.', 'pronamic_ideal' ) );
+			\wp_die( \esc_html__( 'The security code (nonce) to verify the dismiss action expired or was invalid, please refresh and try again.', 'pronamic_ideal' ) );
 		}
 
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			\wp_die( \esc_html__( 'You don’t have permission to do this.', 'pronamic_ideal' ) );
 		}
 
-		$result = \update_option( 'pronamic_pay_home_url', \home_url() );
+		$result = \update_option( 'pronamic_pay_home_url', \get_option( 'home' ) );
 
 		if ( false === $result ) {
-			\wp_die( \esc_html__( 'Action failed. Please refresh the page and retry.', 'pronamic_ideal' ) );
+			\wp_die( \esc_html__( 'Unable to dismiss the home URL change because the home URL option could not be updated, please refresh and try again.', 'pronamic_ideal' ) );
 		}
 
 		// Redirect.

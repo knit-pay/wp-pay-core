@@ -158,6 +158,14 @@ class PaymentMethods {
 	const CAPAYABLE = 'capayable';
 
 	/**
+	 * Card.
+	 *
+	 * @link https://github.com/pronamic/pronamic-pay/issues/82
+	 * @var string
+	 */
+	const CARD = 'card';
+
+	/**
 	 * Credit Card
 	 *
 	 * @var string
@@ -445,6 +453,7 @@ class PaymentMethods {
 			self::BUNQ                    => __( 'Bunq', 'pronamic_ideal' ),
 			self::CAPAYABLE               => __( 'Capayable', 'pronamic_ideal' ),
 			self::IN3                     => __( 'In3', 'pronamic_ideal' ),
+			self::CARD                    => __( 'Card', 'pronamic_ideal' ),
 			self::CREDIT_CARD             => __( 'Credit Card', 'pronamic_ideal' ),
 			self::DIRECT_DEBIT            => __( 'Direct Debit', 'pronamic_ideal' ),
 			self::DIRECT_DEBIT_BANCONTACT => sprintf(

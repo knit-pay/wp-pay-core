@@ -28,7 +28,14 @@ class PaymentMethod {
 	 *
 	 * @var string
 	 */
-	private $name;
+	public $name;
+
+	/**
+	 * Descriptions.
+	 *
+	 * @var array<string, string>
+	 */
+	public $descriptions = [];
 
 	/**
 	 * Status.
@@ -43,6 +50,13 @@ class PaymentMethod {
 	 * @var Field[]
 	 */
 	private $fields = [];
+
+	/**
+	 * Images.
+	 *
+	 * @var array<string, string>
+	 */
+	public $images = [];
 
 	/**
 	 * Supports.
