@@ -499,6 +499,8 @@ class PaymentMethods {
 			self::VISA                    => __( 'Visa', 'pronamic_ideal' ),
 		];
 
+		$payment_methods = apply_filters( 'knit_pay_add_payment_methods_titles' , $payment_methods );
+
 		return $payment_methods;
 	}
 

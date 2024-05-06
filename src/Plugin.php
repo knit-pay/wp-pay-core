@@ -778,6 +778,8 @@ class Plugin {
 		];
 
 		$this->payment_methods->add( $payment_method_visa );
+
+		$this->payment_methods = apply_filters( 'knit_pay_add_payment_methods' , $this->payment_methods );
 	}
 
 	/**
