@@ -3,7 +3,7 @@
  * Customer helper
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -12,7 +12,6 @@ namespace Pronamic\WordPress\Pay;
 
 use Pronamic\WordPress\DateTime\DateTime;
 use Pronamic\WordPress\Pay\Core\Util as Core_Util;
-use Pronamic\WordPress\Pay\VatNumbers\VatNumberViesValidator;
 
 /**
  * Customer helper
@@ -58,24 +57,6 @@ class CustomerHelper {
 
 		if ( null !== $name ) {
 			ContactNameHelper::complement_name( $name );
-		}
-
-		// VAT Number validity.
-		$vat_number = $customer->get_vat_number();
-
-		if ( null !== $vat_number ) {
-			$vat_number_validity = $vat_number->get_validity();
-
-			if ( null === $vat_number_validity ) {
-				try {
-					$vat_number_validity = VatNumberViesValidator::validate( $vat_number );
-				} catch ( \Exception $e ) {
-					// On exceptions we have no VAT number validity info, no problem.
-					$vat_number_validity = null;
-				}
-
-				$vat_number->set_validity( $vat_number_validity );
-			}
 		}
 
 		// Locale.
@@ -163,7 +144,7 @@ class CustomerHelper {
 
 	/**
 	 * Locale accept from HTTP.
-	 * 
+	 *
 	 * @return string
 	 */
 	private static function locale_accept_from_http() {

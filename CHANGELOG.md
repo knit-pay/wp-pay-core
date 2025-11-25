@@ -6,6 +6,238 @@ This projects adheres to [Semantic Versioning](http://semver.org/) and [Keep a C
 
 ## [Unreleased][unreleased]
 
+## [4.26.0] - 2025-06-19
+
+### Added
+
+- Added "Pay by Bank" payment method. ([6560cd4](https://github.com/pronamic/wp-pay-core/commit/6560cd4050d0016d069a371d65c75ea13f5441e4))
+
+### Changed
+
+- Marked `SubscriptionStatus::EXPIRED` officially declared as deprecated. ([f1f6f9c](https://github.com/pronamic/wp-pay-core/commit/f1f6f9cb194de941c2563373207c4110cfd169d7))
+- Improved subscription status changes with payment method changes (https://github.com/pronamic/pronamic.shop/issues/56). ([cbeaa01](https://github.com/pronamic/wp-pay-core/commit/cbeaa01d7e2699859df7e081d267bf4aa54765f5))
+- Improved documentation where nonce verification is not necessary or possible for WordPress.org plugin review team. ([ec442ab](https://github.com/pronamic/wp-pay-core/commit/ec442ab4b35506c0ef952e964b622436d53439ed))
+
+### Fixed
+
+- Fixed "Implicitly marking parameter as nullable is deprecated". ([1e75aeb](https://github.com/pronamic/wp-pay-core/commit/1e75aeb037fbc08a8a595702cdede9628822fa49))
+
+Full set of changes: [`4.25.4...4.26.0`][4.26.0]
+
+[4.26.0]: https://github.com/pronamic/wp-pay-core/compare/v4.25.4...v4.26.0
+
+## [4.25.4] - 2025-03-28
+
+### Commits
+
+- Sanitization for `register_setting()` #210 ([cd5bb34](https://github.com/pronamic/wp-pay-core/commit/cd5bb34d469ddc02936f41290c41fc044d4e07ac))
+
+Full set of changes: [`4.25.3...4.25.4`][4.25.4]
+
+[4.25.4]: https://github.com/pronamic/wp-pay-core/compare/v4.25.3...v4.25.4
+
+## [4.25.3] - 2025-03-27
+
+### Commits
+
+- For Jetpack Autoloader version 5 is WordPress 6.6 or higher required ([bbe9d74](https://github.com/pronamic/wp-pay-core/commit/bbe9d74c3b5d416df15184e2f136b963849b8e93))
+- Allow Jetpack Autoloader version 4 and 5, see https://github.com/pronamic/pronamic-pay-doneren-met-mollie/issues/11. ([5480bb6](https://github.com/pronamic/wp-pay-core/commit/5480bb64bddda55416c4a4ce4039b56f7987cb22))
+
+### Composer
+
+- Changed `automattic/jetpack-autoloader` from `^3.0` to `v5.0.5`.
+	Release notes: https://github.com/Automattic/jetpack-autoloader/releases/tag/v5.0.5
+
+Full set of changes: [`4.25.2...4.25.3`][4.25.3]
+
+[4.25.3]: https://github.com/pronamic/wp-pay-core/compare/v4.25.2...v4.25.3
+
+## [4.25.2] - 2025-03-14
+
+### Commits
+
+- Fixed #209 ([ffc7d85](https://github.com/pronamic/wp-pay-core/commit/ffc7d859c28382d04e9ce4d71167408a8c0426fb))
+
+Full set of changes: [`4.25.1...4.25.2`][4.25.2]
+
+[4.25.2]: https://github.com/pronamic/wp-pay-core/compare/v4.25.1...v4.25.2
+
+## [4.25.1] - 2025-03-14
+
+### Commits
+
+- Move clipboard script to JS files, see https://github.com/pronamic/wp-pay-core/issues/207 ([f1923ac](https://github.com/pronamic/wp-pay-core/commit/f1923acdb9169e2bf00928cf7bc66628e6cce6db))
+- Move actions links CSS to SASS file, inline is not allowed, see https://github.com/pronamic/wp-pay-core/issues/207 ([9995428](https://github.com/pronamic/wp-pay-core/commit/9995428f269798269e9e533c83575af7aa7afb0f))
+
+Full set of changes: [`4.25.0...4.25.1`][4.25.1]
+
+[4.25.1]: https://github.com/pronamic/wp-pay-core/compare/v4.25.0...v4.25.1
+
+## [4.25.0] - 2025-02-14
+
+### Commits
+
+- Fixed early registration of payment methods for loading translations. ([75aed83](https://github.com/pronamic/wp-pay-core/commit/75aed831f46f32d1c5e01eced8b521fe8e331faf))
+- Only list next payment date for active subscriptions. ([e8f64eb](https://github.com/pronamic/wp-pay-core/commit/e8f64eb6ba75ce38c19328ffa74b5b99191920ca))
+
+Full set of changes: [`4.24.0...4.25.0`][4.25.0]
+
+[4.25.0]: https://github.com/pronamic/wp-pay-core/compare/v4.24.0...v4.25.0
+
+## [4.24.0] - 2024-12-17
+
+### Commits
+
+- Also allow `CachedCallbackOptions` as select field options. ([f14c2ec](https://github.com/pronamic/wp-pay-core/commit/f14c2ecad4542f788f5683d01b9bba1b8d463da7))
+- Show license admin notice only on dashboard and Pronamic Pay pages. ([eff26a4](https://github.com/pronamic/wp-pay-core/commit/eff26a47e6c5a1e6759ff8fbf7db652d0d45dde4))
+- Prevent payments for subscription payment method changes from updating subscription status. ([cfccc0b](https://github.com/pronamic/wp-pay-core/commit/cfccc0b893f7a1fdaa2ea7cfeccd6637b90171d1))
+
+Full set of changes: [`4.23.0...4.24.0`][4.24.0]
+
+[4.24.0]: https://github.com/pronamic/wp-pay-core/compare/v4.23.0...v4.24.0
+
+## [4.23.0] - 2024-10-18
+
+### Commits
+
+- Updated composer.json ([219a74f](https://github.com/pronamic/wp-pay-core/commit/219a74f0299fe0ca419d4a26901a075e988dac4c))
+- Added Klarna payment method for https://github.com/pronamic/wp-pronamic-pay-mollie/issues/57. ([962ad77](https://github.com/pronamic/wp-pay-core/commit/962ad772ec6adfe5ca0c33716ffb87752d80317e))
+
+Full set of changes: [`4.22.1...4.23.0`][4.23.0]
+
+[4.23.0]: https://github.com/pronamic/wp-pay-core/compare/v4.22.1...v4.23.0
+
+## [4.22.1] - 2024-09-27
+
+### Fixed
+
+- Fix active subscription put 'On Hold' by expired first payment. ([#194](https://github.com/pronamic/wp-pay-core/issues/194))
+- Only show admin tour within first day after plugin installation. ([#186](https://github.com/pronamic/wp-pay-core/issues/186))
+
+Full set of changes: [`4.22.0...4.22.1`][4.22.1]
+
+[4.22.1]: https://github.com/pronamic/wp-pay-core/compare/v4.22.0...v4.22.1
+
+## [4.22.0] - 2024-09-09
+
+### Removed
+
+- Removed VAT number validation from core. ([#189](https://github.com/pronamic/wp-pay-core/issues/189))
+
+### Changed
+
+- Update subscription action links UI ([#180](https://github.com/pronamic/wp-pay-core/pull/180))
+- Always show 'Disable Recurring Payments' setting. ([#165](https://github.com/pronamic/wp-pay-core/issues/165))
+
+Full set of changes: [`4.21.1...4.22.0`][4.22.0]
+
+[4.22.0]: https://github.com/pronamic/wp-pay-core/compare/v4.21.1...v4.22.0
+
+## [4.21.1] - 2024-08-01
+
+### Fixed
+
+- Fixed calculated number of periods created falling outside optional phase end date. ([0364e4f](https://github.com/pronamic/wp-pay-core/commit/0364e4f31d38c53b09e5a4505d7a7e1a2778beac))
+
+Full set of changes: [`4.21.0...4.21.1`][4.21.1]
+
+[4.21.1]: https://github.com/pronamic/wp-pay-core/compare/v4.21.0...v4.21.1
+
+## [4.21.0] - 2024-07-24
+
+### Commits
+
+- Accept integer source IDs when getting payments/subscriptions. ([268e7c6](https://github.com/pronamic/wp-pay-core/commit/268e7c6b736397b76f05e1f9281885c717b34a92))
+- Use included images instead of https://cdn.wp-pay.org/. ([5d9bed0](https://github.com/pronamic/wp-pay-core/commit/5d9bed040df3dcae9eea819ace6acb4ce2b31ee7))
+
+Full set of changes: [`4.20.0...4.21.0`][4.21.0]
+
+[4.21.0]: https://github.com/pronamic/wp-pay-core/compare/v4.20.0...v4.21.0
+
+## [4.20.0] - 2024-06-19
+
+### Removed
+
+- Removed the `images/dist/wp-pay.ico` file, no longer allowed in the WordPress.org plugin directory.
+- Removed the `images/dist/app.icns` file, no longer allowed in the WordPress.org plugin directory.
+- Removed the `images/dist/wp-pay.icns` file, no longer allowed in the WordPress.org plugin directory.
+- Removed the `images/dist/app.ico` file, no longer allowed in the WordPress.org plugin directory.
+- Removed the admin reports feature, has been moved to its own repository in https://github.com/pronamic/pronamic-pay-admin-reports.
+
+### Changed
+
+- Use the `wp_add_inline_script( … )` function for some inline `<script>` elements in the WordPress admin interface.
+- Moved some CSS definition in inline `<style>` elements to CSS files.
+
+Full set of changes: [`4.19.0...4.20.0`][4.20.0]
+
+[4.20.0]: https://github.com/pronamic/wp-pay-core/compare/v4.19.0...v4.20.0
+
+## [4.19.0] - 2024-06-07
+
+### Fixed
+
+- The end date of subscriptions that end after a certain period was not set correctly once the payment date was aligned, this has been corrected.
+
+### Changed
+
+- Aligning the payment date of a subscription will now always result in an additional alignment phase/period.
+- The priority of the actions for handling returning visitors from payment providers and the associated redirects on the `wp_loaded` action has been increased from `10` to `100`. This resolves a conflict with the [WPNotif](https://wpnotif.unitedover.com /) plugin.
+- Renamed "Mandate Selection URL" to "Change payment method URL".
+
+### Commits
+
+- Use new image service class from https://github.com/pronamic/wp-pay-logos library. ([871b300](https://github.com/pronamic/wp-pay-core/commit/871b30001f17d9002597890238e8a94cba4672b8))
+- composer require pronamic/wp-pay-logos ([06459f4](https://github.com/pronamic/wp-pay-core/commit/06459f4fdaa6cf3325c558ae26249131ccd9ca48))
+- Merge pull request #183 from pronamic/182-subscription-phase-alignment-issue-for-subscriptions-with-end-date ([dc45e1a](https://github.com/pronamic/wp-pay-core/commit/dc45e1a5241205af4de0eca6a84f79a655c50411))
+- No longer use `$phase->set_total_periods()` for test payment subscription. ([7d647a6](https://github.com/pronamic/wp-pay-core/commit/7d647a6b7a5ff51acd53bc4ee800ec2dd26fc9ef))
+- No longer use total periods in subscription alignment. ([799d690](https://github.com/pronamic/wp-pay-core/commit/799d690751351584d12f7faa3826b4cb25f099bf))
+- Allow partial periods in subscription phase period creation. ([28d7ed5](https://github.com/pronamic/wp-pay-core/commit/28d7ed5dd5b68cf64118fe7b5bb17bc21d8f822f))
+- Merge pull request #181 from knit-pay/redirection-priority-fix ([b0a6a19](https://github.com/pronamic/wp-pay-core/commit/b0a6a19963b5615996ef11cadcfc50b7e8a1b494))
+- Change "Mandate Selection URL" to "Change payment method URL". ([72aa7f6](https://github.com/pronamic/wp-pay-core/commit/72aa7f686fb253407bb32418548b2351b88a2826))
+
+### Composer
+
+- Added `pronamic/wp-pay-logos` `^2.2`.
+
+Full set of changes: [`4.18.0...4.19.0`][4.19.0]
+
+[4.19.0]: https://github.com/pronamic/wp-pay-core/compare/v4.18.0...v4.19.0
+
+## [4.18.0] - 2024-05-27
+
+### Commits
+
+- Updated composer.json ([d5203c2](https://github.com/pronamic/wp-pay-core/commit/d5203c2c8f43ec2a2bd93e5d319341f6ff4c26a2))
+- Register payment method MyBank. ([fe2cd13](https://github.com/pronamic/wp-pay-core/commit/fe2cd13397cb777b67b2f91fc3e8d33d1937babe))
+- Added MyBank. ([1790d28](https://github.com/pronamic/wp-pay-core/commit/1790d289054961db97f2e7b4871d199e7c060247))
+- Updated PaymentMethods.php ([cfb370b](https://github.com/pronamic/wp-pay-core/commit/cfb370b5f6c37be7938b5ccdb71b402102ae259c))
+
+### Composer
+
+- Changed `woocommerce/action-scheduler` from `^3.6` to `3.8.0`.
+	Release notes: https://github.com/woocommerce/action-scheduler/releases/tag/3.8.0
+
+Full set of changes: [`4.17.0...4.18.0`][4.18.0]
+
+[4.18.0]: https://github.com/pronamic/wp-pay-core/compare/v4.17.0...v4.18.0
+
+## [4.17.0] - 2024-05-15
+
+### Commits
+
+- Updated hooks.md ([c91f15f](https://github.com/pronamic/wp-pay-core/commit/c91f15f5c754b39daf4fdde406ebeb7f929dc138))
+- Updated to logos library v2, remove all PNG's, SVG only now. ([1cf0dee](https://github.com/pronamic/wp-pay-core/commit/1cf0dee16ef89e8d5f6b9345e24fec8050c70cfb))
+- Alway install not only in administrative interface pages. ([a4ec06e](https://github.com/pronamic/wp-pay-core/commit/a4ec06eadeb28c189bf4f06b5189651b944dced5))
+
+### Composer
+
+- Added `automattic/jetpack-autoloader` `^3.0`.
+
+Full set of changes: [`4.16.0...4.17.0`][4.17.0]
+
+[4.17.0]: https://github.com/pronamic/wp-pay-core/compare/v4.16.0...v4.17.0
+
 ## [4.16.0] - 2024-03-26
 
 ### Changed
@@ -736,7 +968,7 @@ Full set of changes: [`4.5.0...4.6.0`][4.6.0]
 - Move tools to site health debug information and status tests.
 - Read plugin version from plugin file header.
 - Catch money parser exception for test payments.
-- Sepereated `Statuses` class in `PaymentStatus` and `SubscriptionStatus` class.
+- Separated `Statuses` class in `PaymentStatus` and `SubscriptionStatus` class.
 - Require `edit_payments` capability for payments related meta boxes on dashboard page.
 - Set menu page capability to minimum required capability based on submenu pages.
 - Only redirect to about page if not already viewed.

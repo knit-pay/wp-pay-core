@@ -3,7 +3,7 @@
  * Subscription Helper Test
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Payments
  */
@@ -102,7 +102,7 @@ class SubscriptionHelperTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function subscription_interval_provider() {
+	public static function subscription_interval_provider() {
 		return [
 			[ '2005-05-05', 'P1W', 1, null ],
 			[ '2005-05-05', 'P3W', 2, '2005-05-26' ],

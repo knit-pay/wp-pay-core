@@ -3,7 +3,7 @@
  * Gateway Post Type
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -362,7 +362,7 @@ class AdminGatewayPostType {
 		\check_admin_referer( 'pronamic_pay_save_gateway', 'pronamic_pay_nonce' );
 
 		// If this is an autosave, our form has not been submitted, so we don't want to do anything.
-		if ( \defined( '\DOING_AUTOSAVE' ) && \DOING_AUTOSAVE ) {
+		if ( \defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
 

@@ -3,7 +3,7 @@
  * Address helper
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  */
@@ -66,7 +66,7 @@ class AddressHelper {
 				}
 			}
 		} catch ( Exception $e ) {
-			// On exceptions the address wil not be complemented, no problem.
+			// On exceptions the address will not be complemented, no problem.
 			return;
 		}
 	}

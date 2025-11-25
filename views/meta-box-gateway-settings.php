@@ -3,7 +3,7 @@
  * Meta Box Gateway Settings
  *
  * @author Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license GPL-3.0-or-later
  * @package Pronamic\WordPress\Pay
  * @var \Pronamic\WordPress\Pay\Plugin       $plugin     Plugin.
@@ -49,7 +49,7 @@ $sections = [
 				'section'  => 'payment_methods',
 				'title'    => __( 'Supported Payment Methods', 'pronamic_ideal' ),
 				'type'     => 'custom',
-				'callback' => function () use ( $gateway, $gateway_id ) {
+				'callback' => function () use ( $gateway, $gateway_id ): void {
 					AdminGatewayPostType::settings_payment_methods( $gateway, $gateway_id );
 				},
 			],
@@ -63,7 +63,7 @@ if ( $integration->supports( 'webhook' ) ) {
 		'section'  => 'feedback',
 		'title'    => __( 'Webhook Status', 'pronamic_ideal' ),
 		'type'     => 'custom',
-		'callback' => function () use ( $gateway, $gateway_id, $config_id ) {
+		'callback' => function () use ( $gateway, $gateway_id, $config_id ): void {
 			AdminGatewayPostType::settings_webhook_log( $gateway, $gateway_id, $config_id );
 		},
 	];
@@ -96,7 +96,7 @@ if ( $integration->supports( 'webhook' ) && ! $integration->supports( 'webhook_n
 			'section'  => 'general',
 			'title'    => __( 'Transaction feedback', 'pronamic_ideal' ),
 			'type'     => 'custom',
-			'callback' => function () {
+			'callback' => function (): void {
 				printf(
 					'⚠️ %s',
 					esc_html__(
@@ -149,7 +149,7 @@ $sections = array_filter(
 
 		<div class="pronamic-pay-tab">
 			<div class="pronamic-pay-tab-block gateway-config-section-header">
-				<h4 class="pronamic-pay-cloack"><?php echo esc_html( $section->title ); ?></h4>
+				<h4 class="pronamic-pay-cloak"><?php echo esc_html( $section->title ); ?></h4>
 			</div>
 
 			<table class="form-table">

@@ -3,7 +3,7 @@
  * Subscription test
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Payments
  */
@@ -53,7 +53,7 @@ class SubscriptionTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_and_set_provider() {
+	public static function get_and_set_provider() {
 		return [
 			[ 'set_id', 'get_id', uniqid() ],
 			[ 'set_status', 'get_status', 'completed' ],
@@ -82,7 +82,7 @@ class SubscriptionTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function get_provider() {
+	public static function get_provider() {
 		return [
 			[ 'key', 'get_key', uniqid() ],
 			[ 'source', 'get_source', 'woocommerce' ],

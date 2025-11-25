@@ -3,7 +3,7 @@
  * Credit card test
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Payments
  */
@@ -92,7 +92,7 @@ class CreditCardTest extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function expiration_dates_provider() {
+	public static function expiration_dates_provider() {
 		return [
 			[ '2018', '12', new \DateTime( 'first day of December 2018' ) ],
 			[ 2018, 12, new \DateTime( 'first day of December 2018' ) ],

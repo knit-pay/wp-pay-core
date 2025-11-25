@@ -3,7 +3,7 @@
  * Subscriptions follow-up payments controller
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Subscriptions
  */
@@ -51,7 +51,7 @@ class SubscriptionsFollowUpPaymentsController {
 
 		WP_CLI::add_command(
 			'pay subscription list',
-			function () {
+			function (): void {
 				WP_CLI::debug( 'Query subscriptions that require follow-up payment.' );
 
 				$query = $this->get_subscriptions_wp_query_that_require_follow_up_payment();
@@ -71,7 +71,7 @@ class SubscriptionsFollowUpPaymentsController {
 
 		WP_CLI::add_command(
 			'pay subscription schedule',
-			function ( $args, $assoc_args ) {
+			function ( $args, $assoc_args ): void {
 				if ( $this->is_processing_disabled() ) {
 					WP_CLI::error( 'Subscriptions processing is disabled.' );
 				}
@@ -108,8 +108,6 @@ class SubscriptionsFollowUpPaymentsController {
 
 					if ( null === $subscription ) {
 						WP_CLI::error( \sprintf( 'Could not find a subscription with ID: %s', $id ) );
-
-						exit;
 					}
 
 					WP_CLI::line( \sprintf( 'Schedule subscription %s follow-up payment…', $id ) );

@@ -3,7 +3,7 @@
  * Payments Module
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Subscriptions
  */
@@ -75,7 +75,7 @@ class PaymentsModule {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::add_command(
 				'pay payment status',
-				function ( $args ) {
+				function ( $args ): void {
 					foreach ( $args as $id ) {
 						$payment = get_pronamic_payment( $id );
 
@@ -86,8 +86,6 @@ class PaymentsModule {
 									$id
 								)
 							);
-
-							exit( 1 );
 						}
 
 						WP_CLI::log(

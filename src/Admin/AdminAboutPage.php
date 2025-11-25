@@ -3,7 +3,7 @@
  * Admin About Page
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Admin
  */
@@ -51,6 +51,8 @@ class AdminAboutPage {
 		// Actions.
 		add_action( 'admin_menu', [ $this, 'admin_menu' ] );
 		add_action( 'admin_head', [ $this, 'admin_head' ] );
+
+		add_action( 'pronamic_pay_install', [ $this, 'install' ] );
 	}
 
 	/**
@@ -160,5 +162,46 @@ class AdminAboutPage {
 	 */
 	public function render_page() {
 		include $this->get_file();
+	}
+
+	/**
+	 * Install.
+	 *
+	 * @return void
+	 */
+	public function install() {
+		$current_version = \get_option( 'knit_pay_version', null );
+
+		try {
+			$about_page_version = $this->get_version();
+		} catch ( \Exception $e ) {
+			$about_page_version = '';
+		}
+
+		$about_page_version_viewed = \get_option( 'knit_pay_about_page_version', null );
+
+		$tab = null;
+
+		if ( null === $current_version ) {
+			// No version? This is a new install :).
+			$tab = 'getting-started';
+		} elseif ( \version_compare( $about_page_version_viewed, $about_page_version, '<' ) ) {
+			// Show about page only if viewed version is lower then current version.
+			$tab = 'new';
+		}
+
+		if ( null !== $tab ) {
+			$url = \add_query_arg(
+				[
+					'page' => 'pronamic-pay-about',
+					'tab'  => $tab,
+				],
+				\admin_url( 'index.php' )
+			);
+
+			\set_transient( 'pronamic_pay_admin_redirect', $url, 3600 );
+		}
+
+		\update_option( 'knit_pay_about_page_version', $about_page_version );
 	}
 }

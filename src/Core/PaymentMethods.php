@@ -3,7 +3,7 @@
  * Payment methods
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay\Core
  */
@@ -11,13 +11,14 @@
 namespace Pronamic\WordPress\Pay\Core;
 
 use Pronamic\WordPress\Pay\Plugin;
+use Pronamic\WpPayLogos\ImageService;
 use WP_Post;
 use WP_Query;
 
 /**
  * Title: WordPress pay payment methods
  * Description:
- * Copyright: 2005-2023 Pronamic
+ * Copyright: 2005-2024 Pronamic
  * Company: Pronamic
  *
  * @author  Remco Tolsma
@@ -125,8 +126,7 @@ class PaymentMethods {
 	/**
 	 * BLIK
 	 *
-	 * @since unreleased
-	 * @link  https://blik.com/
+	 * @link https://blik.com/
 	 * @var string
 	 */
 	const BLIK = 'blik';
@@ -256,6 +256,13 @@ class PaymentMethods {
 	const KBC = 'kbc';
 
 	/**
+	 * Constant for the Klarna payment method.
+	 *
+	 * @var string
+	 */
+	const KLARNA = 'klarna';
+
+	/**
 	 * Constant for the Klarna Pay Later payment method.
 	 *
 	 * Klarna Pay Later is not one specific payment method, but a category with a number of pay later payment methods.
@@ -330,6 +337,24 @@ class PaymentMethods {
 	 * @var string
 	 */
 	const MOBILEPAY = 'mobilepay';
+
+	/**
+	 * MyBank.
+	 *
+	 * @link https://github.com/mollie/mollie-api-php/blob/ed5b2ba1dc8f30a4674f10ca78ad547c2df91008/src/Types/PaymentMethod.php#L114-L117
+	 * @link https://github.com/mollie/WooCommerce/blob/bda9155ac19e1c576f19f436d74fe3f7fe845298/src/PaymentMethods/Mybank.php#L7
+	 * @link https://mybank.eu/
+	 * @var string
+	 */
+	const MYBANK = 'mybank';
+
+	/**
+	 * Constant for the Pay by Bank method.
+	 *
+	 * @since 4.26.0
+	 * @var string
+	 */
+	const PAY_BY_BANK = 'paybybank';
 
 	/**
 	 * Constant for the Payconiq method.
@@ -478,6 +503,7 @@ class PaymentMethods {
 			self::IDEAL                   => __( 'iDEAL', 'pronamic_ideal' ),
 			self::IDEALQR                 => __( 'iDEAL QR', 'pronamic_ideal' ),
 			self::KBC                     => __( 'KBC/CBC Payment Button', 'pronamic_ideal' ),
+			self::KLARNA                  => __( 'Klarna', 'pronamic_ideal' ),
 			self::KLARNA_PAY_LATER        => __( 'Klarna Pay Later', 'pronamic_ideal' ),
 			self::KLARNA_PAY_NOW          => __( 'Klarna Pay Now', 'pronamic_ideal' ),
 			self::KLARNA_PAY_OVER_TIME    => __( 'Klarna Pay Over Time', 'pronamic_ideal' ),
@@ -487,6 +513,7 @@ class PaymentMethods {
 			self::MOBILEPAY               => __( 'MobilePay', 'pronamic_ideal' ),
 			self::PAYCONIQ                => __( 'Payconiq', 'pronamic_ideal' ),
 			self::PAYPAL                  => __( 'PayPal', 'pronamic_ideal' ),
+			self::PAY_BY_BANK             => __( 'Pay by Bank', 'pronamic_ideal' ),
 			self::PRZELEWY24              => __( 'Przelewy24', 'pronamic_ideal' ),
 			self::RIVERTY                 => __( 'Riverty', 'pronamic_ideal' ),
 			self::SANTANDER               => __( 'Santander', 'pronamic_ideal' ),
@@ -546,19 +573,19 @@ class PaymentMethods {
 			$size = '640x360';
 		}
 
-		// Added by Knit Pay.
-		$file_relative_path = '/images/' . str_replace( '_', '-', $method );
-		$image_file         = KNITPAY_DIR . $file_relative_path;
-		$svg_file_name      = '/icon.svg';
-		if ( file_exists( $image_file . $svg_file_name ) ) {
-			return esc_attr( KNITPAY_URL ) . $file_relative_path . $svg_file_name;
+		$image_service = new ImageService();
+
+		$method_slug = \str_replace( '_', '-', $method );
+
+		$path = 'methods/' . $method_slug . '/method-' . $method_slug . '-' . $size . '.svg';
+
+		$path = $image_service->get_path( $path );
+
+		if ( ! \is_readable( $path ) ) {
+			return null;
 		}
 
-		return \sprintf(
-			'https://cdn.wp-pay.org/jsdelivr.net/npm/@wp-pay/logos@1.16.0/dist/methods/%1$s/method-%1$s-%2$s.svg',
-			\str_replace( '_', '-', $method ),
-			$size
-		);
+		return \plugins_url( \basename( $path ), $path );
 	}
 
 	/**

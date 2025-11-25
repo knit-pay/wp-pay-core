@@ -3,7 +3,7 @@
  * Form
  *
  * @author    Pronamic <info@pronamic.eu>
- * @copyright 2005-2023 Pronamic
+ * @copyright 2005-2024 Pronamic
  * @license   GPL-3.0-or-later
  * @package   Pronamic\WordPress\Pay
  * @var       \Pronamic\WordPress\Pay\Payments\Payment $payment Payment.
@@ -50,7 +50,7 @@ if ( empty( $action_url ) ) {
 
 $auto_submit = true;
 
-if ( defined( '\PRONAMIC_PAY_DEBUG' ) && \PRONAMIC_PAY_DEBUG ) {
+if ( defined( 'PRONAMIC_PAY_DEBUG' ) && PRONAMIC_PAY_DEBUG ) {
 	$auto_submit = false;
 }
 

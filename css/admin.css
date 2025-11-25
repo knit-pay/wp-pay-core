@@ -1,4 +1,22 @@
 /* Icons */
+.pronamic-pay-action-link {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.pronamic-pay-action-link-clipboard {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: no-wrap;
+  gap: 5px;
+}
+.pronamic-pay-action-link-clipboard .success {
+  color: #007017;
+}
+
 .pronamic-pay-btn-link {
   line-height: 26px;
   padding: 0 10px 1px;
@@ -340,6 +358,10 @@ body.post-type-pronamic_payment #post-body-content, body.post-type-pronamic_pay_
   width: 20%;
 }
 
+.pronamic-pay-form-sub-table th, .pronamic-pay-form-sub-table td {
+  padding: 0;
+}
+
 .widefat .column-pronamic_payment_status,
 .widefat .column-pronamic_subscription_status,
 .widefat .column-pronamic_payment_subscription {
@@ -465,6 +487,10 @@ body.post-type-pronamic_payment #post-body-content, body.post-type-pronamic_pay_
   color: #ffa500;
 }
 
+.pronamic-pay-text-negative {
+  color: #a00;
+}
+
 *:not(a).pronamic-pay-tip {
   color: #777;
   cursor: help;
@@ -474,7 +500,7 @@ body.post-type-pronamic_payment #post-body-content, body.post-type-pronamic_pay_
   float: right;
 }
 
-.pronamic-pay-cloack {
+.pronamic-pay-cloak {
   display: none;
 }
 
