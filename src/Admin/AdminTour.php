@@ -56,7 +56,7 @@ class AdminTour {
 		}
 
 		// Installation date.
-		$installation_date = (string) \get_option( 'pronamic_pay_installation_date', '' );
+		$installation_date = (string) \get_option( 'knit_pay_installation_date', '' );
 
 		if ( '' !== $installation_date ) {
 			try {
